@@ -7,11 +7,10 @@ import org.neo4j.procedure.Context;
 import org.neo4j.procedure.Description;
 import org.neo4j.procedure.Mode;
 import org.neo4j.procedure.Procedure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Array;
 import java.util.HashSet;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Created by pete on 01/07/17.
@@ -25,18 +24,28 @@ public class TripletSelection {
     @Context
     public Log log;
 
-
     @Procedure(value = "graphEngine.selectTriplet", mode=Mode.SCHEMA)
     @Description("")
     public void index()
     {
-        // TODO find triplet
+        System.out.println(log.isDebugEnabled());
         StopWatch timer = new StopWatch();
 
         // CYPHER
+        // Cypher query to get triplet
         timer.start();
-        // TODO try with Cypher query to get triplet
         Result res = db.execute("MATCH (f1:System)<-[:FITS_1]-(context:Context)-[FITS_2]->(f2:System), " +
+                "(f1)<-[:CONTAINS]-(scope:Scope)-[:CONTAINS]->(f2) " +
+                "RETURN context, f1, f2;");
+        timer.stop();
+        System.out.println("Results (FULL): (" + timer.getNanoTime() + ")");
+        System.out.println(res.resultAsString());
+
+        // CYPHER
+        // Cypher query to get triplet
+        timer.reset();
+        timer.start();
+        res = db.execute("MATCH (f1:System)<-[:FITS_1]-(context:Context)-[FITS_2]->(f2:System), " +
                 "(f1)<-[:CONTAINS]-(scope:Scope)-[:CONTAINS]->(f2) " +
                 "RETURN context, f1, f2;");
         timer.stop();
@@ -111,6 +120,7 @@ public class TripletSelection {
                     set_triplets.add(new TripletSet(node, f1_nodes, f2_nodes));
                     System.out.println("Context: " + node.getAllProperties() + "F1: " + f1_nodes + ", F2: " + f2_nodes);
                 }
+
                 f1_nodes.clear();
                 f2_nodes.clear();
                 children.clear();
