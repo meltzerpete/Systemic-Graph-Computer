@@ -1,6 +1,5 @@
 package GraphComponents;
 
-import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
 
@@ -9,7 +8,7 @@ import org.neo4j.ogm.annotation.Property;
  */
 
 @NodeEntity(label = "Context")
-public class Context extends System {
+public class Context extends SCSystem {
 
     @Property(name = "function")
     private Function function;

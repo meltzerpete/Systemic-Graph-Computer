@@ -28,18 +28,22 @@ public class EditNode {
     @Description("")
     public void editNode() {
 
-        System.out.println("editNode(): HERE");
+        System.out.println("\n---------------------------------------------\n");
+
         // get a node to edit
-        ResourceIterator<Node> matches = db.findNodes(Label.label("System"));
+        ResourceIterator<Node> matches = db.findNodes(Label.label("SCSystem"), "data", 7);
 
         int count = 0;
         matches.forEachRemaining(match -> {
-            System.out.println("edtiNode(): Match : " + count);
+            System.out.println("editNode(): Match : " + count);
             System.out.println("editNode(): node properties (before) = " + match.getAllProperties());
             match.setProperty("data", 0);
             System.out.println("editNode(): node properties (after) = " + match.getAllProperties());
             System.out.println("\t---");
         });
+
+        System.out.println("\n---------------------------------------------\n");
+
     }
 
 }
