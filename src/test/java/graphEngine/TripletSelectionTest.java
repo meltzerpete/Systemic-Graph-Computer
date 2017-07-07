@@ -14,7 +14,8 @@ public class TripletSelectionTest {
 
     @Rule
     public Neo4jRule neo4j = new Neo4jRule()
-            .withProcedure(TripletSelection.class);
+            .withProcedure(TripletSelection.class)
+                    .withProcedure(EditNode.class);
 
     @Test
     public void shouldFindTriplets() throws Throwable {
@@ -23,10 +24,8 @@ public class TripletSelectionTest {
             Session session = driver.session() ) {
             session.run( TestGraphQueries.basicSubtraction);
             StatementResult result = session.run("CALL graphEngine.selectTriplet()");
-            session.run("MATCH (s:System) RETURN *");
-            StatementResult resul2 = session.run("CALL graphEngine.selectTriplet()");
-            session.run("MATCH (s:System) RETURN *");
-            StatementResult resul3 = session.run("CALL graphEngine.selectTriplet()");
+//            StatementResult resul2 = session.run("CALL graphEngine.selectTriplet()");
+//            StatementResult resul3 = session.run("CALL graphEngine.selectTriplet()");
         }
     }
 }

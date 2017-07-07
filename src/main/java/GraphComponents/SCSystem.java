@@ -8,8 +8,8 @@ import org.neo4j.ogm.annotation.Property;
  * Created by pete on 04/07/17.
  */
 
-@NodeEntity(label = "System")
-public class System {
+@NodeEntity(label = "SCSystem")
+public class SCSystem {
 
     @GraphId
     private Long id;

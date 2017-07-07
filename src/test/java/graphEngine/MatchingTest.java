@@ -10,22 +10,26 @@ import org.neo4j.driver.v1.Session;
 import org.neo4j.harness.junit.Neo4jRule;
 
 /**
- * Created by pete on 05/07/17.
+ * Created by pete on 06/07/17.
  */
-public class IndexingTest {
+public class MatchingTest {
 
     @Rule
     public Neo4jRule neo4j = new Neo4jRule()
-            .withProcedure(Indexing.class);
+            .withProcedure(TripletSelection.class)
+            .withProcedure(Matching.class);
 
     @Test
-    public void shouldIndexReadyContexts() throws Throwable {
+    public void shouldFindMatchingSystems() throws Throwable {
         try(Driver driver = GraphDatabase.driver( neo4j.boltURI() , Config.build()
                 .withEncryptionLevel( Config.EncryptionLevel.NONE ).toConfig() );
             Session session = driver.session() ) {
 
-//            session.run("CREATE INDEX ON :Ready(name)");
-            session.run("CALL graphEngine.index()");
+            session.run(TestGraphQueries.systemsWithShapeNodes);
+
+            session.run("CALL graphEngine.findMatches");
+
         }
     }
+
 }

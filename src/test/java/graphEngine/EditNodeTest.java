@@ -26,21 +26,33 @@ public class EditNodeTest {
 
             session.run(TestGraphQueries.basicSubtraction);
 
-            StatementResult all = session.run("MATCH (a) RETURN a");
-            System.out.println(all.list());
+            StatementResult all = session.run("MATCH (a) RETURN a, a.data");
+            System.out.println(all.list(record -> {
+                return "\nnode: " + record.get(0) + ", data: " + record.get(1);
+            }));
 
-            StatementResult res1 = session.run("MATCH (a:System {name:'A1'})" +
-                    "RETURN a.data");
-            System.out.println(res1.list());
+            System.out.println();
+
+            StatementResult res1 = session.run("MATCH (a:SCSystem {name:'A1'})" +
+                    "RETURN a, a.data");
+            System.out.println(res1.list(record -> {
+                return "node: " + record.get(0) + ", data: " + record.get(1);
+            }));
 
             session.run("CALL graphEngine.editNode()");
 
-            all = session.run("MATCH (a) RETURN a");
-            System.out.println(all.list());
+            all = session.run("MATCH (a) RETURN a, a.data");
+            System.out.println(all.list(record -> {
+                return "\nnode: " + record.get(0) + ", data: " + record.get(1);
+            }));
 
-            StatementResult res2 = session.run("MATCH (a:System {name:'A1'})" +
-                    "RETURN a.data");
-            System.out.println(res2.list());
+            System.out.println();
+
+            StatementResult res2 = session.run("MATCH (a:SCSystem {name:'A1'})" +
+                    "RETURN a, a.data");
+            System.out.println(res2.list(record -> {
+                return "node: " + record.get(0) + ", data: " + record.get(1);
+            }));
         }
     }
 }
