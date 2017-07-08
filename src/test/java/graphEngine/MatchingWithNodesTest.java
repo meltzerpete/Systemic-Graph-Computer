@@ -15,7 +15,6 @@ public class MatchingWithNodesTest {
 
     @Rule
     public Neo4jRule neo4j = new Neo4jRule()
-            .withProcedure(TripletSelection.class)
             .withProcedure(MatchingWithNodes.class);
 
     @Test
@@ -24,7 +23,15 @@ public class MatchingWithNodesTest {
                 .withEncryptionLevel( Config.EncryptionLevel.NONE ).toConfig() );
             Session session = driver.session() ) {
 
-            session.run("CALL graphEngine.findMatches");
+            int nTrials = 3;
+
+            for (int i = 0; i < nTrials; i++) {
+                System.out.println("Iteration: " + i);
+                System.out.println("############");
+                session.run("CALL graphEngine.findMatchesWithNodes");
+                session.run("MATCH (n) DETACH DELETE n");
+                System.out.println("\n");
+            }
 
         }
     }

@@ -17,6 +17,7 @@ import java.util.List;
 /**
  * Created by pete on 06/07/17.
  */
+@Deprecated
 public class Matching {
 
     @Context

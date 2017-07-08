@@ -12,13 +12,11 @@ import org.neo4j.harness.junit.Neo4jRule;
 /**
  * Created by pete on 06/07/17.
  */
-@Deprecated
-public class MatchingTest {
+public class ComputeTest {
 
     @Rule
     public Neo4jRule neo4j = new Neo4jRule()
-            .withProcedure(TripletSelection.class)
-            .withProcedure(Matching.class);
+            .withProcedure(Compute.class);
 
     @Test
     public void shouldFindMatchingSystems() throws Throwable {
@@ -26,9 +24,9 @@ public class MatchingTest {
                 .withEncryptionLevel( Config.EncryptionLevel.NONE ).toConfig() );
             Session session = driver.session() ) {
 
-            session.run(TestGraphQueries.systemsWithShapeNodes);
+            session.run(TestGraphQueries.systemsWithShapeProperties);
 
-            session.run("CALL graphEngine.findMatches");
+            session.run("CALL graphEngine.compute");
 
         }
     }

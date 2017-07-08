@@ -27,7 +27,7 @@ public class MatchingWithNodes {
     static StopWatch localTimer = new StopWatch();
     static StopWatch globalTimer = new StopWatch();
 
-    @Procedure(value = "graphEngine.findMatches", mode = Mode.SCHEMA)
+    @Procedure(value = "graphEngine.findMatchesWithNodes", mode = Mode.SCHEMA)
     @Description("")
     public void findMatches() {
 
@@ -45,6 +45,7 @@ public class MatchingWithNodes {
         ResourceIterator<Node> scopes = db.findNodes(scopeLabel);
 
         // in every scope
+        globalTimer.reset();
         globalTimer.start();
         scopes.forEachRemaining((Node scope) -> {
 

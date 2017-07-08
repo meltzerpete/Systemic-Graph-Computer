@@ -1,11 +1,22 @@
 package GraphComponents;
 
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.logging.Log;
+import org.neo4j.procedure.Context;
+import org.neo4j.procedure.*;
+
 /**
  * Created by pete on 05/07/17.
  */
 public class TestGraphQueries {
 
-    private TestGraphQueries(){};
+    @Context
+    public GraphDatabaseService db;
+
+    @Context
+    public Log log;
+
+//    private TestGraphQueries(){};
 
     public static String basicSubtraction =
             "CREATE (main:System:Scope {name:'main'})," +
@@ -93,4 +104,43 @@ public class TestGraphQueries {
                     "(print)-[:HAS_SHAPE]->(func)," +
                     "(print)-[:S1]->(data)," +
                     "(print)-[:S2]->(data)";
+
+    public static String systemsWithShapeProperties =
+            "CREATE" +
+                    "(a1:System:Data:Data1 {name:'a1', data:8})," +
+                    "(a2:System:Data:Data2 {name:'a2', data:7})," +
+                    "(a3:System:Data:Data1 {name:'a3', data:6})," +
+                    "(a4:System:Data:Data2 {name:'a4', data:5})," +
+                    "(main:System:Scope {name:'main'})," +
+
+                    "(subE:System:Context {name:'subE', function:'SUBTRACTe', " +
+                        "s1Labels:['Data1'], s2Labels:['Data2']})," +
+
+                    "(mul:System:Context {name:'mul', function:'MULTIPLY'," +
+                        "s1Labels:['Data'], s2Labels:['Data']})," +
+
+                    "(print:System:Context {name:'print', function:'PRINT'," +
+                        "s1Labels:['Data'], s2Labels:['Data']})," +
+
+                    "(c1:System:Scope {name:'c1'})," +
+                    "(c2:System:Scope {name:'c2'})," +
+                    "(main)-[:CONTAINS]->(print)," +
+                    "(main)-[:CONTAINS]->(mul)," +
+                    "(main)-[:CONTAINS]->(c1)," +
+                    "(main)-[:CONTAINS]->(c2)," +
+                    "(c1)-[:CONTAINS]->(subE)," +
+                    "(c1)-[:CONTAINS]->(a1)," +
+                    "(c1)-[:CONTAINS]->(a2)," +
+                    "(c2)-[:CONTAINS]->(subE)," +
+                    "(c2)-[:CONTAINS]->(a3)," +
+                    "(c2)-[:CONTAINS]->(a4)";
+
+    @Procedure(value = "graphEngine.loadGraph", mode = Mode.SCHEMA)
+    public void loadGraph() {
+        db.execute(systemsWithShapeProperties);
+    }
 }
+
+// s1Properties as kvPair
+// s1Labels
+// s1Relationships

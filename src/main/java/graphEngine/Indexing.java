@@ -33,7 +33,7 @@ public class Indexing {
     @Description("")
     public void index() {
 
-        db.execute(TestGraphQueries.basicSubtraction);
+//        db.execute(TestGraphQueries.basicSubtraction);
 
         for (int i = 0; i < 2; i++) {
 

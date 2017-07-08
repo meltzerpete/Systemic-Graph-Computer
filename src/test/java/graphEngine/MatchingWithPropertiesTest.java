@@ -1,6 +1,5 @@
 package graphEngine;
 
-import GraphComponents.TestGraphQueries;
 import org.junit.Rule;
 import org.junit.Test;
 import org.neo4j.driver.v1.Config;
@@ -12,13 +11,11 @@ import org.neo4j.harness.junit.Neo4jRule;
 /**
  * Created by pete on 06/07/17.
  */
-@Deprecated
-public class MatchingTest {
+public class MatchingWithPropertiesTest {
 
     @Rule
     public Neo4jRule neo4j = new Neo4jRule()
-            .withProcedure(TripletSelection.class)
-            .withProcedure(Matching.class);
+            .withProcedure(MatchingWithProperties.class);
 
     @Test
     public void shouldFindMatchingSystems() throws Throwable {
@@ -26,9 +23,15 @@ public class MatchingTest {
                 .withEncryptionLevel( Config.EncryptionLevel.NONE ).toConfig() );
             Session session = driver.session() ) {
 
-            session.run(TestGraphQueries.systemsWithShapeNodes);
+            int nTrials = 3;
 
-            session.run("CALL graphEngine.findMatches");
+            for (int i = 0; i < nTrials; i++) {
+                System.out.println("Iteration: " + i);
+                System.out.println("############");
+                session.run("CALL graphEngine.findMatchesWithProperties");
+                session.run("MATCH (n) DETACH DELETE n");
+                System.out.println("\n");
+            }
 
         }
     }
