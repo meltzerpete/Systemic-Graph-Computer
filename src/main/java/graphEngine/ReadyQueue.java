@@ -69,8 +69,10 @@ public class ReadyQueue {
         Node[] s1s = Iterables.asArray(Node.class, selectedTripletSet.f1);
         Node selectedS1 = s1s[(int) (Math.random() * s1s.length)];
 
-        Node[] s2s = Iterables.asArray(Node.class, selectedTripletSet.f2);
-        Node selectedS2 = s2s[(int) (Math.random() * s2s.length)];
+        ArrayList<Node> s2s = new ArrayList<>();
+        selectedTripletSet.f2.remove(selectedS1);
+        selectedTripletSet.f2.forEach(node -> s2s.add(node));
+        Node selectedS2 = s2s.get((int) (Math.random() * s2s.size()));
 
         Triplet selectTriplet = new Triplet(readyContext, selectedS1, selectedS2);
 

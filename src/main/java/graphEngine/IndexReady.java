@@ -1,15 +1,12 @@
 package graphEngine;
 
+import GraphComponents.Components;
 import org.apache.commons.lang3.time.StopWatch;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.logging.Log;
-import org.neo4j.procedure.Context;
-import org.neo4j.procedure.Description;
-import org.neo4j.procedure.Mode;
-import org.neo4j.procedure.Procedure;
 
-import java.util.Arrays;
+import java.util.HashSet;
 
 /**
  * Created by pete on 05/07/17.
@@ -39,8 +36,6 @@ public class IndexReady {
 
         Label contextLabel = Label.label("Context");
         Label readyLabel = Label.label("Ready");
-        RelationshipType s1Relation = RelationshipType.withName("FITS_1");
-        RelationshipType s2Relation = RelationshipType.withName("FITS_2");
 
         timer.reset();
         timer.start();
@@ -51,9 +46,21 @@ public class IndexReady {
         for (ResourceIterator<Node> it = allContexts; it.hasNext(); ) {
             Node context = it.next();
 
-            if (context.hasRelationship(Direction.OUTGOING, s1Relation)
-                    && context.hasRelationship(Direction.OUTGOING, s2Relation)) {
-                context.addLabel(readyLabel);
+            if (context.hasRelationship(Direction.OUTGOING, Components.fits1)
+                    && context.hasRelationship(Direction.OUTGOING, Components.fits2)) {
+
+                HashSet<Node> s1s = new HashSet<>();
+                HashSet<Node> s2s = new HashSet<>();
+
+                context.getRelationships(Components.fits1, Direction.OUTGOING).forEach(relationship ->
+                        s1s.add(relationship.getEndNode()));
+
+                context.getRelationships(Components.fits2, Direction.OUTGOING).forEach(relationship ->
+                        s2s.add(relationship.getEndNode()));
+
+                if (s1s.size() != 1 || !s1s.containsAll(s2s)) {
+                    context.addLabel(readyLabel);
+                }
             }
         }
 
