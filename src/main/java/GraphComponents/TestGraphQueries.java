@@ -3,7 +3,8 @@ package GraphComponents;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.logging.Log;
 import org.neo4j.procedure.Context;
-import org.neo4j.procedure.*;
+import org.neo4j.procedure.Mode;
+import org.neo4j.procedure.Procedure;
 
 /**
  * Created by pete on 05/07/17.
@@ -107,10 +108,10 @@ public class TestGraphQueries {
 
     public static String systemsWithShapeProperties =
             "CREATE" +
-                    "(a1:System:Data:Data1 {name:'a1', data:8})," +
-                    "(a2:System:Data:Data2 {name:'a2', data:7})," +
-                    "(a3:System:Data:Data1 {name:'a3', data:6})," +
-                    "(a4:System:Data:Data2 {name:'a4', data:5})," +
+                    "(a1:System:Data:Data1 {name:'a1', data:10})," +
+                    "(a2:System:Data:Data2 {name:'a2', data:8})," +
+                    "(a3:System:Data:Data1 {name:'a3', data:9})," +
+                    "(a4:System:Data:Data2 {name:'a4', data:6})," +
                     "(main:System:Scope {name:'main'})," +
 
                     "(subE:System:Context {name:'subE', function:'SUBTRACTe', " +

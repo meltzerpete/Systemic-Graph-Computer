@@ -1,23 +1,20 @@
 package graphEngine;
 
-import GraphComponents.TestGraphQueries;
-import org.apache.commons.lang3.time.StopWatch;
-import org.neo4j.graphdb.*;
-import org.neo4j.helpers.collection.Iterables;
+import GraphComponents.Function;
+import GraphComponents.Triplet;
+import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.logging.Log;
 import org.neo4j.procedure.Context;
 import org.neo4j.procedure.Description;
 import org.neo4j.procedure.Mode;
 import org.neo4j.procedure.Procedure;
 
-import java.util.*;
-
 /**
  * Created by pete on 06/07/17.
  */
 public class Compute {
 
-    public static List<Node> readyQueue;
+    private static int maxInteractions = 5;
 
     @Context
     public GraphDatabaseService db;
@@ -37,40 +34,21 @@ public class Compute {
 //        db.execute("CALL graphEngine.indexReady");
         IndexReady.indexREADY(db, log);
 
+        // populate ready queue
+        ReadyQueue.populateQueue(db, log);
+
         // while READY systems still exist
-        Label readyLabel = Label.label("Ready");
-        RelationshipType fits1 = RelationshipType.withName("FITS_1");
-        RelationshipType fits2 = RelationshipType.withName("FITS_2");
-        
-        readyQueue = new ArrayList<>();
-        db.findNodes(readyLabel).forEachRemaining(node -> readyQueue.add(node));
+        while (ReadyQueue.queue.size() > 0
+                && maxInteractions-- > 0) {
+            Triplet selectedTriplet = ReadyQueue.getTriplet(log);
 
-        while (readyQueue.size() > 0) {
+            // perform function
+            Function.valueOf((String) selectedTriplet.context.getProperty("function")).compute(selectedTriplet);
 
-            // get random context from the ready queue
-            Node readyContext = readyQueue.remove((int) (Math.random() * readyQueue.size()));
-            System.out.println(String.format("Selected %s as context.", readyContext.getAllProperties()));
-
-            // select random pair of systems for interaction
-            Relationship[] s1CandidateRelationships = Iterables.asArray(Relationship.class,
-                    readyContext.getRelationships(fits1, Direction.OUTGOING));
-            Node s1 = s1CandidateRelationships[(int) (Math.random() * s1CandidateRelationships.length)].getEndNode();
-
-            Relationship[] s2CandidateRelationships = Iterables.asArray(Relationship.class,
-                    readyContext.getRelationships(fits2, Direction.OUTGOING));
-            Node s2 = s2CandidateRelationships[(int) (Math.random() * s2CandidateRelationships.length)].getEndNode();
-
-            System.out.println(String.format("Selected %s and %s for interaction.", s1.getAllProperties(), s2.getAllProperties()));
-
-            // TODO change ready queue to queue of triplets - maybe identify while indexing/finding matches
+            ReadyQueue.populateQueue(db, log);
         }
-    }
 
-    static class Counter {
-        static int count = 0;
-        static int getAndIncrement() {
-            return count++;
-        }
+
     }
 
 }

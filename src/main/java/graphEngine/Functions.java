@@ -26,7 +26,7 @@ public class Functions {
     public void functions() {
         ResourceIterable<Node> nodes = db.getAllNodes();
         nodes.forEach(node -> {
-            Function.valueOf((String) node.getProperty("function")).compute(null, null);
+            Function.valueOf((String) node.getProperty("function")).compute(null);
         });
     }
 }
