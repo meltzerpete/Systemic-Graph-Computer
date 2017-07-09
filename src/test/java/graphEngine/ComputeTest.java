@@ -26,7 +26,7 @@ public class ComputeTest {
 
             session.run(TestGraphQueries.systemsWithShapeProperties);
 
-            session.run("CALL graphEngine.compute");
+            session.run("CALL graphEngine.compute(8)");
 
         }
     }
