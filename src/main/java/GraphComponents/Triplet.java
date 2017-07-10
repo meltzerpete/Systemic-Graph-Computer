@@ -20,6 +20,6 @@ public class Triplet {
     public String toString() {
         return "{" + context.getProperty("name") + ": " + context.getProperty("function") + "}, " +
                 "{" + s1.getProperty("name") + ": " + s1.getProperty("data") + "}, " +
-                "{" + s2.getProperty("name") + ": " + s2.getProperty("data") + "}, ";
+                "{" + s2.getProperty("name") + ": " + s2.getProperty("data") + "}";
     }
 }

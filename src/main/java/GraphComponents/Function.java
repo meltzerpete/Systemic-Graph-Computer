@@ -14,13 +14,27 @@ public enum Function {
     NOP {
         @Override
         public void compute(Triplet triplet) {
-            System.out.println("I'm a NOP system");
+            System.out.println("Performing NOP on " + triplet);
         }
     },
     ADD {
         @Override
         public void compute(Triplet triplet) {
-            System.out.println("I'm an ADD system");
+            System.out.println("Performing ADD on " + triplet);
+            long a = (long) triplet.s1.getProperty("data");
+            long b = (long) triplet.s2.getProperty("data");
+            long c = a + b;
+            triplet.s1.setProperty("data", c);
+            triplet.s2.setProperty("data", (long) 0);
+            System.out.println("State is now " + triplet);
+        }
+    },
+    ADDe {
+        @Override
+        public void compute(Triplet triplet) {
+            System.out.println("Performing ADDe on " + triplet);
+            ADD.compute(triplet);
+            ESCAPE.compute(triplet);
         }
     },
     SUBTRACT {
@@ -52,6 +66,14 @@ public enum Function {
             long c = a * b;
             triplet.s1.setProperty("data", c);
             triplet.s2.setProperty("data", (long) 1);
+        }
+    },
+    MULTIPLYe {
+        @Override
+        public void compute(Triplet triplet) {
+            System.out.println("Performing MULTIPLYe on " + triplet);
+            MULTIPLY.compute(triplet);
+            ESCAPE.compute(triplet);
         }
     },
     ESCAPE {
@@ -91,10 +113,10 @@ public enum Function {
         @Override
         public void compute(Triplet triplet) {
             System.out.println("Performing PRINT function on " + triplet);
-            System.out.println("########################################");
+            System.out.println("\n########################################");
             System.out.println(String.format("#%-38s#", triplet.s1.getProperty("data")));
-            System.out.println("########################################");
-            Compute.outputStream.add(new Compute.Output("From " + triplet + ": " + triplet.s1.getProperty("data") + "\n\n"));
+            System.out.println("########################################\n");
+            Compute.outputStream.add(new Compute.Output("From " + triplet + ": " + triplet.s1.getProperty("data")));
         }
     };
 

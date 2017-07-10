@@ -86,14 +86,18 @@ public class Compute {
             ReadyQueue.populateQueue(db, log);
         }
 
-        return outputStream.stream();
+        Stream<Output> out = outputStream.stream();
+        outputStream = new LinkedList<>();
+        return out;
     }
 
     public static void logGraph(GraphDatabaseService db, PrintWriter writer) {
         if (withGraphLogging) {
-            Result result = db.execute("MATCH (n)" +
+            Result result = db.execute(
+                    "MATCH (n)" +
                     "OPTIONAL MATCH (n)-[r]->(m)" +
-                    "RETURN DISTINCT id(n), labels(n), properties(n), {rel:r, node:m}");
+                    "RETURN DISTINCT id(n) AS ID, labels(n) AS Labels," +
+                            "properties(n) AS Properties, {r:r, n:id(m)} AS Relationships");
             result.writeAsStringTo(writer);
         }
     }

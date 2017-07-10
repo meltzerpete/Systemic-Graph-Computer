@@ -16,7 +16,8 @@ public class ComputeTest {
 
     @Rule
     public Neo4jRule neo4j = new Neo4jRule()
-            .withProcedure(Compute.class);
+            .withProcedure(Compute.class)
+            .withProcedure(TestGraphQueries.class);
 
     @Test
     public void shouldFindMatchingSystems() throws Throwable {
@@ -24,7 +25,8 @@ public class ComputeTest {
                 .withEncryptionLevel( Config.EncryptionLevel.NONE ).toConfig() );
             Session session = driver.session() ) {
 
-            session.run(TestGraphQueries.systemsWithShapeProperties);
+//            session.run(TestGraphQueries.systemsWithShapeProperties);
+            session.run("CALL graphEngine.loadGraph");
 
             session.run("CALL graphEngine.compute(8)");
 
