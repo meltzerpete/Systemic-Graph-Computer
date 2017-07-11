@@ -20,11 +20,11 @@ public class TestGraphQueries {
 //    private TestGraphQueries(){};
 
     public static String basicSubtraction =
-            "CREATE (main:System:Scope {name:'main'})," +
-                    "(print:System:Context {name:'print', function:'print'})," +
-                    "(star:System:Context {name:'*', function:'multiply'})," +
-                    "(c1:System:Scope {name:'c1'}), (c2:System:Scope {name:'c2'})," +
-                    "(subtract_e:System:Context {name:'-e', function:'subtract'})," +
+            "CREATE (main:System:SCOPE {name:'main'})," +
+                    "(print:System:CONTEXT {name:'print', function:'print'})," +
+                    "(star:System:CONTEXT {name:'*', function:'multiply'})," +
+                    "(c1:System:SCOPE {name:'c1'}), (c2:System:SCOPE {name:'c2'})," +
+                    "(subtract_e:System:CONTEXT {name:'-e', function:'subtract'})," +
                     "(a1:System {name:'A1', data:7}), (a2:System {name:'A2', data:8})," +
                     "(a3:System {name:'A3', data:6}), (a4:System {name:'A4', data:9})," +
                     "(main)-[:CONTAINS]->(print)," +
@@ -41,14 +41,14 @@ public class TestGraphQueries {
                     "(a2)<-[:S2]-(subtract_e)-[:S2]->(a4)";
 
     public static String unmatchedSystems =
-            "CREATE (main:System:Scope)," +
-                    "(context:System:Context {s1:['Data','Data1'], s2:['Data','Data2']})," +
-                    "(a:System:Scope {data:'12'})," +
-                    "(b:System:Context {data:'13'})," +
+            "CREATE (main:System:SCOPE)," +
+                    "(CONTEXT:System:CONTEXT {s1:['Data','Data1'], s2:['Data','Data2']})," +
+                    "(a:System:SCOPE {data:'12'})," +
+                    "(b:System:CONTEXT {data:'13'})," +
                     "(c:System:Data1 {data:'14'})," +
                     "(d:System:Data2 {data:'15'})," +
                     "(e:System:Data {data:'16'})," +
-                    "(main)-[:CONTAINS]->(context)," +
+                    "(main)-[:CONTAINS]->(CONTEXT)," +
                     "(main)-[:CONTAINS]->(a)," +
                     "(main)-[:CONTAINS]->(b)," +
                     "(main)-[:CONTAINS]->(c)," +
@@ -56,7 +56,7 @@ public class TestGraphQueries {
                     "(main)-[:CONTAINS]->(e)";
 
     public static String systemsWithFunctions =
-            "CREATE (:System:Context {function:'NOP', s1:'', s2:''}), (:System {function:'ADD'})";
+            "CREATE (:System:CONTEXT {function:'NOP', s1:'', s2:''}), (:System {function:'ADD'})";
 
     public static String systemsWithShapeNodes =
             "CREATE" +
@@ -64,17 +64,17 @@ public class TestGraphQueries {
                     "(a2:System {name:'a2', data:7})," +
                     "(a3:System {name:'a3', data:6})," +
                     "(a4:System {name:'a4', data:5})," +
-                    "(main:System:Scope {name:'main'})," +
-                    "(subE:System:Context {name:'subE', function:'SUBTRACTe'})," +
-                    "(mul:System:Context {name:'mul', function:'MULTIPLY'})," +
-                    "(print:System:Context {name:'print', function:'PRINT'})," +
-                    "(c1:System:Scope {name:'c1'})," +
-                    "(c2:System:Scope {name:'c2'})," +
+                    "(main:System:SCOPE {name:'main'})," +
+                    "(subE:System:CONTEXT {name:'subE', function:'SUBTRACTe'})," +
+                    "(mul:System:CONTEXT {name:'mul', function:'MULTIPLY'})," +
+                    "(print:System:CONTEXT {name:'print', function:'PRINT'})," +
+                    "(c1:System:SCOPE {name:'c1'})," +
+                    "(c2:System:SCOPE {name:'c2'})," +
                     "(data:Shape {name:'data'})," +
                     "(data1:Shape {name:'data1'})," +
                     "(data2:Shape {name:'data2'})," +
                     "(func:Shape {name:'function'})," +
-                    "(scope:Shape {name:'scope'})," +
+                    "(SCOPE:Shape {name:'SCOPE'})," +
                     "(a1)-[:HAS_SHAPE]->(data1)," +
                     "(a2)-[:HAS_SHAPE]->(data2)," +
                     "(a3)-[:HAS_SHAPE]->(data1)," +
@@ -83,16 +83,16 @@ public class TestGraphQueries {
                     "(a2)-[:HAS_SHAPE]->(data)," +
                     "(a3)-[:HAS_SHAPE]->(data)," +
                     "(a4)-[:HAS_SHAPE]->(data)," +
-                    "(main)-[:HAS_SHAPE]->(scope)," +
+                    "(main)-[:HAS_SHAPE]->(SCOPE)," +
                     "(main)-[:CONTAINS]->(print)," +
                     "(main)-[:CONTAINS]->(mul)," +
                     "(main)-[:CONTAINS]->(c1)," +
                     "(main)-[:CONTAINS]->(c2)," +
-                    "(c1)-[:HAS_SHAPE]->(scope)," +
+                    "(c1)-[:HAS_SHAPE]->(SCOPE)," +
                     "(c1)-[:CONTAINS]->(subE)," +
                     "(c1)-[:CONTAINS]->(a1)," +
                     "(c1)-[:CONTAINS]->(a2)," +
-                    "(c2)-[:HAS_SHAPE]->(scope)," +
+                    "(c2)-[:HAS_SHAPE]->(SCOPE)," +
                     "(c2)-[:CONTAINS]->(subE)," +
                     "(c2)-[:CONTAINS]->(a3)," +
                     "(c2)-[:CONTAINS]->(a4)," +
@@ -112,19 +112,19 @@ public class TestGraphQueries {
                     "(a2:System:Data:Data2 {name:'a2', data:8})," +
                     "(a3:System:Data:Data1 {name:'a3', data:9})," +
                     "(a4:System:Data:Data2 {name:'a4', data:6})," +
-                    "(main:System:Scope {name:'main'})," +
+                    "(main:System:SCOPE {name:'main'})," +
 
-                    "(subE:System:Context {name:'subE', function:'SUBTRACTe', " +
+                    "(subE:System:CONTEXT {name:'subE', function:'SUBTRACTe', " +
                     "s1Labels:['Data1'], s2Labels:['Data2']})," +
 
-                    "(mul:System:Context {name:'mul', function:'MULTIPLY'," +
+                    "(mul:System:CONTEXT {name:'mul', function:'MULTIPLY'," +
                     "s1Labels:['Data'], s2Labels:['Data']})," +
 
-                    "(print:System:Context {name:'print', function:'PRINT'," +
+                    "(print:System:CONTEXT {name:'print', function:'PRINT'," +
                     "s1Labels:['Data'], s2Labels:['Data']})," +
 
-                    "(c1:System:Scope {name:'c1'})," +
-                    "(c2:System:Scope {name:'c2'})," +
+                    "(c1:System:SCOPE {name:'c1'})," +
+                    "(c2:System:SCOPE {name:'c2'})," +
                     "(main)-[:CONTAINS]->(print)," +
                     "(main)-[:CONTAINS]->(mul)," +
                     "(main)-[:CONTAINS]->(c1)," +
