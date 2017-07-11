@@ -13,15 +13,25 @@ import static graphEngine.Computer.db;
  */
 public class SCSytemHandler {
 
+    /**
+     * Finds all nodes contained in the given scope.
+     * @param scope {@link Node} to look inside
+     * @return {@link Stream} of contained {@link Node}s
+     */
     Stream<Node> getAllSystemsInScope(Node scope) {
 
         ResourceIterator<Relationship> relationships =
                 (ResourceIterator<Relationship>)
                         scope.getRelationships(CONTAINS, Direction.OUTGOING).iterator();
 
-        return relationships.stream().map(relationship -> relationship.getEndNode());
+        return relationships.stream().map(Relationship::getEndNode);
     }
 
+    /**
+     * Finds all nodes contained in the given scope with CONTEXT {@link Label}.
+     * @param scope {@link Node} to look inside
+     * @return {@link Stream} of contained CONTEXT {@link Node}s
+     */
     Stream<Node> getContextsInScope(Node scope) {
 
         return getAllSystemsInScope(scope).filter(node -> node.hasLabel(CONTEXT));
@@ -35,53 +45,68 @@ public class SCSytemHandler {
     private Node getRandomEndNode(Stream<Relationship> relationships) {
 
         AtomicInteger count = new AtomicInteger(2);
+        //noinspection ConstantConditions
         return relationships.reduce((acc, next) ->
                 Math.random() > 1.0 / count.getAndIncrement() ? acc : next).get().getEndNode();
     }
 
+    /**
+     * Selects a random {@link Node} from a {@link Stream} of {@link Node}s.
+     * @param nodes {@link Stream} of {@link Node}s
+     * @return Randomly selected {@link Node}
+     */
     private Node getRandomNode(Stream<Node> nodes) {
 
         AtomicInteger count = new AtomicInteger(2);
+        //noinspection ConstantConditions
         return  nodes.reduce((acc, next) ->
                 Math.random() > 1.0 / count.getAndIncrement() ? acc : next).get();
     }
 
-    Node getRandomReady() throws NodeNotFoundException {
-
-        ResourceIterator<Node> nodes = db.findNodes(READY);
-
-        if (!nodes.hasNext())
-            throw new NodeNotFoundException("No READY nodes found");
+    /**
+     * Selects a random {@link Node} with the READY {@link Label}.
+     * @return Randomly selected READY {@link Node}
+     */
+    Node getRandomReady() {
 
         return getRandomNode(db.findNodes(READY).stream());
     }
 
-    Node getRandomS1(Node context) throws NodeNotFoundException {
+    /**
+     * Selectes a random SCHEMA_1 matching {@link Node} for the given context.
+     * @param context Context {@link Node} for which to find a match
+     * @return Randomly selected SCHEMA_1 matching {@link Node}
+     */
+    Node getRandomS1(Node context) {
 
         ResourceIterable<Relationship> relationships =
                 (ResourceIterable<Relationship>) context.getRelationships(FITS1, Direction.OUTGOING);
 
-        if (!relationships.iterator().hasNext())
-            throw new NodeNotFoundException("No S1 matches found");
-
         return getRandomEndNode(relationships.stream());
     }
 
-    Node getRandomS2(Node context) throws NodeNotFoundException {
+    /**
+     * Selectes a random SCHEMA_1 matching {@link Node} for the given context.
+     * @param context Context {@link Node} for which to find a match
+     * @return Randomly selected SCHEMA_1 matching {@link Node}
+     */
+    Node getRandomS2(Node context) {
 
         ResourceIterable<Relationship> relationships =
                 (ResourceIterable<Relationship>) context.getRelationships(FITS2, Direction.OUTGOING);
 
-        if (!relationships.iterator().hasNext())
-            throw new NodeNotFoundException("No S2 matches found");
-
         return getRandomEndNode(relationships.stream());
     }
 
+    /**
+     * Get all parent scopes for the given {@link Node}.
+     * @param node {@link Node} for which to find containing scopes
+     * @return {@link Stream} of scope {@link Node}s
+     */
     Stream<Node> getParentScopes(Node node) {
-        ResourceIterable<Relationship> relationships =
-                (ResourceIterable<Relationship>) node.getRelationships(CONTAINS, Direction.INCOMING);
+        ResourceIterator<Relationship> relationships =
+                (ResourceIterator<Relationship>) node.getRelationships(CONTAINS, Direction.INCOMING).iterator();
 
-        return relationships.stream().map(relationship -> relationship.getEndNode());
+        return relationships.stream().map(Relationship::getEndNode);
     }
 }
