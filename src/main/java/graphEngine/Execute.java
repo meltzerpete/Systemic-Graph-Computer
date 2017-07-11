@@ -13,17 +13,17 @@ import org.neo4j.procedure.Procedure;
 public class Execute {
 
     @Context
-    GraphDatabaseService db;
+    public GraphDatabaseService db;
 
     @Context
-    Log log;
+    public Log log;
 
     @Procedure(value = "graphEngine.execute", mode = Mode.SCHEMA)
-    public void execute(@Name("Max no. of interactions") int maxInteractions) {
+    public void execute(@Name("Max no. of interactions") long maxInteractions) {
 
         Computer SC = new Computer(db, log);
         SC.preProcess();
-        SC.compute(maxInteractions);
+        SC.compute((int) maxInteractions);
 
         //TODO deal with return
     }

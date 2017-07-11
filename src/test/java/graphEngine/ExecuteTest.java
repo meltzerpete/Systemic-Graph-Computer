@@ -34,6 +34,7 @@ public class ExecuteTest {
                 .withEncryptionLevel(Config.EncryptionLevel.NONE).toConfig());
              Session session = driver.session()) {
 
+            session.run("CALL graphEngine.execute(1)");
 
         }
     }
