@@ -2,9 +2,9 @@ package graphEngine;
 
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.ResourceIterable;
 import org.neo4j.graphdb.ResourceIterator;
 
-import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static graphEngine.Components.FITS1;
@@ -20,8 +20,8 @@ public class SCSytemHandler {
 
     Node getRandomS1(Node context) {
         //TODO getRandomS1()
-        Iterator<Relationship> fits1s = context.getRelationships(FITS1).iterator().;
-        return null;
+        Iterable<Relationship> fits1s = context.getRelationships(FITS1);
+        return getRandomEndNode(fits1s);
     }
 
     Node getRandomS2(Node context) {
@@ -49,9 +49,18 @@ public class SCSytemHandler {
      * @param relationships The relationships to iterate over
      * @return the randomly selected {@link Node}
      */
-    private Node getRandomEndNode(Iterator<Relationship> relationships) {
-        AtomicInteger count = new AtomicInteger(2);
-        return relationships.stream().reduce((acc, next) ->
-                Math.random() > 1.0 / count.getAndIncrement() ? acc : next).get().getEndNode();
+    private Node getRandomEndNode(Iterable<Relationship> relationships) {
+
+        try {
+            ResourceIterable<Relationship> rels = (ResourceIterable<Relationship>) relationships;
+
+            AtomicInteger count = new AtomicInteger(2);
+            return rels.stream().reduce((acc, next) ->
+                    Math.random() > 1.0 / count.getAndIncrement() ? acc : next).get().getEndNode();
+        } catch (Exception e){
+            Computer.log.error(e.getMessage());
+            throw new AssertionError("This should not happen")
+        }
+
     }
 }

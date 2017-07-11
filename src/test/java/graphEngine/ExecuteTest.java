@@ -27,4 +27,14 @@ public class ExecuteTest {
 
         }
     }
+
+    @Test
+    public void testRandomSelection() throws Throwable {
+        try (Driver driver = GraphDatabase.driver(neo4j.boltURI(), Config.build()
+                .withEncryptionLevel(Config.EncryptionLevel.NONE).toConfig());
+             Session session = driver.session()) {
+
+
+        }
+    }
 }

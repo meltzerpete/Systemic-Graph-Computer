@@ -12,11 +12,11 @@ import java.util.List;
  */
 class Computer {
 
-    GraphDatabaseService db;
+    static GraphDatabaseService db;
 
-    Log log;
+    static Log log;
 
-    List<Result> output;
+    static List<Result> output;
 
     Computer(GraphDatabaseService db, Log log) {
         this.db = db;
