@@ -6,12 +6,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static graphEngine.Components.*;
-import static graphEngine.Computer.db;
 
 /**
  * Created by Pete Meltzer on 11/07/17.
  */
 public class SCSytemHandler {
+
+    private static GraphDatabaseService db;
+
+    SCSytemHandler(GraphDatabaseService db) {
+        this.db = db;
+    }
 
     /**
      * Finds all nodes contained in the given scope.
@@ -107,6 +112,6 @@ public class SCSytemHandler {
         ResourceIterator<Relationship> relationships =
                 (ResourceIterator<Relationship>) node.getRelationships(CONTAINS, Direction.INCOMING).iterator();
 
-        return relationships.stream().map(Relationship::getEndNode);
+        return relationships.stream().map(Relationship::getStartNode);
     }
 }

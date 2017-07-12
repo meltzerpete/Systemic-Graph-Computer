@@ -26,7 +26,7 @@ public class TestProcedures {
     public void test(@Name("MethodID") long methodID) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
         db.execute(TestGraphQueries.systemsWithShapeProperties);
-        SCSytemHandler handler = new SCSytemHandler();
+        SCSytemHandler handler = new SCSytemHandler(db);
 
         switch ((int) methodID) {
             case 0:
