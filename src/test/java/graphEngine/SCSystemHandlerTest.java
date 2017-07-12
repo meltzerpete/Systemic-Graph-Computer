@@ -30,7 +30,7 @@ public class SCSystemHandlerTest {
             GraphDatabaseService db = neo4j.getGraphDatabaseService();
             Transaction tx = db.beginTx();
             db.execute(TestGraphQueries.systemsWithShapeProperties);
-            SCSytemHandler handler = new SCSytemHandler(db);
+            SCSystemHandler handler = new Computer(db).getHandler();
 
             // cheack all expected nodes for each scope are contained in the query results
             db.findNodes(Components.SCOPE).forEachRemaining(node -> {
@@ -73,7 +73,7 @@ public class SCSystemHandlerTest {
             GraphDatabaseService db = neo4j.getGraphDatabaseService();
             Transaction tx = db.beginTx();
             db.execute(TestGraphQueries.systemsWithShapeProperties);
-            SCSytemHandler handler = new SCSytemHandler(db);
+            SCSystemHandler handler = new Computer(db).getHandler();
 
             // cheack all expected nodes for each scope are contained in the query results
             db.findNodes(Components.SCOPE).forEachRemaining(node -> {
@@ -117,7 +117,7 @@ public class SCSystemHandlerTest {
             GraphDatabaseService db = neo4j.getGraphDatabaseService();
             Transaction tx = db.beginTx();
             db.execute(TestGraphQueries.systemsWithShapeProperties);
-            SCSytemHandler handler = new SCSytemHandler(db);
+            SCSystemHandler handler = new Computer(db).getHandler();
 
             // check all expected scopes for each node are contained in the query results
             db.getAllNodes().stream().forEach(node -> {
@@ -167,7 +167,7 @@ public class SCSystemHandlerTest {
             for (int i = 0; i < 500; i++)
                 db.createNode(Math.random() > 0.5 ? Components.READY : Components.SCOPE);
 
-            SCSytemHandler handler = new SCSytemHandler(db);
+            SCSystemHandler handler = new Computer(db).getHandler();
 
             HashSet<Node> resultSet = new HashSet<>();
 
@@ -191,7 +191,7 @@ public class SCSystemHandlerTest {
 
             GraphDatabaseService db = neo4j.getGraphDatabaseService();
             Transaction tx = db.beginTx();
-            SCSytemHandler handler = new SCSytemHandler(db);
+            SCSystemHandler handler = new Computer(db).getHandler();
 
             Node context = db.createNode(Components.CONTEXT);
 

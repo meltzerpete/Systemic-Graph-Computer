@@ -2,7 +2,6 @@ package graphEngine;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
-import org.neo4j.logging.Log;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -12,16 +11,17 @@ import java.util.List;
  */
 class Computer {
 
-    static GraphDatabaseService db;
+    final GraphDatabaseService db;
+    private List<Result> output;
 
-    static Log log;
+    private final SCLabeler labeler;
+    private final graphEngine.SCSystemHandler handler;
 
-    static List<Result> output;
-
-    Computer(GraphDatabaseService db, Log log) {
+    Computer(GraphDatabaseService db) {
         this.db = db;
-        this.log = log;
         this.output = new LinkedList<>();
+        this.labeler = new SCLabeler();
+        this.handler = new SCSystemHandler();
     }
 
     void preProcess() {
@@ -32,4 +32,24 @@ class Computer {
         //TODO compute()
     }
 
+    SCLabeler getLabeler() {
+        return labeler;
+    }
+
+    graphEngine.SCSystemHandler getHandler() {
+        return handler;
+    }
+
+    private class SCSystemHandler extends graphEngine.SCSystemHandler {
+        SCSystemHandler() {
+            super(Computer.this, db);
+        }
+    }
+
+    private class SCLabeler extends graphEngine.SCLabeler {
+
+        SCLabeler() {
+            super(Computer.this, db);
+        }
+    }
 }

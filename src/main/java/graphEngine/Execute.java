@@ -21,7 +21,7 @@ public class Execute {
     @Procedure(value = "graphEngine.execute", mode = Mode.SCHEMA)
     public void execute(@Name("Max no. of interactions") long maxInteractions) {
 
-        Computer SC = new Computer(db, log);
+        Computer SC = new Computer(db);
         SC.preProcess();
         SC.compute((int) maxInteractions);
 

@@ -10,11 +10,13 @@ import static graphEngine.Components.*;
 /**
  * Created by Pete Meltzer on 11/07/17.
  */
-public class SCSytemHandler {
+abstract class SCSystemHandler {
 
-    private static GraphDatabaseService db;
+    private Computer comp;
+    private GraphDatabaseService db;
 
-    SCSytemHandler(GraphDatabaseService db) {
+    SCSystemHandler(Computer comp, GraphDatabaseService db) {
+        this.comp = comp;
         this.db = db;
     }
 

@@ -26,7 +26,7 @@ public class TestProcedures {
     public void test(@Name("MethodID") long methodID) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
         db.execute(TestGraphQueries.systemsWithShapeProperties);
-        SCSytemHandler handler = new SCSytemHandler(db);
+        SCSystemHandler handler = new Computer(db).getHandler();
 
         switch ((int) methodID) {
             case 0:
@@ -58,7 +58,7 @@ public class TestProcedures {
             case 2:
                 System.out.println("getRandomEndNode()");
 
-                Method getRandomEndNode = SCSytemHandler.class.getDeclaredMethod("getRandomEndNode", Stream.class);
+                Method getRandomEndNode = SCSystemHandler.class.getDeclaredMethod("getRandomEndNode", Stream.class);
                 getRandomEndNode.setAccessible(true);
 
                 db.findNodes(Components.SCOPE).forEachRemaining(node -> {
@@ -86,7 +86,7 @@ public class TestProcedures {
             case 3:
                 System.out.println("getRandomNode()");
 
-                Method getRandomNode = SCSytemHandler.class.getDeclaredMethod("getRandomNode", Stream.class);
+                Method getRandomNode = SCSystemHandler.class.getDeclaredMethod("getRandomNode", Stream.class);
                 getRandomNode.setAccessible(true);
 
                 for (int i = 0; i < 20; i++) {
