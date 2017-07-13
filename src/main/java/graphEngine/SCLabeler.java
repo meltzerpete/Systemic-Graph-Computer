@@ -21,7 +21,7 @@ abstract class SCLabeler {
     }
 
     void labelFitsInScope(Node scope) {
-        //TODO can ad extra matching conditions here - OR
+        //TODO can add extra matching conditions here - OR
 
         SCSystemHandler scHandler = comp.getHandler();
         Stream<Node> containedContexts = scHandler.getContextsInScope(scope);
@@ -37,7 +37,9 @@ abstract class SCLabeler {
     }
 
     void labelAllFits() {
-        //TODO labelAllFits()
+
+        db.findNodes(Components.SCOPE).stream()
+                .forEach(scope -> labelFitsInScope(scope));
     }
 
     void labelAllReady() {
