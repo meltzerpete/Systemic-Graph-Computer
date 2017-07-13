@@ -76,6 +76,7 @@ abstract class SCSystemHandler {
      */
     Node getRandomReady() {
 
+        // TODO perhaps change to indexed queue system
         return getRandomNode(db.findNodes(READY).stream());
     }
 

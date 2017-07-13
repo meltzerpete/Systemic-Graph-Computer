@@ -10,8 +10,6 @@ import org.neo4j.driver.v1.Session;
 import org.neo4j.graphdb.*;
 import org.neo4j.harness.junit.Neo4jRule;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -71,25 +69,39 @@ public class SCLabelerTest {
 
             nodes.forEach(node -> System.out.println(node.getLabels()));
 
-            Method fits1 = SCLabeler.class.getDeclaredMethod("fits1", Node.class, Node.class);
-            fits1.setAccessible(true);
+            Node scope = db.createNode(Components.SCOPE);
+            contexts.forEach(context -> scope.createRelationshipTo(context, Components.CONTAINS));
+            nodes.forEach(node -> scope.createRelationshipTo(node, Components.CONTAINS));
 
-            contexts.forEach(context -> {
-                nodes.forEach(node -> {
-                    try {
-                        fits1.invoke(scLabeler, context, node);
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    } catch (InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
+//            Method fits1 = SCLabeler.class.getDeclaredMethod("fitsLabels", Node.class, Node.class, String.class);
+//            fits1.setAccessible(true);
 
-                });
-            });
+//            contexts.forEach(context -> {
+//                nodes.forEach(node -> {
+//                    try {
+//                        fits1.invoke(scLabeler, context, node, Components.s1Labels);
+//                    } catch (IllegalAccessException e) {
+//                        e.printStackTrace();
+//                    } catch (InvocationTargetException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                });
+//            });
 
-            dataContext.getRelationships(Components.FITS1, Direction.OUTGOING).forEach(relationship -> {
-                System.out.println("dataContext: " + relationship.getEndNode().getLabels());
-            });
+            String result = db.execute("MATCH (n)" +
+                    "OPTIONAL MATCH (n)-[r]->(m)" +
+                    "RETURN DISTINCT id(n) AS ID, labels(n) AS Labels," +
+                    "properties(n) AS Properties, {r:r, n:id(m)} AS Relationships").resultAsString();
+            System.out.println(result);
+
+            scLabeler.labelFitsInScope(scope);
+
+            result = db.execute("MATCH (n)" +
+                    "OPTIONAL MATCH (n)-[r]->(m)" +
+                    "RETURN DISTINCT id(n) AS ID, labels(n) AS Labels," +
+                    "properties(n) AS Properties, {r:r, n:id(m)} AS Relationships").resultAsString();
+            System.out.println(result);
 
             ResourceIterator<Relationship> iterator
                     = (ResourceIterator<Relationship>) dataContext.getRelationships(Components.FITS1, Direction.OUTGOING).iterator();
@@ -116,19 +128,20 @@ public class SCLabelerTest {
 
             Assert.assertTrue(
                     db.getAllNodes().stream()
-                            .filter(node -> !node.hasLabel(Components.CONTEXT))
+                            .filter(node -> !node.hasLabel(Components.CONTEXT) && !node.equals(scope))
                             .map(node -> node.hasRelationship(Components.FITS1, Direction.INCOMING))
                             .reduce(true, (aBoolean, aBoolean2) -> aBoolean && aBoolean2));
 
             Assert.assertTrue(
                     ((ResourceIterator<Relationship>) emptyContext
                                 .getRelationships(Components.FITS1, Direction.OUTGOING).iterator())
-                            .stream().count() == 10);
+                            .stream().count() == 13);
+                                // includes other contexts!
 
             Assert.assertTrue(
                     ((ResourceIterator<Relationship>) emptyContext2
                                 .getRelationships(Components.FITS1, Direction.OUTGOING).iterator())
-                            .stream().count() == 10);
+                            .stream().count() == 0);
 
 //            tx.acquireWriteLock(emptyContext);
 

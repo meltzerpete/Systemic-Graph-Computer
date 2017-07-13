@@ -1,10 +1,10 @@
 package graphEngine;
 
-import org.apache.commons.lang3.time.StopWatch;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 
-import java.util.Locale;
+import java.util.Arrays;
 import java.util.stream.Stream;
 
 /**
@@ -14,18 +14,26 @@ abstract class SCLabeler {
 
     private Computer comp;
     private GraphDatabaseService db;
-    private SCSystemHandler scHandler;
 
     SCLabeler(Computer comp, GraphDatabaseService db) {
         this.comp = comp;
         this.db = db;
-        this.scHandler = comp.getHandler();
     }
 
     void labelFitsInScope(Node scope) {
-        //TODO labelFitsInScope()
-        Stream<Node> containedContexts = scHandler.getContextsInScope(scope);
+        //TODO can ad extra matching conditions here - OR
 
+        SCSystemHandler scHandler = comp.getHandler();
+        Stream<Node> containedContexts = scHandler.getContextsInScope(scope);
+        containedContexts.forEach(context -> {
+            Stream<Node>  otherSystems = scHandler.getAllSystemsInScope(scope);
+            otherSystems
+                    .filter(other -> !other.equals(context))
+                    .forEach(other -> {
+                        if (fitsLabels(context, other, Components.s1Labels))
+                            context.createRelationshipTo(other, Components.FITS1);
+                    });
+        });
     }
 
     void labelAllFits() {
@@ -40,25 +48,13 @@ abstract class SCLabeler {
         //TODO labelReadyInScope()
     }
 
-    private boolean fits1(Node context, Node node) {
-        //TODO fits1/2() checks
+    private boolean fitsLabels(Node context, Node node, String propertyName) {
 
-        //for each s1 label:
-            //check label exists on node
-
-        if (context.hasProperty("s1Labels")) {
-            String[] s1Labels = (String[]) context.getProperty("s1Labels");
-//            System.out.println("fits1: " + Arrays.toString(s1Labels));
-
-
-
-        }
-        StopWatch timer = new StopWatch();
-        timer.start();
-        System.out.println((8-6)*(5-2));
-        timer.stop();
-        System.out.println(String.format(Locale.UK, "%d x 10e-9 s", timer.getNanoTime()));
-
-        return false;
+        if (context.hasProperty(propertyName))
+            return Arrays.stream((String[]) context.getProperty(propertyName))
+                    .map(labelString -> node.hasLabel(Label.label(labelString)))
+                    .reduce(true, (aBoolean, aBoolean2) -> aBoolean && aBoolean2);
+        else
+            return false;
     }
 }

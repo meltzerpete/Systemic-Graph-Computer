@@ -15,13 +15,14 @@ class Computer {
     private List<Result> output;
 
     private final SCLabeler labeler;
-    private final graphEngine.SCSystemHandler handler;
+    private final SCSystemHandler handler;
 
     Computer(GraphDatabaseService db) {
         this.db = db;
         this.output = new LinkedList<>();
-        this.labeler = new SCLabeler();
+
         this.handler = new SCSystemHandler();
+        this.labeler = new SCLabeler();
     }
 
     void preProcess() {
@@ -36,7 +37,7 @@ class Computer {
         return labeler;
     }
 
-    graphEngine.SCSystemHandler getHandler() {
+    SCSystemHandler getHandler() {
         return handler;
     }
 
