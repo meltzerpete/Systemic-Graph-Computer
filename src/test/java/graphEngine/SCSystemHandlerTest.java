@@ -61,6 +61,7 @@ public class SCSystemHandlerTest {
             });
 
             tx.success();
+            tx.close();
         }
     }
 
@@ -104,7 +105,7 @@ public class SCSystemHandlerTest {
             });
 
             tx.success();
-
+            tx.close();
         }
     }
 
@@ -152,6 +153,7 @@ public class SCSystemHandlerTest {
             });
 
             tx.success();
+            tx.close();
         }
     }
 
@@ -180,6 +182,7 @@ public class SCSystemHandlerTest {
             assertTrue(resultSet.size() > db.findNodes(Components.READY).stream().count() * 0.9);
 
             tx.success();
+            tx.close();
         }
     }
 
@@ -211,6 +214,7 @@ public class SCSystemHandlerTest {
             assertTrue(resultSet.size() > 250 * 0.9);
 
             tx.success();
+            tx.close();
         }
     }
 }

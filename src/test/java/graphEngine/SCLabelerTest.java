@@ -27,10 +27,11 @@ public class SCLabelerTest {
     public void getInstance() throws Throwable {
         try (Driver driver = GraphDatabase.driver(neo4j.boltURI(), Config.build()
                 .withEncryptionLevel(Config.EncryptionLevel.NONE).toConfig());
-             Session session = driver.session()) {
+             Session session = driver.session();
+             ) {
             GraphDatabaseService db = neo4j.getGraphDatabaseService();
-
             Transaction tx = db.beginTx();
+
             Computer comp = new Computer(db);
             SCLabeler scLabeler = comp.getLabeler();
 
@@ -129,7 +130,10 @@ public class SCLabelerTest {
                                 .getRelationships(Components.FITS1, Direction.OUTGOING).iterator())
                             .stream().count() == 10);
 
+//            tx.acquireWriteLock(emptyContext);
+
             tx.success();
+            tx.close();
         }
     }
 }

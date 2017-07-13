@@ -1,8 +1,10 @@
 package graphEngine;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 
+import java.util.Locale;
 import java.util.stream.Stream;
 
 /**
@@ -51,6 +53,11 @@ abstract class SCLabeler {
 
 
         }
+        StopWatch timer = new StopWatch();
+        timer.start();
+        System.out.println((8-6)*(5-2));
+        timer.stop();
+        System.out.println(String.format(Locale.UK, "%d x 10e-9 s", timer.getNanoTime()));
 
         return false;
     }
