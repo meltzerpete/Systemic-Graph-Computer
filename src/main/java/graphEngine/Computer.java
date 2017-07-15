@@ -1,6 +1,7 @@
 package graphEngine;
 
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Result;
 
 import java.util.LinkedList;
@@ -26,11 +27,23 @@ class Computer {
     }
 
     void preProcess() {
-        //TODO preProcess()
+
+        labeler.labelAllFits();
+        labeler.labelAllReady();
     }
 
     void compute(int maxInteractions) {
         //TODO compute()
+
+        // get random trio
+        Node readyContext = handler.getRandomReady();
+        Pair readyPair = handler.getRandomPair(readyContext);
+
+        // perform transformation function
+        Functions.valueOf("SUBTRACT")
+                .perform(readyContext, readyPair.s1, readyPair.s2);
+
+        // amend READY / FITS properties
     }
 
     SCLabeler getLabeler() {

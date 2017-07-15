@@ -31,10 +31,13 @@ abstract class SCLabeler {
                     .filter(other -> !other.equals(context))
                     .forEach(other -> {
                         if (fitsLabels(context, other, Components.s1Labels)) {
-                            context.createRelationshipTo(other, Components.FITS1);
+                            Relationship rel = context.createRelationshipTo(other, Components.FITS1);
+                            rel.setProperty("scope", scope.getId());
                         }
-                        if (fitsLabels(context, other, Components.s2Labels))
-                            context.createRelationshipTo(other, Components.FITS2);
+                        if (fitsLabels(context, other, Components.s2Labels)) {
+                            Relationship rel = context.createRelationshipTo(other, Components.FITS2);
+                            rel.setProperty("scope", scope.getId());
+                        }
                     });
         });
     }

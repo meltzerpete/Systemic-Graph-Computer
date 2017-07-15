@@ -2,6 +2,8 @@ package graphEngine;
 
 import org.neo4j.graphdb.*;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -71,7 +73,7 @@ abstract class SCSystemHandler {
     }
 
     /**
-     * Selects a random {@link Node} with the READY {@link Label}.
+     * Selects a random context {@link Node} with the READY {@link Label}.
      * @return Randomly selected READY {@link Node}
      */
     Node getRandomReady() {
@@ -81,29 +83,33 @@ abstract class SCSystemHandler {
     }
 
     /**
-     * Selectes a random SCHEMA_1 matching {@link Node} for the given context.
+     * Selectes a random SCHEMA_1 matching {@link Node} for the given context and within the given scope.
      * @param context Context {@link Node} for which to find a match
      * @return Randomly selected SCHEMA_1 matching {@link Node}
      */
-    Node getRandomS1(Node context) {
+    private Node getRandomS1(Node context, Node scope) {
 
         ResourceIterable<Relationship> relationships =
                 (ResourceIterable<Relationship>) context.getRelationships(FITS1, Direction.OUTGOING);
 
-        return getRandomEndNode(relationships.stream());
+        Stream<Relationship> fits = relationships.stream().filter(rel -> rel.getProperty("scope").equals(scope.getId()));
+
+        return getRandomEndNode(fits);
     }
 
     /**
-     * Selectes a random SCHEMA_1 matching {@link Node} for the given context.
+     * Selectes a random SCHEMA_2 matching {@link Node} for the given context.
      * @param context Context {@link Node} for which to find a match
      * @return Randomly selected SCHEMA_1 matching {@link Node}
      */
-    Node getRandomS2(Node context) {
+    private Node getRandomS2(Node context, Node scope) {
 
         ResourceIterable<Relationship> relationships =
                 (ResourceIterable<Relationship>) context.getRelationships(FITS2, Direction.OUTGOING);
 
-        return getRandomEndNode(relationships.stream());
+        Stream<Relationship> fits = relationships.stream().filter(rel -> rel.getProperty("scope").equals(scope.getId()));
+
+        return getRandomEndNode(fits);
     }
 
     /**
@@ -116,5 +122,30 @@ abstract class SCSystemHandler {
                 (ResourceIterator<Relationship>) node.getRelationships(CONTAINS, Direction.INCOMING).iterator();
 
         return relationships.stream().map(Relationship::getStartNode);
+    }
+
+    Pair getRandomPair(Node readyContext) {
+
+        Stream<Node> scopes = getParentScopes(readyContext);
+
+        List<Pair> pairs = new LinkedList<>();
+        scopes.forEach(scope -> {
+            Pair readyPair = new Pair();
+            try {
+                readyPair.s1 = getRandomS1(readyContext, scope);
+                readyPair.s2 = getRandomS2(readyContext, scope);
+                pairs.add(readyPair);
+            } catch (Exception e) {
+                //TODO remove print/tidy exception
+                System.out.println(e.getClass());
+                System.out.println(e.getMessage());
+            }
+        });
+
+        AtomicInteger count = new AtomicInteger(2);
+        //noinspection ConstantConditions
+        return pairs.stream()
+                .filter(p -> p != null)
+                .reduce((acc, next) -> Math.random() > 1.0 / count.getAndIncrement() ? acc : next).get();
     }
 }
