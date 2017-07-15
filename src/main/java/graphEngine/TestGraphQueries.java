@@ -136,6 +136,11 @@ public class TestGraphQueries {
                     "(c2)-[:CONTAINS]->(a3)," +
                     "(c2)-[:CONTAINS]->(a4)";
 
+    public static String viewGraph = "MATCH (n)" +
+            "OPTIONAL MATCH (n)-[r]->(m)" +
+            "RETURN DISTINCT id(n) AS ID, labels(n) AS Labels," +
+            "properties(n) AS Properties, {r:r, n:id(m)} AS Relationships";
+
     @Procedure(value = "graphEngine.loadGraph", mode = Mode.SCHEMA)
     public void loadGraph() {
         db.execute(systemsWithShapeProperties);

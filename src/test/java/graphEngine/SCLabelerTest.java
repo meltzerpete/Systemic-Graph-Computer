@@ -22,7 +22,7 @@ public class SCLabelerTest {
     public Neo4jRule neo4j = new Neo4jRule();
 
     @Test
-    public void getInstance() throws Throwable {
+    public void labellingFits() throws Throwable {
         try (Driver driver = GraphDatabase.driver(neo4j.boltURI(), Config.build()
                 .withEncryptionLevel(Config.EncryptionLevel.NONE).toConfig());
              Session session = driver.session();
@@ -89,18 +89,12 @@ public class SCLabelerTest {
 //                });
 //            });
 
-            String result = db.execute("MATCH (n)" +
-                    "OPTIONAL MATCH (n)-[r]->(m)" +
-                    "RETURN DISTINCT id(n) AS ID, labels(n) AS Labels," +
-                    "properties(n) AS Properties, {r:r, n:id(m)} AS Relationships").resultAsString();
+            String result = db.execute(TestGraphQueries.viewGraph).resultAsString();
             System.out.println(result);
 
             scLabeler.labelFitsInScope(scope);
 
-            result = db.execute("MATCH (n)" +
-                    "OPTIONAL MATCH (n)-[r]->(m)" +
-                    "RETURN DISTINCT id(n) AS ID, labels(n) AS Labels," +
-                    "properties(n) AS Properties, {r:r, n:id(m)} AS Relationships").resultAsString();
+            result = db.execute(TestGraphQueries.viewGraph).resultAsString();
             System.out.println(result);
 
             ResourceIterator<Relationship> iterator
@@ -147,6 +141,63 @@ public class SCLabelerTest {
 
             tx.success();
             tx.close();
+        }
+    }
+
+    @Test
+    public void labellingReady() throws Throwable {
+        try (Driver driver = GraphDatabase.driver(neo4j.boltURI(), Config.build()
+                .withEncryptionLevel(Config.EncryptionLevel.NONE).toConfig());
+             Session session = driver.session();
+        ) {
+            GraphDatabaseService db = neo4j.getGraphDatabaseService();
+            Transaction tx = db.beginTx();
+
+            Computer comp = new Computer(db);
+            SCLabeler scLabeler = comp.getLabeler();
+
+            // load test graph
+            db.execute(TestGraphQueries.systemsWithShapeProperties);
+
+            // view graph state
+            System.out.println(db.execute(TestGraphQueries.viewGraph).resultAsString());
+
+            // label all fits
+            scLabeler.labelAllFits();
+
+            // label all ready
+            scLabeler.labelAllReady();
+
+            // view and compare graph state
+            Result result = db.execute(TestGraphQueries.viewGraph);
+            System.out.println(result.resultAsString());
+            Assert.assertEquals(
+                    "+-------------------------------------------------------------------------------------------------------------------------------------------------------------+\n" +
+                            "| ID | Labels                       | Properties                                                                              | Relationships                 |\n" +
+                            "+-------------------------------------------------------------------------------------------------------------------------------------------------------------+\n" +
+                            "| 0  | [\"System\",\"Data\",\"Data1\"]    | {name -> \"a1\", data -> 10}                                                              | {r -> <null>, n -> <null>}    |\n" +
+                            "| 1  | [\"System\",\"Data\",\"Data2\"]    | {name -> \"a2\", data -> 8}                                                               | {r -> <null>, n -> <null>}    |\n" +
+                            "| 2  | [\"System\",\"Data\",\"Data1\"]    | {name -> \"a3\", data -> 9}                                                               | {r -> <null>, n -> <null>}    |\n" +
+                            "| 3  | [\"System\",\"Data\",\"Data2\"]    | {name -> \"a4\", data -> 6}                                                               | {r -> <null>, n -> <null>}    |\n" +
+                            "| 4  | [\"System\",\"SCOPE\"]           | {name -> \"main\"}                                                                        | {r -> :CONTAINS[0]{}, n -> 7} |\n" +
+                            "| 4  | [\"System\",\"SCOPE\"]           | {name -> \"main\"}                                                                        | {r -> :CONTAINS[1]{}, n -> 6} |\n" +
+                            "| 4  | [\"System\",\"SCOPE\"]           | {name -> \"main\"}                                                                        | {r -> :CONTAINS[2]{}, n -> 8} |\n" +
+                            "| 4  | [\"System\",\"SCOPE\"]           | {name -> \"main\"}                                                                        | {r -> :CONTAINS[3]{}, n -> 9} |\n" +
+                            "| 5  | [\"System\",\"CONTEXT\",\"READY\"] | {name -> \"subE\", function -> \"SUBTRACTe\", s1Labels -> [\"Data1\"], s2Labels -> [\"Data2\"]} | {r -> :FITS1[10]{}, n -> 0}   |\n" +
+                            "| 5  | [\"System\",\"CONTEXT\",\"READY\"] | {name -> \"subE\", function -> \"SUBTRACTe\", s1Labels -> [\"Data1\"], s2Labels -> [\"Data2\"]} | {r -> :FITS1[12]{}, n -> 2}   |\n" +
+                            "| 5  | [\"System\",\"CONTEXT\",\"READY\"] | {name -> \"subE\", function -> \"SUBTRACTe\", s1Labels -> [\"Data1\"], s2Labels -> [\"Data2\"]} | {r -> :FITS2[11]{}, n -> 1}   |\n" +
+                            "| 5  | [\"System\",\"CONTEXT\",\"READY\"] | {name -> \"subE\", function -> \"SUBTRACTe\", s1Labels -> [\"Data1\"], s2Labels -> [\"Data2\"]} | {r -> :FITS2[13]{}, n -> 3}   |\n" +
+                            "| 6  | [\"System\",\"CONTEXT\"]         | {name -> \"mul\", function -> \"MULTIPLY\", s1Labels -> [\"Data\"], s2Labels -> [\"Data\"]}     | {r -> <null>, n -> <null>}    |\n" +
+                            "| 7  | [\"System\",\"CONTEXT\"]         | {name -> \"print\", function -> \"PRINT\", s1Labels -> [\"Data\"], s2Labels -> [\"Data\"]}      | {r -> <null>, n -> <null>}    |\n" +
+                            "| 8  | [\"System\",\"SCOPE\"]           | {name -> \"c1\"}                                                                          | {r -> :CONTAINS[4]{}, n -> 5} |\n" +
+                            "| 8  | [\"System\",\"SCOPE\"]           | {name -> \"c1\"}                                                                          | {r -> :CONTAINS[5]{}, n -> 0} |\n" +
+                            "| 8  | [\"System\",\"SCOPE\"]           | {name -> \"c1\"}                                                                          | {r -> :CONTAINS[6]{}, n -> 1} |\n" +
+                            "| 9  | [\"System\",\"SCOPE\"]           | {name -> \"c2\"}                                                                          | {r -> :CONTAINS[7]{}, n -> 5} |\n" +
+                            "| 9  | [\"System\",\"SCOPE\"]           | {name -> \"c2\"}                                                                          | {r -> :CONTAINS[8]{}, n -> 2} |\n" +
+                            "| 9  | [\"System\",\"SCOPE\"]           | {name -> \"c2\"}                                                                          | {r -> :CONTAINS[9]{}, n -> 3} |\n" +
+                            "+-------------------------------------------------------------------------------------------------------------------------------------------------------------+\n" +
+                            "20 rows\n", result.resultAsString());
+
         }
     }
 }

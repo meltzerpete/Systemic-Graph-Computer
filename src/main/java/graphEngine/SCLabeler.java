@@ -1,10 +1,10 @@
 package graphEngine;
 
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Label;
-import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.*;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -21,7 +21,7 @@ abstract class SCLabeler {
     }
 
     void labelFitsInScope(Node scope) {
-        //TODO can add extra matching conditions here - OR
+        //TODO can add extra matching conditions here - OR/AND?
 
         SCSystemHandler scHandler = comp.getHandler();
         Stream<Node> containedContexts = scHandler.getContextsInScope(scope);
@@ -30,24 +30,46 @@ abstract class SCLabeler {
             otherSystems
                     .filter(other -> !other.equals(context))
                     .forEach(other -> {
-                        if (fitsLabels(context, other, Components.s1Labels))
+                        if (fitsLabels(context, other, Components.s1Labels)) {
                             context.createRelationshipTo(other, Components.FITS1);
+                        }
+                        if (fitsLabels(context, other, Components.s2Labels))
+                            context.createRelationshipTo(other, Components.FITS2);
                     });
         });
     }
 
     void labelAllFits() {
 
-        db.findNodes(Components.SCOPE).stream()
-                .forEach(scope -> labelFitsInScope(scope));
+        db.findNodes(Components.SCOPE).stream().forEach(this::labelFitsInScope);
     }
 
     void labelAllReady() {
-        //TODO labelAllReady()
+
+        db.findNodes(Components.SCOPE).stream().forEach(this::labelReadyInScope);
     }
 
-    void labelReadyInScope() {
-        //TODO labelReadyInScope()
+    void labelReadyInScope(Node scope) {
+
+        SCSystemHandler scHandler = comp.getHandler();
+        Stream<Node> contexts = scHandler.getContextsInScope(scope);
+        Stream<Node> nodes = scHandler.getAllSystemsInScope(scope);
+
+        HashSet<Node> nodesInScope  = nodes.collect(Collectors.toCollection(HashSet::new));
+
+        Stream<Node> readyContexts = contexts.filter(context -> {
+            ResourceIterator<Relationship> rels1 = (ResourceIterator<Relationship>) context.getRelationships(Components.FITS1).iterator();
+            ResourceIterator<Relationship> rels2 = (ResourceIterator<Relationship>) context.getRelationships(Components.FITS2).iterator();
+
+            return rels1.stream().anyMatch(rel1 -> nodesInScope.contains(rel1.getEndNode()))
+                    && rels2.stream().anyMatch(rel2 -> nodesInScope.contains(rel2.getEndNode()));
+
+        });
+
+        readyContexts.forEach(context -> {
+            context.addLabel(Components.READY);
+        });
+
     }
 
     private boolean fitsLabels(Node context, Node node, String propertyName) {
