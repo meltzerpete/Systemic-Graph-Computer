@@ -39,8 +39,8 @@ public class ComputerTest {
 
             comp.compute(10);
 
-            state = db.execute(TestGraphQueries.viewGraph).resultAsString();
-            System.out.println(state);
+//            state = db.execute(TestGraphQueries.viewGraph).resultAsString();
+//            System.out.println(state);
 
             tx.success();
             tx.close();

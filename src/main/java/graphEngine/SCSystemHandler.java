@@ -1,9 +1,9 @@
 package graphEngine;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.neo4j.graphdb.*;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -79,6 +79,12 @@ abstract class SCSystemHandler {
     Node getRandomReady() {
 
         // TODO perhaps change to indexed queue system
+
+//        db.findNodes(READY).stream().forEach(node -> {
+//            System.out.println("Marked as READY: " + node.getProperty("name"));
+//        });
+
+//        System.out.println(db.execute(TestGraphQueries.viewGraph).resultAsString());
         return getRandomNode(db.findNodes(READY).stream());
     }
 
@@ -100,14 +106,17 @@ abstract class SCSystemHandler {
     /**
      * Selectes a random SCHEMA_2 matching {@link Node} for the given context.
      * @param context Context {@link Node} for which to find a match
+     * @param s1
      * @return Randomly selected SCHEMA_1 matching {@link Node}
      */
-    private Node getRandomS2(Node context, Node scope) {
+    private Node getRandomS2(Node context, Node scope, Node s1) {
 
         ResourceIterable<Relationship> relationships =
                 (ResourceIterable<Relationship>) context.getRelationships(FITS2, Direction.OUTGOING);
 
-        Stream<Relationship> fits = relationships.stream().filter(rel -> rel.getProperty("scope").equals(scope.getId()));
+        Stream<Relationship> fits = relationships.stream()
+                .filter(rel -> !rel.getEndNode().equals(s1))
+                .filter(rel -> rel.getProperty("scope").equals(scope.getId()));
 
         return getRandomEndNode(fits);
     }
@@ -126,17 +135,26 @@ abstract class SCSystemHandler {
 
     Pair getRandomPair(Node readyContext) {
 
+        //TODO filter here according to readyContext scopeID property
         Stream<Node> scopes = getParentScopes(readyContext);
+//        System.out.println("Scopes: ");
+//        getParentScopes(readyContext).forEach(System.out::println);
+
+        Long[] idArray = ArrayUtils.toObject((long[]) readyContext.getProperty(Components.readyContextScopeID));
+        HashSet<Long> idSet = new HashSet<>(Arrays.asList(idArray));
 
         List<Pair> pairs = new LinkedList<>();
-        scopes.forEach(scope -> {
+        scopes
+                .filter(scope -> idSet.contains(scope.getId()))
+                .forEach(scope -> {
             Pair readyPair = new Pair();
             try {
                 readyPair.s1 = getRandomS1(readyContext, scope);
-                readyPair.s2 = getRandomS2(readyContext, scope);
+                readyPair.s2 = getRandomS2(readyContext, scope, readyPair.s1);
                 pairs.add(readyPair);
-            } catch (Exception e) {
-                //TODO remove print/tidy exception
+            } catch (NoSuchElementException e) {
+                //TODO remove print - swap to logger
+                e.printStackTrace();
                 System.out.println(e.getClass());
                 System.out.println(e.getMessage());
             }
