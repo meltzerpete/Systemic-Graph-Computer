@@ -10,15 +10,13 @@ import java.util.Locale;
 /**
  * Created by Pete Meltzer on 11/07/17.
  */
-class Computer {
+class Computer implements Runnable {
 
     final GraphDatabaseService db;
     private List<Result> output;
 
     private final SCLabeler labeler;
     private final SCSystemHandler handler;
-
-    private StopWatch timer = new StopWatch();
 
     Computer(GraphDatabaseService db) {
         this.db = db;
@@ -30,40 +28,62 @@ class Computer {
 
     void preProcess() {
 
+        StopWatch timer = new StopWatch();
         timer.start();
-        Transaction tx = db.beginTx();
+        labeler.labelAllFits();
+        labeler.labelAllReady();
+        timer.stop();
+        System.out.println(String.format(Locale.UK, "Pre- processing: %,d x10e-9 s", timer.getNanoTime()));
+        timer.reset();
+    }
+
+    boolean check() {
+        Transaction checkTx = db.beginTx();;
         try {
-            labeler.labelAllFits();
-            labeler.labelAllReady();
-
-            tx.success();
-        } catch (TransactionFailureException ex) {
+            boolean check = db.getAllLabels().stream().anyMatch(label -> label.equals(Components.READY));
+            checkTx.success();
+            checkTx.close();
+            return check;
+        } catch (Exception ex) {
             ex.printStackTrace();
-        } finally {
-            tx.close();
-            System.out.println(String.format(Locale.UK, "Pre- processing: %,d x10e-9 s", timer.getNanoTime()));
+            checkTx.failure();
+            checkTx.close();
+            return false;
         }
-
     }
 
     void compute(int maxInteractions) {
 
+        StopWatch timer = new StopWatch();
+        timer.start();
+
         int count = 0;
-        while (count++ < maxInteractions
-                && db.getAllLabels().stream().anyMatch(label -> label.equals(Components.READY))) {
+        while (count < maxInteractions
+                && check()) {
 
             // get random trio
-            Node readyContext = handler.getRandomReady();
-//            System.out.println("Selected " + readyContext.getProperty("name") + " for context.");
-            Pair readyPair = handler.getRandomPair(readyContext);
-//            System.out.println("Selected " + readyPair.s1.getProperty("name") + " and " + readyPair.s2.getProperty("name")
-//                    + " for interaction.");
+            Node readyContext = null;
+            Transaction tx = db.beginTx();
+            try {
+                readyContext = handler.getRandomReady();
+                tx.success();
+                tx.close();
+            } catch (NoMoreReadysException e) {
+                // no ready systems - terminate program by exiting loop
+                break;
+            } catch (TransactionFailureException ex) {
+                ex.printStackTrace();
+                tx.failure();
+                tx.close();
+                continue;
+            }
 
             Transaction functionTx = db.beginTx();
-            Function selectedFunction = Function.valueOf((String) readyContext.getProperty("function"));
 
             try {
             /* -- acquire locks -- */
+                Function selectedFunction = Function.valueOf((String) readyContext.getProperty("function"));
+                Pair readyPair = handler.getRandomPair(readyContext);
 
                 functionTx.acquireWriteLock(readyContext);
                 functionTx.acquireWriteLock(readyPair.s1);
@@ -121,6 +141,7 @@ class Computer {
 
             /* -- releases the locks -- */
                 functionTx.success();
+                count++;
 
                 //TODO amend exception types
             } catch (IllegalArgumentException ex) {
@@ -139,12 +160,12 @@ class Computer {
 
         }
 
-        if (--count == maxInteractions)
+        if (count == maxInteractions)
             System.out.println(String.format(Locale.UK, "** Max interactions (%,d) reached **", maxInteractions));
         else
-            System.out.println(String.format(Locale.UK, "** No more active systems **\nExecution completed in %,d interactions.", maxInteractions));
+            System.out.println(String.format(Locale.UK, "** No more active systems **\nExecution completed in %,d interactions.", count));
 
-        System.out.println(String.format(Locale.UK, "Total execution time: %,d x10e-9 s", timer.getNanoTime()));
+        System.out.println(String.format(Locale.UK, "Thread: %s\nTotal execution time: %,d x10e-9 s", Thread.currentThread().getId(), timer.getNanoTime()));
     }
 
     SCLabeler getLabeler() {
@@ -153,6 +174,15 @@ class Computer {
 
     SCSystemHandler getHandler() {
         return handler;
+    }
+
+    @Override
+    public void run() {
+//        Transaction t = db.beginTx();
+//        System.out.println(db.execute(TestGraphQueries.viewGraph).resultAsString());
+        compute(5000);
+//        t.success();
+//        t.close();
     }
 
     private class SCSystemHandler extends graphEngine.SCSystemHandler {

@@ -76,16 +76,16 @@ abstract class SCSystemHandler {
      * Selects a random context {@link Node} with the READY {@link Label}.
      * @return Randomly selected READY {@link Node}
      */
-    Node getRandomReady() {
+    Node getRandomReady() throws NoMoreReadysException {
 
         // TODO perhaps change to indexed queue system
 
-//        db.findNodes(READY).stream().forEach(node -> {
-//            System.out.println("Marked as READY: " + node.getProperty("name"));
-//        });
-
-//        System.out.println(db.execute(TestGraphQueries.viewGraph).resultAsString());
-        return getRandomNode(db.findNodes(READY).stream());
+        AtomicInteger count = new AtomicInteger(2);
+        //noinspection ConstantConditions
+        return  db.findNodes(READY).stream()
+                .reduce((acc, next)
+                        -> Math.random() > 1.0 / count.getAndIncrement() ? acc : next)
+                .orElseThrow(new NoMoreReadysException("No more READY nodes found."));
     }
 
     /**
@@ -136,15 +136,12 @@ abstract class SCSystemHandler {
     Pair getRandomPair(Node readyContext) {
 
         //TODO filter here according to readyContext scopeID property
-        Stream<Node> scopes = getParentScopes(readyContext);
-//        System.out.println("Scopes: ");
-//        getParentScopes(readyContext).forEach(System.out::println);
 
         Long[] idArray = ArrayUtils.toObject((long[]) readyContext.getProperty(Components.readyContextScopeID));
         HashSet<Long> idSet = new HashSet<>(Arrays.asList(idArray));
 
         List<Pair> pairs = new LinkedList<>();
-        scopes
+        getParentScopes(readyContext)
                 .filter(scope -> idSet.contains(scope.getId()))
                 .forEach(scope -> {
             Pair readyPair = new Pair();
@@ -163,7 +160,7 @@ abstract class SCSystemHandler {
         AtomicInteger count = new AtomicInteger(2);
         //noinspection ConstantConditions
         return pairs.stream()
-                .filter(p -> p != null)
+                .filter(Objects::nonNull)
                 .reduce((acc, next) -> Math.random() > 1.0 / count.getAndIncrement() ? acc : next).get();
     }
 }

@@ -136,6 +136,37 @@ public class TestGraphQueries {
                     "(c2)-[:CONTAINS]->(a3)," +
                     "(c2)-[:CONTAINS]->(a4)";
 
+    public static String terminatingProgram =
+            "CREATE" +
+                    "(a1:System:Data:Data1 {name:'a1', data:10})," +
+                    "(a2:System:Data:Data2 {name:'a2', data:8})," +
+                    "(a3:System:Data:Data1 {name:'a3', data:9})," +
+                    "(a4:System:Data:Data2 {name:'a4', data:6})," +
+                    "(main:System:SCOPE {name:'main'})," +
+
+                    "(subE:System:CONTEXT {name:'subE', function:'SUBTRACTe', " +
+                    "s1Labels:['Data1'], s2Labels:['Data2']})," +
+
+                    "(mul:System:CONTEXT {name:'mul', function:'MULTIPLY'})," +
+
+                    "(print:System:CONTEXT {name:'print', function:'PRINT'})," +
+
+                    "(c1:System:SCOPE {name:'c1'})," +
+                    "(c2:System:SCOPE {name:'c2'})," +
+                    "(main)-[:CONTAINS]->(print)," +
+                    "(main)-[:CONTAINS]->(mul)," +
+                    "(main)-[:CONTAINS]->(c1)," +
+                    "(main)-[:CONTAINS]->(c2)," +
+                    "(c1)-[:CONTAINS]->(subE)," +
+                    "(c1)-[:CONTAINS]->(a1)," +
+                    "(c1)-[:CONTAINS]->(a2)," +
+                    "(c2)-[:CONTAINS]->(subE)," +
+                    "(c2)-[:CONTAINS]->(a3)," +
+                    "(c2)-[:CONTAINS]->(a4)";
+
+    public static String knapsack = "CREATE" +
+            "";
+
     public static String viewGraph = "MATCH (n)" +
             "OPTIONAL MATCH (n)-[r]->(m)" +
             "RETURN DISTINCT id(n) AS ID, labels(n) AS Labels," +
@@ -144,6 +175,11 @@ public class TestGraphQueries {
     @Procedure(value = "graphEngine.loadGraph", mode = Mode.SCHEMA)
     public void loadGraph() {
         db.execute(systemsWithShapeProperties);
+    }
+
+    @Procedure(value = "graphEngine.loadTerminatingGraph", mode = Mode.SCHEMA)
+    public void loadTerminatingGraph() {
+        db.execute(terminatingProgram);
     }
 }
 

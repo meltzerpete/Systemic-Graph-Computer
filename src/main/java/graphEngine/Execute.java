@@ -23,7 +23,36 @@ public class Execute {
 
         Computer SC = new Computer(db);
         SC.preProcess();
-        SC.compute((int) maxInteractions);
+        SC.compute(10000);
+
+        //TODO deal with return
+    }
+
+    @Procedure(value = "graphEngine.preProcess", mode = Mode.SCHEMA)
+    public void preProcess() {
+
+        Computer SC = new Computer(db);
+        SC.preProcess();
+
+        //TODO deal with return
+    }
+
+    @Procedure(value = "graphEngine.executeParallel", mode = Mode.SCHEMA)
+    public void executeParallel(@Name("No. of threads") long threads) {
+
+        for (int i = 0; i < (int) threads; i++) {
+            (new Thread(new Computer(db))).start();
+        }
+
+        //TODO deal with return
+    }
+
+
+    @Procedure(value = "graphEngine.loadMany", mode = Mode.SCHEMA)
+    public void loadMany(@Name("No. of graphs") long graphs) {
+
+        for (int i = 0; i < (int) graphs; i++)
+            db.execute(TestGraphQueries.terminatingProgram);
 
         //TODO deal with return
     }
