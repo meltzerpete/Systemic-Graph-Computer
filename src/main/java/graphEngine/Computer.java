@@ -38,7 +38,7 @@ class Computer implements Runnable {
     }
 
     boolean check() {
-        Transaction checkTx = db.beginTx();;
+        Transaction checkTx = db.beginTx();
         try {
             boolean check = db.getAllLabels().stream().anyMatch(label -> label.equals(Components.READY));
             checkTx.success();
@@ -58,29 +58,17 @@ class Computer implements Runnable {
         timer.start();
 
         int count = 0;
-        while (count < maxInteractions
-                && check()) {
+        while (count < maxInteractions && check()) {
 
-            // get random trio
+
             Node readyContext = null;
-            Transaction tx = db.beginTx();
-            try {
-                readyContext = handler.getRandomReady();
-                tx.success();
-                tx.close();
-            } catch (NoMoreReadysException e) {
-                // no ready systems - terminate program by exiting loop
-                break;
-            } catch (TransactionFailureException ex) {
-                ex.printStackTrace();
-                tx.failure();
-                tx.close();
-                continue;
-            }
-
             Transaction functionTx = db.beginTx();
 
             try {
+
+            /* -- get random trio -- */
+
+                readyContext = handler.getRandomReady();
             /* -- acquire locks -- */
                 Function selectedFunction = Function.valueOf((String) readyContext.getProperty("function"));
                 Pair readyPair = handler.getRandomPair(readyContext);
@@ -91,9 +79,9 @@ class Computer implements Runnable {
 
                 // lock parent scopes if necessary
                 if (selectedFunction.affectsS1parentScopes())
-                    handler.getParentScopes(readyPair.s1).forEach(functionTx::acquireWriteLock);
+                handler.getParentScopes(readyPair.s1).forEach(functionTx::acquireWriteLock);
                 if (selectedFunction.affectsS2parentScopes())
-                    handler.getParentScopes(readyPair.s2).forEach(functionTx::acquireWriteLock);
+                handler.getParentScopes(readyPair.s2).forEach(functionTx::acquireWriteLock);
 
             /* -- perform transformation function -- */
 
@@ -102,11 +90,11 @@ class Computer implements Runnable {
             /* -- amend READY / FITS properties -- */
 
                 ResourceIterator<Relationship> fits1Relationships =
-                        (ResourceIterator<Relationship>) readyPair.s1
+                (ResourceIterator<Relationship>) readyPair.s1
                                 .getRelationships(Components.FITS1, Direction.INCOMING).iterator();
 
                 ResourceIterator<Relationship> fits2Relationships =
-                        (ResourceIterator<Relationship>) readyPair.s2
+                (ResourceIterator<Relationship>) readyPair.s2
                                 .getRelationships(Components.FITS2, Direction.INCOMING).iterator();
 
                 // remove existing fits/READY labels dependent on the transformed nodes
@@ -120,16 +108,16 @@ class Computer implements Runnable {
 
                 fits2Relationships.stream().forEach(fitsRel -> {
                     if (fitsRel.getStartNode().hasLabel(Components.READY))
-                        fitsRel.getStartNode().removeLabel(Components.READY);
+                    fitsRel.getStartNode().removeLabel(Components.READY);
                     fitsRel.delete();
                 });
 
                 // check for new fits/ready
                 readyPair.getAll().forEach(sNode ->
-                        handler.getParentScopes(sNode).forEach(scope -> {
-                            labeler.labelFitsInScope(scope);
-                            labeler.labelReadyInScope(scope);
-                        }));
+                handler.getParentScopes(sNode).forEach(scope -> {
+                    labeler.labelFitsInScope(scope);
+                    labeler.labelReadyInScope(scope);
+                }));
 
                 // check original context if it is no longer in a parent scope of the transformed sNodes
                 if (selectedFunction.affectsS1parentScopes() || selectedFunction.affectsS2parentScopes()) {
@@ -144,12 +132,16 @@ class Computer implements Runnable {
                 count++;
 
                 //TODO amend exception types
+            } catch (NoMoreReadysException e) {
+                // no ready systems - terminate program by exiting loop
+                functionTx.success();
+                break;
             } catch (IllegalArgumentException ex) {
-                System.out.println("Failed to parse: " + readyContext.getProperty("function"));
+                System.out.println("Failed to parse: " + (readyContext != null ? readyContext.getProperty("function") : "null"));
                 ex.printStackTrace();
             } catch (Exception ex) {
                 System.out.println("Failed to acquire locks");
-                ex.printStackTrace();
+//                ex.printStackTrace();
                 functionTx.failure();
             } finally {
 //                System.out.println("Success!");
@@ -161,9 +153,9 @@ class Computer implements Runnable {
         }
 
         if (count == maxInteractions)
-            System.out.println(String.format(Locale.UK, "** Max interactions (%,d) reached **", maxInteractions));
+        System.out.println(String.format(Locale.UK, "** Max interactions (%,d) reached **", maxInteractions));
         else
-            System.out.println(String.format(Locale.UK, "** No more active systems **\nExecution completed in %,d interactions.", count));
+        System.out.println(String.format(Locale.UK, "** No more active systems **\nExecution completed in %,d interactions.", count));
 
         System.out.println(String.format(Locale.UK, "Thread: %s\nTotal execution time: %,d x10e-9 s", Thread.currentThread().getId(), timer.getNanoTime()));
     }
@@ -181,7 +173,7 @@ class Computer implements Runnable {
 //        Transaction t = db.beginTx();
 //        System.out.println(db.execute(TestGraphQueries.viewGraph).resultAsString());
         compute(5000);
-//        t.success();
+        //        t.success();
 //        t.close();
     }
 
