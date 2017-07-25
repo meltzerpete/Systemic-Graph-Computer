@@ -24,6 +24,9 @@ class Components {
     static final String s1Labels = "s1Labels";
     static final String s2Labels = "s2Labels";
 
+    static final String s1Query = "s1Query";
+    static final String s2Query = "s2Query";
+
     static final String readyContextScopeID = "rcsID";
 
 }

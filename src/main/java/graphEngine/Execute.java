@@ -44,4 +44,14 @@ public class Execute {
 
         //TODO deal with return
     }
+
+    @Procedure(value = "graphEngine.loadManyQuery", mode = Mode.SCHEMA)
+    public void loadManyQuery(@Name("No. of graphs") long graphs) {
+
+        for (int i = 0; i < (int) graphs; i++)
+            db.execute(TestGraphQueries.terminatingProgramWithQueryMatching);
+
+        //TODO deal with return
+    }
+
 }

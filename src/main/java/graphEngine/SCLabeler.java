@@ -40,16 +40,39 @@ abstract class SCLabeler {
                     .filter(other -> !relationshipExists(context, other, Components.FITS1))
                     .filter(other -> !relationshipExists(context, other, Components.FITS2))
                     .forEach(other -> {
-                        if (fitsLabels(context, other, Components.s1Labels)) {
+                        if (context.hasProperty("s1Query") &&
+                                db.execute(queryBuilder(context, other, "s1Query")).hasNext()) {
                             Relationship rel = context.createRelationshipTo(other, Components.FITS1);
                             rel.setProperty("scope", scope.getId());
                         }
-                        if (fitsLabels(context, other, Components.s2Labels)) {
+                        if (context.hasProperty("s2Query") &&
+                                db.execute(queryBuilder(context, other, "s2Query")).hasNext()) {
                             Relationship rel = context.createRelationshipTo(other, Components.FITS2);
                             rel.setProperty("scope", scope.getId());
                         }
+//                        if (fitsLabels(context, other, Components.s1Labels)) {
+//                            Relationship rel = context.createRelationshipTo(other, Components.FITS1);
+//                            rel.setProperty("scope", scope.getId());
+//                        }
+//                        if (fitsLabels(context, other, Components.s2Labels)) {
+//                            Relationship rel = context.createRelationshipTo(other, Components.FITS2);
+//                            rel.setProperty("scope", scope.getId());
+//                        }
                     });
         });
+    }
+
+    String queryBuilder(Node context, Node other, String queryStringPropertyName) {
+//        System.out.println("Checking " + context.getProperty("name") + " against " + other.getProperty("name"));
+
+        String queryString =
+                "START n=node(" +
+                other.getId() +
+                ") MATCH " +
+                context.getProperty(queryStringPropertyName) +
+                " RETURN DISTINCT n LIMIT 1";
+//        System.out.println(queryString);
+        return queryString;
     }
 
     void labelAllFits() {

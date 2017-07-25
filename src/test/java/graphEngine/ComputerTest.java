@@ -28,7 +28,7 @@ public class ComputerTest {
             GraphDatabaseService db = neo4j.getGraphDatabaseService();
             Transaction tx = db.beginTx();
 
-            db.execute(TestGraphQueries.systemsWithShapeProperties);
+            db.execute(TestGraphQueries.terminatingProgramWithQueryMatching);
 
             Computer comp = new Computer(db);
 
