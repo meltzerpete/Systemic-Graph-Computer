@@ -2,10 +2,7 @@ package graphEngine;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.neo4j.graphdb.*;
-import queryCompiler.Compiler;
-import queryCompiler.Vertex;
 
-import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -21,10 +18,6 @@ class Computer implements Runnable {
     private final SCLabeler labeler;
     private final SCSystemHandler handler;
 
-    private Hashtable<String, Vertex> matchingGraphs = new Hashtable<>();
-
-    private Compiler compiler = new Compiler();
-
     Computer(GraphDatabaseService db) {
         this.db = db;
         this.output = new LinkedList<>();
@@ -34,48 +27,8 @@ class Computer implements Runnable {
     }
 
 
-    /**
-     * Returns the compiled graph for the given query.
-     * Checks first for a version in memory else compiles it and adds it
-     * to the collection.
-     * @param query Cypher style query for matching (root node <strong>must</strong>
-     *              have key 'n').
-     * @return {@link Vertex} for root of graph
-     */
-    Vertex getMatchingGraph(String query) {
-        if (matchingGraphs.containsKey(query))
-            return matchingGraphs.get(query);
-        else {
-            Vertex vertex = compiler.compile(query);
-            matchingGraphs.put(query, vertex);
-            return vertex;
-        }
-    }
 
     void preProcess() {
-
-        /* -- Compile matchingGraphs -- */
-
-        StopWatch compileTimer = new StopWatch();
-        compileTimer.start();
-
-        db.findNodes(Components.CONTEXT).stream().forEach(node -> {
-            if (node.hasProperty(Components.s1Query)) {
-                String s1Query = (String) node.getProperty(Components.s1Query);
-                if (!matchingGraphs.containsKey(s1Query)) {
-                    matchingGraphs.put(s1Query, compiler.compile(s1Query));
-                }
-            }
-            if (node.hasProperty(Components.s2Query)) {
-                String s2Query = (String) node.getProperty(Components.s2Query);
-                if (!matchingGraphs.containsKey(s2Query)) {
-                    matchingGraphs.put(s2Query, compiler.compile(s2Query));
-                }
-            }
-        });
-
-        compileTimer.stop();
-        System.out.println(String.format("Compilation took %,d x10e-3 s", compileTimer.getTime()));
 
         /* -- Create initial FITS relationships / label initial READY nodes -- */
 

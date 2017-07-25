@@ -35,42 +35,39 @@ abstract class SCLabeler {
         SCSystemHandler scHandler = comp.getHandler();
         Stream<Node> containedContexts = scHandler.getContextsInScope(scope);
         containedContexts.forEach(context -> {
-
-            // start here
-            Stream<Node>  targetNodes = scHandler.getAllSystemsInScope(scope);
-
-            if (context.hasProperty(Components.s1Query)) {
-
-                String queryString = (String) context.getProperty(Components.s1Query);
-                Vertex queryGraph = comp.getMatchingGraph(queryString);
-
-                targetNodes
-                        .filter(target -> !relationshipExists(context, target, Components.FITS1))
-                        .filter(target -> matchGraph(queryGraph, target))
-                        .forEach(target -> {
-                            Relationship rel = context.createRelationshipTo(target, Components.FITS1);
+            Stream<Node>  otherSystems = scHandler.getAllSystemsInScope(scope);
+            otherSystems
+                    .filter(other -> !other.equals(context))
+                    .filter(other -> !relationshipExists(context, other, Components.FITS1))
+                    .filter(other -> !relationshipExists(context, other, Components.FITS2))
+                    .forEach(other -> {
+                        if (context.hasProperty("s1Query") &&
+                                db.execute(queryBuilder(context, other, "s1Query")).hasNext()) {
+                            Relationship rel = context.createRelationshipTo(other, Components.FITS1);
                             rel.setProperty("scope", scope.getId());
-                        });
-            }
-
-            targetNodes = scHandler.getAllSystemsInScope(scope);
-
-            if (context.hasProperty(Components.s2Query)) {
-
-                String queryString = (String) context.getProperty(Components.s2Query);
-                Vertex queryGraph = comp.getMatchingGraph(queryString);
-
-                targetNodes
-                        .filter(target -> !relationshipExists(context, target, Components.FITS2))
-                        .filter(target -> matchGraph(queryGraph, target))
-                        .forEach(target -> {
-                            Relationship rel = context.createRelationshipTo(target, Components.FITS2);
+                        }
+                        if (context.hasProperty("s2Query") &&
+                                db.execute(queryBuilder(context, other, "s2Query")).hasNext()) {
+                            Relationship rel = context.createRelationshipTo(other, Components.FITS2);
                             rel.setProperty("scope", scope.getId());
-                        });
-            }
+                        }
 
+                    });
 
         });
+    }
+
+    String queryBuilder(Node context, Node other, String queryStringPropertyName) {
+//        System.out.println("Checking " + context.getProperty("name") + " against " + other.getProperty("name"));
+
+        String queryString =
+                "START n=node(" +
+                        other.getId() +
+                        ") MATCH " +
+                        context.getProperty(queryStringPropertyName) +
+                        " RETURN DISTINCT n LIMIT 1";
+//        System.out.println(queryString);
+        return queryString;
     }
 
     private boolean matchGraph(Vertex vertex, Node target) {

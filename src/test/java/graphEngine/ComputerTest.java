@@ -56,7 +56,7 @@ public class ComputerTest {
 
             GraphDatabaseService db = neo4j.getGraphDatabaseService();
 
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 10; i++) {
 
                 Transaction tx = db.beginTx();
 
@@ -70,7 +70,7 @@ public class ComputerTest {
 //            String state = db.execute(TestGraphQueries.viewGraph).resultAsString();
 //            System.out.println(state);
 
-                comp.compute(100000);
+                comp.compute(10000);
 
 //            state = db.execute(TestGraphQueries.viewGraph).resultAsString();
 //            System.out.println(state);
