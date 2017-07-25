@@ -55,25 +55,34 @@ public class ComputerTest {
              Session session = driver.session()) {
 
             GraphDatabaseService db = neo4j.getGraphDatabaseService();
-            Transaction tx = db.beginTx();
 
-            for (int i = 0; i < 10000; i++)
-                db.execute(TestGraphQueries.terminatingProgram);
+            for (int i = 0; i < 5; i++) {
 
-            Computer comp = new Computer(db);
+                Transaction tx = db.beginTx();
 
-            comp.preProcess();
+                for (int j = 0; j < 1000; j++)
+                    db.execute(TestGraphQueries.terminatingProgramWithQueryMatching);
+
+                Computer comp = new Computer(db);
+
+                comp.preProcess();
 
 //            String state = db.execute(TestGraphQueries.viewGraph).resultAsString();
 //            System.out.println(state);
 
-            comp.compute(100000);
+                comp.compute(100000);
 
 //            state = db.execute(TestGraphQueries.viewGraph).resultAsString();
 //            System.out.println(state);
 
-            tx.success();
-            tx.close();
+                tx.success();
+                tx.close();
+
+                db.execute("match (n) detach delete n");
+
+                System.out.println();
+                System.out.println();
+            }
 
         }
     }

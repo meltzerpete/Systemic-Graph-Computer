@@ -15,14 +15,14 @@ public class Compiler {
 
     private int debugLevel = 2;
 
-    public static void main (String... args) {
-
-
+    public Compiler() {
+        setTokens();
     }
 
     public Vertex compile(String queryString) {
 
-        setTokens();
+        if (debugLevel < 3)
+            System.out.println("Compiling: " + queryString);
 
         tokenizer.tokenize(queryString);
 

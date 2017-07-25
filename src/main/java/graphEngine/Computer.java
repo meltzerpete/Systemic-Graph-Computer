@@ -21,7 +21,7 @@ class Computer implements Runnable {
     private final SCLabeler labeler;
     private final SCSystemHandler handler;
 
-    private Hashtable<String, Vertex> matchingGraphs;
+    private Hashtable<String, Vertex> matchingGraphs = new Hashtable<>();
 
     private Compiler compiler = new Compiler();
 
@@ -39,7 +39,7 @@ class Computer implements Runnable {
      * Checks first for a version in memory else compiles it and adds it
      * to the collection.
      * @param query Cypher style query for matching (root node <strong>must</strong>
-     *              have name 'n').
+     *              have key 'n').
      * @return {@link Vertex} for root of graph
      */
     Vertex getMatchingGraph(String query) {

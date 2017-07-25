@@ -40,7 +40,7 @@ enum Function {
         void perform(Node context, Node s1, Node s2) {
             //TODO ESCAPE()
 
-//            System.out.println("ESCAPE on: " + s1.getProperty("name"));
+//            System.out.println("ESCAPE on: " + s1.getProperty("key"));
             ResourceIterator<Relationship> containsRelationships =
                     (ResourceIterator<Relationship>) s1.getRelationships(Components.CONTAINS, Direction.INCOMING).iterator();
 
@@ -62,7 +62,7 @@ enum Function {
         @Override
         void perform(Node context, Node s1, Node s2) {
 
-//            System.out.println("MULTIPLY on: " + s1.getProperty("name") + " and " + s2.getProperty("name"));
+//            System.out.println("MULTIPLY on: " + s1.getProperty("key") + " and " + s2.getProperty("key"));
             long result = ((long) s1.getProperty("data")) * ((long) s2.getProperty("data"));
             s1.setProperty("data", result);
             s2.setProperty("data", ((long) 1));

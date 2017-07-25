@@ -9,6 +9,18 @@ import java.util.LinkedList;
  */
 public class Vertex {
 
+    public LinkedList<Label> getLabels() {
+        return labels;
+    }
+
+    public LinkedList<PropertyPair<Object>> getProperties() {
+        return properties;
+    }
+
+    public LinkedList<Edge> getEdges() {
+        return edges;
+    }
+
     String name;
     LinkedList<Label> labels = new LinkedList<>();
     LinkedList<PropertyPair<Object>> properties = new LinkedList<>();

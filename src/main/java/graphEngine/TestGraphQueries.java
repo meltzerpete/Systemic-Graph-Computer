@@ -20,13 +20,13 @@ public class TestGraphQueries {
 //    private TestGraphQueries(){};
 
     public static String basicSubtraction =
-            "CREATE (main:System:SCOPE {name:'main'})," +
-                    "(print:System:CONTEXT {name:'print', function:'print'})," +
-                    "(star:System:CONTEXT {name:'*', function:'multiply'})," +
-                    "(c1:System:SCOPE {name:'c1'}), (c2:System:SCOPE {name:'c2'})," +
-                    "(subtract_e:System:CONTEXT {name:'-e', function:'subtract'})," +
-                    "(a1:System {name:'A1', data:7}), (a2:System {name:'A2', data:8})," +
-                    "(a3:System {name:'A3', data:6}), (a4:System {name:'A4', data:9})," +
+            "CREATE (main:System:SCOPE {key:'main'})," +
+                    "(print:System:CONTEXT {key:'print', function:'print'})," +
+                    "(star:System:CONTEXT {key:'*', function:'multiply'})," +
+                    "(c1:System:SCOPE {key:'c1'}), (c2:System:SCOPE {key:'c2'})," +
+                    "(subtract_e:System:CONTEXT {key:'-e', function:'subtract'})," +
+                    "(a1:System {key:'A1', data:7}), (a2:System {key:'A2', data:8})," +
+                    "(a3:System {key:'A3', data:6}), (a4:System {key:'A4', data:9})," +
                     "(main)-[:CONTAINS]->(print)," +
                     "(main)-[:CONTAINS]->(star)," +
                     "(main)-[:CONTAINS]->(c1)," +
@@ -60,21 +60,21 @@ public class TestGraphQueries {
 
     public static String systemsWithShapeNodes =
             "CREATE" +
-                    "(a1:System {name:'a1', data:8})," +
-                    "(a2:System {name:'a2', data:7})," +
-                    "(a3:System {name:'a3', data:6})," +
-                    "(a4:System {name:'a4', data:5})," +
-                    "(main:System:SCOPE {name:'main'})," +
-                    "(subE:System:CONTEXT {name:'subE', function:'SUBTRACTe'})," +
-                    "(mul:System:CONTEXT {name:'mul', function:'MULTIPLY'})," +
-                    "(print:System:CONTEXT {name:'print', function:'PRINT'})," +
-                    "(c1:System:SCOPE {name:'c1'})," +
-                    "(c2:System:SCOPE {name:'c2'})," +
-                    "(data:Shape {name:'data'})," +
-                    "(data1:Shape {name:'data1'})," +
-                    "(data2:Shape {name:'data2'})," +
-                    "(func:Shape {name:'function'})," +
-                    "(SCOPE:Shape {name:'SCOPE'})," +
+                    "(a1:System {key:'a1', data:8})," +
+                    "(a2:System {key:'a2', data:7})," +
+                    "(a3:System {key:'a3', data:6})," +
+                    "(a4:System {key:'a4', data:5})," +
+                    "(main:System:SCOPE {key:'main'})," +
+                    "(subE:System:CONTEXT {key:'subE', function:'SUBTRACTe'})," +
+                    "(mul:System:CONTEXT {key:'mul', function:'MULTIPLY'})," +
+                    "(print:System:CONTEXT {key:'print', function:'PRINT'})," +
+                    "(c1:System:SCOPE {key:'c1'})," +
+                    "(c2:System:SCOPE {key:'c2'})," +
+                    "(data:Shape {key:'data'})," +
+                    "(data1:Shape {key:'data1'})," +
+                    "(data2:Shape {key:'data2'})," +
+                    "(func:Shape {key:'function'})," +
+                    "(SCOPE:Shape {key:'SCOPE'})," +
                     "(a1)-[:HAS_SHAPE]->(data1)," +
                     "(a2)-[:HAS_SHAPE]->(data2)," +
                     "(a3)-[:HAS_SHAPE]->(data1)," +
@@ -108,23 +108,23 @@ public class TestGraphQueries {
 
     public static String systemsWithShapeProperties =
             "CREATE" +
-                    "(a1:System:Data:Data1 {name:'a1', data:10})," +
-                    "(a2:System:Data:Data2 {name:'a2', data:8})," +
-                    "(a3:System:Data:Data1 {name:'a3', data:9})," +
-                    "(a4:System:Data:Data2 {name:'a4', data:6})," +
-                    "(main:System:SCOPE {name:'main'})," +
+                    "(a1:System:Data:Data1 {key:'a1', data:10})," +
+                    "(a2:System:Data:Data2 {key:'a2', data:8})," +
+                    "(a3:System:Data:Data1 {key:'a3', data:9})," +
+                    "(a4:System:Data:Data2 {key:'a4', data:6})," +
+                    "(main:System:SCOPE {key:'main'})," +
 
-                    "(subE:System:CONTEXT {name:'subE', function:'SUBTRACTe', " +
+                    "(subE:System:CONTEXT {key:'subE', function:'SUBTRACTe', " +
                     "s1Labels:['Data1'], s2Labels:['Data2']})," +
 
-                    "(mul:System:CONTEXT {name:'mul', function:'MULTIPLY'," +
+                    "(mul:System:CONTEXT {key:'mul', function:'MULTIPLY'," +
                     "s1Labels:['Data'], s2Labels:['Data']})," +
 
-                    "(print:System:CONTEXT {name:'print', function:'PRINT'," +
+                    "(print:System:CONTEXT {key:'print', function:'PRINT'," +
                     "s1Labels:['Data'], s2Labels:['Data']})," +
 
-                    "(c1:System:SCOPE {name:'c1'})," +
-                    "(c2:System:SCOPE {name:'c2'})," +
+                    "(c1:System:SCOPE {key:'c1'})," +
+                    "(c2:System:SCOPE {key:'c2'})," +
                     "(main)-[:CONTAINS]->(print)," +
                     "(main)-[:CONTAINS]->(mul)," +
                     "(main)-[:CONTAINS]->(c1)," +
@@ -138,21 +138,21 @@ public class TestGraphQueries {
 
     public static String terminatingProgram =
             "CREATE" +
-                    "(a1:System:Data:Data1 {name:'a1', data:10})," +
-                    "(a2:System:Data:Data2 {name:'a2', data:8})," +
-                    "(a3:System:Data:Data1 {name:'a3', data:9})," +
-                    "(a4:System:Data:Data2 {name:'a4', data:6})," +
-                    "(main:System:SCOPE {name:'main'})," +
+                    "(a1:System:Data:Data1 {key:'a1', data:10})," +
+                    "(a2:System:Data:Data2 {key:'a2', data:8})," +
+                    "(a3:System:Data:Data1 {key:'a3', data:9})," +
+                    "(a4:System:Data:Data2 {key:'a4', data:6})," +
+                    "(main:System:SCOPE {key:'main'})," +
 
-                    "(subE:System:CONTEXT {name:'subE', function:'SUBTRACTe', " +
+                    "(subE:System:CONTEXT {key:'subE', function:'SUBTRACTe', " +
                     "s1Labels:['Data1'], s2Labels:['Data2']})," +
 
-                    "(mul:System:CONTEXT {name:'mul', function:'MULTIPLY'})," +
+                    "(mul:System:CONTEXT {key:'mul', function:'MULTIPLY'})," +
 
-                    "(print:System:CONTEXT {name:'print', function:'PRINT'})," +
+                    "(print:System:CONTEXT {key:'print', function:'PRINT'})," +
 
-                    "(c1:System:SCOPE {name:'c1'})," +
-                    "(c2:System:SCOPE {name:'c2'})," +
+                    "(c1:System:SCOPE {key:'c1'})," +
+                    "(c2:System:SCOPE {key:'c2'})," +
                     "(main)-[:CONTAINS]->(print)," +
                     "(main)-[:CONTAINS]->(mul)," +
                     "(main)-[:CONTAINS]->(c1)," +
@@ -166,21 +166,21 @@ public class TestGraphQueries {
 
     public static String terminatingProgramWithQueryMatching =
             "CREATE" +
-                    "(a1:System:Data:Data1 {name:'a1', data:10})," +
-                    "(a2:System:Data:Data2 {name:'a2', data:8})," +
-                    "(a3:System:Data:Data1 {name:'a3', data:9})," +
-                    "(a4:System:Data:Data2 {name:'a4', data:6})," +
-                    "(main:System:SCOPE {name:'main'})," +
+                    "(a1:System:Data:Data1 {key:'a1', data:10})," +
+                    "(a2:System:Data:Data2 {key:'a2', data:8})," +
+                    "(a3:System:Data:Data1 {key:'a3', data:9})," +
+                    "(a4:System:Data:Data2 {key:'a4', data:6})," +
+                    "(main:System:SCOPE {key:'main'})," +
 
-                    "(subE:System:CONTEXT {name:'subE', function:'SUBTRACTe', " +
+                    "(subE:System:CONTEXT {key:'subE', function:'SUBTRACTe', " +
                     "s1Query:'(n:Data1)', s2Query:'(n:Data2)'})," +
 
-                    "(mul:System:CONTEXT {name:'mul', function:'MULTIPLY'})," +
+                    "(mul:System:CONTEXT {key:'mul', function:'MULTIPLY'})," +
 
-                    "(print:System:CONTEXT {name:'print', function:'PRINT'})," +
+                    "(print:System:CONTEXT {key:'print', function:'PRINT'})," +
 
-                    "(c1:System:SCOPE {name:'c1'})," +
-                    "(c2:System:SCOPE {name:'c2'})," +
+                    "(c1:System:SCOPE {key:'c1'})," +
+                    "(c2:System:SCOPE {key:'c2'})," +
                     "(main)-[:CONTAINS]->(print)," +
                     "(main)-[:CONTAINS]->(mul)," +
                     "(main)-[:CONTAINS]->(c1)," +

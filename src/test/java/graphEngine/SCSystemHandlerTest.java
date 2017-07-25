@@ -37,12 +37,12 @@ public class SCSystemHandlerTest {
 
                 Stream<Node> methodRes = handler.getAllSystemsInScope(node);
 
-                Result testRes = db.execute("match (n:SCOPE {name:'"
-                        + node.getProperty("name")
-                        + "'})-[:CONTAINS]->(m) return m.name");
+                Result testRes = db.execute("match (n:SCOPE {key:'"
+                        + node.getProperty("key")
+                        + "'})-[:CONTAINS]->(m) return m.key");
 
                 methodRes.forEach(node1 -> {
-                    assertTrue(testRes.resultAsString().contains((CharSequence) node1.getProperty("name")));
+                    assertTrue(testRes.resultAsString().contains((CharSequence) node1.getProperty("key")));
                 });
 
             });
@@ -52,9 +52,9 @@ public class SCSystemHandlerTest {
 
                 int methodCount = (int) handler.getAllSystemsInScope(node).count();
 
-                int testCount = (int) db.execute("match (n:SCOPE {name:'"
-                        + node.getProperty("name")
-                        + "'})-[:CONTAINS]->(m) return m.name").stream().count();
+                int testCount = (int) db.execute("match (n:SCOPE {key:'"
+                        + node.getProperty("key")
+                        + "'})-[:CONTAINS]->(m) return m.key").stream().count();
 
                 assertTrue(methodCount == testCount);
 
@@ -81,12 +81,12 @@ public class SCSystemHandlerTest {
 
                 Stream<Node> methodRes = handler.getContextsInScope(node);
 
-                Result testRes = db.execute("match (n:SCOPE {name:'"
-                        + node.getProperty("name")
-                        + "'})-[:CONTAINS]->(m:CONTEXT) return m.name");
+                Result testRes = db.execute("match (n:SCOPE {key:'"
+                        + node.getProperty("key")
+                        + "'})-[:CONTAINS]->(m:CONTEXT) return m.key");
 
                 methodRes.forEach(node1 -> {
-                    assertTrue(testRes.resultAsString().contains((CharSequence) node1.getProperty("name")));
+                    assertTrue(testRes.resultAsString().contains((CharSequence) node1.getProperty("key")));
                 });
 
             });
@@ -96,9 +96,9 @@ public class SCSystemHandlerTest {
 
                 int methodCount = (int) handler.getContextsInScope(node).count();
 
-                int testCount = (int) db.execute("match (n:SCOPE {name:'"
-                        + node.getProperty("name")
-                        + "'})-[:CONTAINS]->(m:CONTEXT) return m.name").stream().count();
+                int testCount = (int) db.execute("match (n:SCOPE {key:'"
+                        + node.getProperty("key")
+                        + "'})-[:CONTAINS]->(m:CONTEXT) return m.key").stream().count();
 
                 assertTrue(methodCount == testCount);
 
@@ -126,14 +126,14 @@ public class SCSystemHandlerTest {
                 if (node.hasRelationship(Components.CONTAINS, Direction.INCOMING)) {
                     Stream<Node> methodRes = handler.getParentScopes(node);
 
-                    Result testRes = db.execute("match (n {name:'"
-                            + node.getProperty("name")
-                            + "'})<-[:CONTAINS]-(m:SCOPE) return m.name");
+                    Result testRes = db.execute("match (n {key:'"
+                            + node.getProperty("key")
+                            + "'})<-[:CONTAINS]-(m:SCOPE) return m.key");
 
                     methodRes.forEach(node1 -> {
                         assertTrue(
                                 testRes.resultAsString().contains(
-                                        (CharSequence) node1.getProperty("name")));
+                                        (CharSequence) node1.getProperty("key")));
                     });
                 }
 
@@ -144,9 +144,9 @@ public class SCSystemHandlerTest {
 
                 int methodCount = (int) handler.getParentScopes(node).count();
 
-                int testCount = (int) db.execute("match (n {name:'"
-                        + node.getProperty("name")
-                        + "'})<-[:CONTAINS]-(m:SCOPE) return m.name").stream().count();
+                int testCount = (int) db.execute("match (n {key:'"
+                        + node.getProperty("key")
+                        + "'})<-[:CONTAINS]-(m:SCOPE) return m.key").stream().count();
 
                 assertTrue(methodCount == testCount);
 

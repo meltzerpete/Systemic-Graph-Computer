@@ -175,26 +175,26 @@ public class SCLabelerTest {
                     "+------------------------------------------------------------------------------------------------------------------------------------------------------------------+\n" +
                             "| ID | Labels                       | Properties                                                                              | Relationships                      |\n" +
                             "+------------------------------------------------------------------------------------------------------------------------------------------------------------------+\n" +
-                            "| 0  | [\"System\",\"Data\",\"Data1\"]    | {name -> \"a1\", data -> 10}                                                              | {r -> <null>, n -> <null>}         |\n" +
-                            "| 1  | [\"System\",\"Data\",\"Data2\"]    | {name -> \"a2\", data -> 8}                                                               | {r -> <null>, n -> <null>}         |\n" +
-                            "| 2  | [\"System\",\"Data\",\"Data1\"]    | {name -> \"a3\", data -> 9}                                                               | {r -> <null>, n -> <null>}         |\n" +
-                            "| 3  | [\"System\",\"Data\",\"Data2\"]    | {name -> \"a4\", data -> 6}                                                               | {r -> <null>, n -> <null>}         |\n" +
-                            "| 4  | [\"System\",\"SCOPE\"]           | {name -> \"main\"}                                                                        | {r -> :CONTAINS[0]{}, n -> 7}      |\n" +
-                            "| 4  | [\"System\",\"SCOPE\"]           | {name -> \"main\"}                                                                        | {r -> :CONTAINS[1]{}, n -> 6}      |\n" +
-                            "| 4  | [\"System\",\"SCOPE\"]           | {name -> \"main\"}                                                                        | {r -> :CONTAINS[2]{}, n -> 8}      |\n" +
-                            "| 4  | [\"System\",\"SCOPE\"]           | {name -> \"main\"}                                                                        | {r -> :CONTAINS[3]{}, n -> 9}      |\n" +
-                            "| 5  | [\"System\",\"CONTEXT\",\"READY\"] | {name -> \"subE\", function -> \"SUBTRACTe\", s1Labels -> [\"Data1\"], s2Labels -> [\"Data2\"]} | {r -> :FITS1[10]{scope:8}, n -> 0} |\n" +
-                            "| 5  | [\"System\",\"CONTEXT\",\"READY\"] | {name -> \"subE\", function -> \"SUBTRACTe\", s1Labels -> [\"Data1\"], s2Labels -> [\"Data2\"]} | {r -> :FITS1[12]{scope:9}, n -> 2} |\n" +
-                            "| 5  | [\"System\",\"CONTEXT\",\"READY\"] | {name -> \"subE\", function -> \"SUBTRACTe\", s1Labels -> [\"Data1\"], s2Labels -> [\"Data2\"]} | {r -> :FITS2[11]{scope:8}, n -> 1} |\n" +
-                            "| 5  | [\"System\",\"CONTEXT\",\"READY\"] | {name -> \"subE\", function -> \"SUBTRACTe\", s1Labels -> [\"Data1\"], s2Labels -> [\"Data2\"]} | {r -> :FITS2[13]{scope:9}, n -> 3} |\n" +
-                            "| 6  | [\"System\",\"CONTEXT\"]         | {name -> \"mul\", function -> \"MULTIPLY\", s1Labels -> [\"Data\"], s2Labels -> [\"Data\"]}     | {r -> <null>, n -> <null>}         |\n" +
-                            "| 7  | [\"System\",\"CONTEXT\"]         | {name -> \"print\", function -> \"PRINT\", s1Labels -> [\"Data\"], s2Labels -> [\"Data\"]}      | {r -> <null>, n -> <null>}         |\n" +
-                            "| 8  | [\"System\",\"SCOPE\"]           | {name -> \"c1\"}                                                                          | {r -> :CONTAINS[4]{}, n -> 5}      |\n" +
-                            "| 8  | [\"System\",\"SCOPE\"]           | {name -> \"c1\"}                                                                          | {r -> :CONTAINS[5]{}, n -> 0}      |\n" +
-                            "| 8  | [\"System\",\"SCOPE\"]           | {name -> \"c1\"}                                                                          | {r -> :CONTAINS[6]{}, n -> 1}      |\n" +
-                            "| 9  | [\"System\",\"SCOPE\"]           | {name -> \"c2\"}                                                                          | {r -> :CONTAINS[7]{}, n -> 5}      |\n" +
-                            "| 9  | [\"System\",\"SCOPE\"]           | {name -> \"c2\"}                                                                          | {r -> :CONTAINS[8]{}, n -> 2}      |\n" +
-                            "| 9  | [\"System\",\"SCOPE\"]           | {name -> \"c2\"}                                                                          | {r -> :CONTAINS[9]{}, n -> 3}      |\n" +
+                            "| 0  | [\"System\",\"Data\",\"Data1\"]    | {key -> \"a1\", data -> 10}                                                              | {r -> <null>, n -> <null>}         |\n" +
+                            "| 1  | [\"System\",\"Data\",\"Data2\"]    | {key -> \"a2\", data -> 8}                                                               | {r -> <null>, n -> <null>}         |\n" +
+                            "| 2  | [\"System\",\"Data\",\"Data1\"]    | {key -> \"a3\", data -> 9}                                                               | {r -> <null>, n -> <null>}         |\n" +
+                            "| 3  | [\"System\",\"Data\",\"Data2\"]    | {key -> \"a4\", data -> 6}                                                               | {r -> <null>, n -> <null>}         |\n" +
+                            "| 4  | [\"System\",\"SCOPE\"]           | {key -> \"main\"}                                                                        | {r -> :CONTAINS[0]{}, n -> 7}      |\n" +
+                            "| 4  | [\"System\",\"SCOPE\"]           | {key -> \"main\"}                                                                        | {r -> :CONTAINS[1]{}, n -> 6}      |\n" +
+                            "| 4  | [\"System\",\"SCOPE\"]           | {key -> \"main\"}                                                                        | {r -> :CONTAINS[2]{}, n -> 8}      |\n" +
+                            "| 4  | [\"System\",\"SCOPE\"]           | {key -> \"main\"}                                                                        | {r -> :CONTAINS[3]{}, n -> 9}      |\n" +
+                            "| 5  | [\"System\",\"CONTEXT\",\"READY\"] | {key -> \"subE\", function -> \"SUBTRACTe\", s1Labels -> [\"Data1\"], s2Labels -> [\"Data2\"]} | {r -> :FITS1[10]{scope:8}, n -> 0} |\n" +
+                            "| 5  | [\"System\",\"CONTEXT\",\"READY\"] | {key -> \"subE\", function -> \"SUBTRACTe\", s1Labels -> [\"Data1\"], s2Labels -> [\"Data2\"]} | {r -> :FITS1[12]{scope:9}, n -> 2} |\n" +
+                            "| 5  | [\"System\",\"CONTEXT\",\"READY\"] | {key -> \"subE\", function -> \"SUBTRACTe\", s1Labels -> [\"Data1\"], s2Labels -> [\"Data2\"]} | {r -> :FITS2[11]{scope:8}, n -> 1} |\n" +
+                            "| 5  | [\"System\",\"CONTEXT\",\"READY\"] | {key -> \"subE\", function -> \"SUBTRACTe\", s1Labels -> [\"Data1\"], s2Labels -> [\"Data2\"]} | {r -> :FITS2[13]{scope:9}, n -> 3} |\n" +
+                            "| 6  | [\"System\",\"CONTEXT\"]         | {key -> \"mul\", function -> \"MULTIPLY\", s1Labels -> [\"Data\"], s2Labels -> [\"Data\"]}     | {r -> <null>, n -> <null>}         |\n" +
+                            "| 7  | [\"System\",\"CONTEXT\"]         | {key -> \"print\", function -> \"PRINT\", s1Labels -> [\"Data\"], s2Labels -> [\"Data\"]}      | {r -> <null>, n -> <null>}         |\n" +
+                            "| 8  | [\"System\",\"SCOPE\"]           | {key -> \"c1\"}                                                                          | {r -> :CONTAINS[4]{}, n -> 5}      |\n" +
+                            "| 8  | [\"System\",\"SCOPE\"]           | {key -> \"c1\"}                                                                          | {r -> :CONTAINS[5]{}, n -> 0}      |\n" +
+                            "| 8  | [\"System\",\"SCOPE\"]           | {key -> \"c1\"}                                                                          | {r -> :CONTAINS[6]{}, n -> 1}      |\n" +
+                            "| 9  | [\"System\",\"SCOPE\"]           | {key -> \"c2\"}                                                                          | {r -> :CONTAINS[7]{}, n -> 5}      |\n" +
+                            "| 9  | [\"System\",\"SCOPE\"]           | {key -> \"c2\"}                                                                          | {r -> :CONTAINS[8]{}, n -> 2}      |\n" +
+                            "| 9  | [\"System\",\"SCOPE\"]           | {key -> \"c2\"}                                                                          | {r -> :CONTAINS[9]{}, n -> 3}      |\n" +
                             "+------------------------------------------------------------------------------------------------------------------------------------------------------------------+\n" +
                             "20 rows\n", result.resultAsString());
 

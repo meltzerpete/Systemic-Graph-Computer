@@ -3,14 +3,22 @@ package queryCompiler;
 /**
  * Created by Pete Meltzer on 24/07/17.
  */
-class PropertyPair<T> {
+public class PropertyPair<T> {
 
-    public String name;
-    public T value;
+    private String key;
+    private T value;
 
-    public PropertyPair(String name, T value) {
+    public String getKey() {
+        return key;
+    }
 
-        this.name = name;
+    public T getValue() {
+        return value;
+    }
+
+    public PropertyPair(String key, T value) {
+
+        this.key = key;
         this.value = value;
 
     }
@@ -18,7 +26,7 @@ class PropertyPair<T> {
     @Override
     public String toString() {
         return
-                (this.name != null ? this.name : "null")
+                (this.key != null ? this.key : "null")
                         + ": " +
                         (this.value != null ? this.value : "null");
     }

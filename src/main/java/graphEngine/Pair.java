@@ -13,8 +13,8 @@ public class Pair {
 
     @Override
     public String toString() {
-        String s1String = s1 == null ? "null" : s1.getProperty("name").toString();
-        String s2String = s2 == null ? "null" : s2.getProperty("name").toString();
+        String s1String = s1 == null ? "null" : s1.getProperty("key").toString();
+        String s2String = s2 == null ? "null" : s2.getProperty("key").toString();
         return "[s1: " + s1String + ", s2: " + s2String + "]";
     }
 
