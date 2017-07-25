@@ -13,7 +13,7 @@ public class Compiler {
 
     private Tokenizer tokenizer = new Tokenizer();
 
-    private int debugLevel = 2;
+    private int debugLevel = 3;
 
     public Compiler() {
         setTokens();
