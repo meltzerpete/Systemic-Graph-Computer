@@ -1,7 +1,7 @@
 package queryCompiler;
 
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Label;
+import org.neo4j.graphdb.RelationshipType;
 
 import java.util.LinkedList;
 
@@ -10,7 +10,23 @@ import java.util.LinkedList;
  */
 public class Edge {
 
-    LinkedList<Label> labels = new LinkedList<>();
+    public RelationshipType getType() {
+        return type;
+    }
+
+    public LinkedList<PropertyPair<Object>> getProperties() {
+        return properties;
+    }
+
+    public Vertex getNext() {
+        return next;
+    }
+
+    public Direction getDirection() {
+        return direction;
+    }
+
+    RelationshipType type;
     LinkedList<PropertyPair<Object>> properties = new LinkedList<>();
     Vertex next;
     Direction direction;

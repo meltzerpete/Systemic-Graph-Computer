@@ -50,7 +50,7 @@ public class Compiler {
             System.out.println("SEEN: " + v.name);
         } else {
             visited.add(v);
-            System.out.print(v.name + ", labels: ");
+            System.out.print(v.name + ", type: ");
             v.labels.forEach(label -> System.out.print(label + ", "));
             System.out.print("properties: ");
             v.properties.forEach(objectPropertyPair -> System.out.print(objectPropertyPair + ", "));

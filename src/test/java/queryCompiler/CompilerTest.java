@@ -26,9 +26,10 @@ public class CompilerTest {
             Compiler compiler = new Compiler();
             StopWatch timer = new StopWatch();
             timer.start();
-            compiler.compile("(n:Data1:Data {function:NOP, new:pete})-[:FITS_2]->(m)," +
-                    "(n)<-[:FITS_2]-(o), (m)-[]-(o), (m)-[]->(p), (n)-[]-(p), " +
-                    "(p)-[:FIT]->(o)");
+//            compiler.compile("(n:Data1:Data {function:NOP, new:pete})-[:FITS_2]->(m)," +
+//                    "(n)<-[:FITS_2]-(o), (m)-[]-(o), (m)-[]->(p), (n)-[]-(p), " +
+//                    "(p)-[:FIT]->(o)");
+            compiler.compile("(n)-[]->(m), (m)-[:FITS_1]->(n)");
             timer.stop();
             System.out.println(String.format("Compilation took: %,d x 10e-3 s", timer.getTime()));
         }

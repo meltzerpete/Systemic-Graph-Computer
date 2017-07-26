@@ -2,10 +2,13 @@ package graphEngine;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.neo4j.graphdb.*;
+import org.neo4j.helpers.collection.Iterators;
+import queryCompiler.Edge;
 import queryCompiler.Vertex;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,7 +40,11 @@ abstract class SCLabeler {
         containedContexts.forEach(context -> {
 
             // start here
-            Stream<Node>  targetNodes = scHandler.getAllSystemsInScope(scope);
+            System.out.println("\nS1\n");
+
+
+            Stream<Node>  targetNodes = scHandler.getAllSystemsInScope(scope)
+                                            .filter(node -> !node.equals(context));
 
             if (context.hasProperty(Components.s1Query)) {
 
@@ -53,7 +60,10 @@ abstract class SCLabeler {
                         });
             }
 
-            targetNodes = scHandler.getAllSystemsInScope(scope);
+            System.out.println("\nS2\n");
+
+            targetNodes = scHandler.getAllSystemsInScope(scope)
+                                .filter(node -> !node.equals(context));
 
             if (context.hasProperty(Components.s2Query)) {
 
@@ -61,6 +71,7 @@ abstract class SCLabeler {
                 Vertex queryGraph = comp.getMatchingGraph(queryString);
 
                 targetNodes
+                        .filter(target -> !context.equals(target))
                         .filter(target -> !relationshipExists(context, target, Components.FITS2))
                         .filter(target -> matchGraph(queryGraph, target))
                         .forEach(target -> {
@@ -75,16 +86,121 @@ abstract class SCLabeler {
 
     private boolean matchGraph(Vertex vertex, Node target) {
 
+        System.out.println(String.format(
+                "----- Entering matchGraph v: %s, t: %s -----",
+                    vertex.name, target.getProperty("name")
+        ));
+
+        if (!matchNode(vertex, target)) {
+            System.out.println(String.format(
+                    "----- Exiting matchGraph v: %s, t: %s -- %s -----",
+                    vertex.name, target.getProperty("name"), false
+            ));
+            return false;
+        }
+
+        // check edges/children
+
+        if (vertex.getEdges().isEmpty())
+            return true;
+
+        // for outgoing edges
+        Stream<Edge> outgoingEdges = vertex.getEdges().stream().filter(edge -> edge.getDirection() == Direction.OUTGOING);
+        Stream<Relationship> targetOutRels = Iterators.stream(target.getRelationships(Direction.OUTGOING).iterator());
+
+        return recursiveMatch(Iterators.asList(outgoingEdges.iterator()), Iterators.asList(targetOutRels.iterator()));
+
+    }
+
+    int stack = 0;
+    private boolean recursiveMatch(List<Edge> vQueue, List<Relationship> chQueue) {
+
+        boolean foundCompleteMatch = vQueue.stream().anyMatch(edge -> {
+
+            Vertex vertex = edge.getNext();
+            System.out.println(String.format("%d: Current edge: ->(%s)", stack, vertex.name));
+
+            boolean foundMatchingPath = chQueue.stream().anyMatch(relationship -> {
+
+                Node node = relationship.getEndNode();
+                System.out.println(String.format("%d: Current relationship: ->(%s)", stack, node.getProperty("name")));
+
+                boolean edgeToNodeMatches =
+                        matchRelationship(edge, relationship)
+                                && matchNode(vertex, node);
+
+                System.out.println(String.format(
+                        "%d: Path from root to %s and from target root to %s match: %s",
+                        stack, vertex.name, node.getProperty("name"), edgeToNodeMatches
+                ));
+
+                if (!edgeToNodeMatches) {
+                    System.out.println(String.format("%d: return false", stack));
+                    return false;
+                }
+
+                if (vertex.getEdges().isEmpty())
+                    return true;
+
+                Stream<Edge> childEdges = vertex.getEdges().stream().filter(edge1 -> edge1.getDirection() == Direction.OUTGOING);
+                Stream<Relationship> childRelationships = Iterators.stream(node.getRelationships(Direction.OUTGOING).iterator());
+
+                stack++;
+                boolean childPathMatches = recursiveMatch(Iterators.asList(childEdges.iterator()), Iterators.asList(childRelationships.iterator()));
+                stack--;
+
+                System.out.println(String.format(
+                        "%d: Path from %s to bottom and from %s to target bottom match: %s",
+                        stack, vertex.name, node.getProperty("name"), childPathMatches
+                ));
+
+                return childPathMatches;
+
+            });
+
+            System.out.println(String.format("%d: foundMatchingPath: %s", stack, foundMatchingPath));
+
+            return foundMatchingPath;
+
+        });
+
+        System.out.println(String.format("%d: foundCompleteMatch: %s", stack, foundCompleteMatch));
+
+        return foundCompleteMatch;
+    }
+
+    private boolean matchNode(Vertex vertex, Node node) {
+
         // check labels
-        if (!vertex.getLabels().stream().allMatch(target::hasLabel)) return false;
+        if (!vertex.getLabels().stream().allMatch(node::hasLabel)) return false;
 
         // check properties
         if (!vertex.getProperties().stream()
                 .allMatch(objectPropertyPair ->
-            target.getProperty(objectPropertyPair.getKey(), objectPropertyPair.getValue()) != null))
+                        node.getProperty(objectPropertyPair.getKey(), objectPropertyPair.getValue()) != null))
             return false;
 
-        // check edges
+        return true;
+    }
+
+    /**
+     * Does not match relationship direction
+     * @param edge
+     * @param relationship
+     * @return
+     */
+    private boolean matchRelationship(Edge edge, Relationship relationship) {
+
+        // check type
+        RelationshipType edgeType = edge.getType();
+        if (edgeType != null && !edgeType.name().equals(relationship.getType().name()))
+            return false;
+
+        // check properties
+        if (!edge.getProperties().stream()
+                .allMatch(objectPropertyPair ->
+                        relationship.getProperty(objectPropertyPair.getKey(), objectPropertyPair.getValue()) != null))
+            return false;
 
         return true;
     }

@@ -21,7 +21,7 @@ public class Vertex {
         return edges;
     }
 
-    String name;
+    public String name;
     LinkedList<Label> labels = new LinkedList<>();
     LinkedList<PropertyPair<Object>> properties = new LinkedList<>();
     LinkedList<Edge> edges = new LinkedList<>();

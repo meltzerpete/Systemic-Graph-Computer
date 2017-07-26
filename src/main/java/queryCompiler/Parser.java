@@ -3,6 +3,7 @@ package queryCompiler;
 
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Label;
+import org.neo4j.graphdb.RelationshipType;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -38,7 +39,12 @@ public class Parser {
 //        System.out.println("Success");
 
 //        System.out.println(vertices.size() + " vertices created.");
-        return vertices.get("n");
+
+        Vertex v = vertices.get("n");
+
+        if (v == null) throw new ParserException("Query must contain the name 'n' to represent the target node.");
+
+        return v;
 
     }
 
@@ -127,16 +133,31 @@ public class Parser {
 
     private Edge relationship() {
 
-        // RELATIONSHIP :: LABELS PLIST
+        // RELATIONSHIP :: LABEL PLIST
 
         Edge edge = new Edge();
 
-        edge.labels.addAll(labels());
+        if (lookahead.token == COLON)
+            edge.type = type();
 
         edge.properties.addAll(plist());
 
         return edge;
 
+    }
+
+    private RelationshipType type() {
+
+        // TYPE :: : STRING
+
+        if (lookahead.token != COLON) throw new ParserException("Expected : found %s", lookahead);
+        nextToken();    // consume :
+
+        if (lookahead.token != STRING) throw new ParserException("Expected string found %s", lookahead);
+        RelationshipType type = RelationshipType.withName(lookahead.sequence);
+        nextToken();    // consume string
+
+        return type;
     }
 
     private Direction direction() {
