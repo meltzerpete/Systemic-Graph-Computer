@@ -29,8 +29,8 @@ public class Tokenizer
 
     public Tokenizer()
     {
-        tokenInfos = new LinkedList<TokenInfo>();
-        tokens = new LinkedList<Token>();
+        tokenInfos = new LinkedList<>();
+        tokens = new LinkedList<>();
     }
 
     public void add(String regex, Tokens token)

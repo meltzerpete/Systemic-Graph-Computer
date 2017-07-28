@@ -36,4 +36,27 @@ public class CompilerTest {
 
     }
 
+//    @Test
+//    public void testDepth() throws Throwable {
+//        try (Driver driver = GraphDatabase.driver(neo4j.boltURI(), Config.build()
+//                .withEncryptionLevel(Config.EncryptionLevel.NONE).toConfig());
+//             Session session = driver.session()) {
+//
+//            Compiler comp = new Compiler();
+//
+//            Vertex v = comp.compile("(n)-[]->(b)," +
+//                    "(n)-[]->(c)," +
+//                    "(b)-[]->(d)," +
+//                    "(b)-[]->(e)," +
+//                    "(b)-[]->(f)," +
+//                    "(f)-[]->(c)");
+//
+//            System.out.println(comp.getDepth(v));
+//
+//        }
+//
+//    }
+
+
+
 }

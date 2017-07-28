@@ -6,9 +6,7 @@ import org.neo4j.helpers.collection.Iterators;
 import queryCompiler.Edge;
 import queryCompiler.Vertex;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -19,6 +17,7 @@ abstract class SCLabeler {
 
     private Computer comp;
     private GraphDatabaseService db;
+    public boolean debug = false;
 
     SCLabeler(Computer comp, GraphDatabaseService db) {
         this.comp = comp;
@@ -71,7 +70,6 @@ abstract class SCLabeler {
                 Vertex queryGraph = comp.getMatchingGraph(queryString);
 
                 targetNodes
-                        .filter(target -> !context.equals(target))
                         .filter(target -> !relationshipExists(context, target, Components.FITS2))
                         .filter(target -> matchGraph(queryGraph, target))
                         .forEach(target -> {
@@ -86,101 +84,178 @@ abstract class SCLabeler {
 
     private boolean matchGraph(Vertex vertex, Node target) {
 
-        System.out.println(String.format(
-                "----- Entering matchGraph v: %s, t: %s -----",
+         if (debug) System.out.println(String.format(
+                "\n----- Entering matchGraph v: %s, t: %s -----",
                     vertex.name, target.getProperty("name")
         ));
 
         if (!matchNode(vertex, target)) {
-            System.out.println(String.format(
-                    "----- Exiting matchGraph v: %s, t: %s -- %s -----",
+             if (debug) System.out.println(String.format(
+                    "----- Exiting matchGraph v: %s, t: %s -- %s ----- (node properties/labels do not match)",
+                    vertex.name, target.getProperty("name"), false
+            ));
+            return false;
+        }
+
+        // check depth of tree before exploring expensive graph isomorphism
+        if (vertex.getDepth() > getDepth(target)) {
+            if (debug) System.out.println(String.format(
+                    "----- Exiting matchGraph v: %s, t: %s -- %s ----- (depth of graph does not match)",
                     vertex.name, target.getProperty("name"), false
             ));
             return false;
         }
 
         // check edges/children
-
-        if (vertex.getEdges().isEmpty())
+        if (vertex.getEdges().isEmpty()) {
+             if (debug) System.out.println(String.format(
+                    "----- Exiting matchGraph v: %s, t: %s -- %s -----",
+                    vertex.name, target.getProperty("name"), true
+            ));
             return true;
+        }
 
-        // for outgoing edges
-        Stream<Edge> outgoingEdges = vertex.getEdges().stream().filter(edge -> edge.getDirection() == Direction.OUTGOING);
-        Stream<Relationship> targetOutRels = Iterators.stream(target.getRelationships(Direction.OUTGOING).iterator());
+        Iterator<Edge> outgoingEdges = vertex.getEdges().iterator();
+        Iterator<Relationship> targetOutRels = target.getRelationships(Direction.OUTGOING).iterator();
 
-        return recursiveMatch(Iterators.asList(outgoingEdges.iterator()), Iterators.asList(targetOutRels.iterator()));
+        boolean result = recursiveMatch(Iterators.asList(outgoingEdges), Iterators.asList(targetOutRels), vertex, target);
 
+        if (debug) System.out.println(String.format(
+                "----- Exiting matchGraph v: %s, t: %s -- %s -----",
+                vertex.name, target.getProperty("name"), result
+        ));
+
+        return result;
     }
 
-    int stack = 0;
-    private boolean recursiveMatch(List<Edge> vQueue, List<Relationship> chQueue) {
+    private boolean recursiveMatch(List<Edge> vQueue, List<Relationship> chQueue, Vertex currentVertex, Node currentNode) {
 
-        boolean foundCompleteMatch = vQueue.stream().anyMatch(edge -> {
+        // get all perms of chQueue
+        // for each perm try to find complete match
+        // remove nodes as they are matched
+        
+        return generatePerm(chQueue).stream().anyMatch(rQueue -> {
 
-            Vertex vertex = edge.getNext();
-            System.out.println(String.format("%d: Current edge: ->(%s)", stack, vertex.name));
+            if (debug) System.out.println("Current perm: " + rQueue);
 
-            boolean foundMatchingPath = chQueue.stream().anyMatch(relationship -> {
+            Set<Relationship> available = Iterators.asSet(rQueue.iterator());
 
-                Node node = relationship.getEndNode();
-                System.out.println(String.format("%d: Current relationship: ->(%s)", stack, node.getProperty("name")));
+            boolean foundCompleteMatch = vQueue.stream().allMatch(edge -> {
 
-                boolean edgeToNodeMatches =
-                        matchRelationship(edge, relationship)
-                                && matchNode(vertex, node);
+                Vertex vertex = edge.getNext();
+                if (debug) System.out.println(String.format("%s: MATCHING EDGE: ->(%s)", currentVertex.name, vertex.name));
 
-                System.out.println(String.format(
-                        "%d: Path from root to %s and from target root to %s match: %s",
-                        stack, vertex.name, node.getProperty("name"), edgeToNodeMatches
-                ));
+                boolean foundMatchingPath = rQueue.stream().anyMatch(relationship -> {
 
-                if (!edgeToNodeMatches) {
-                    System.out.println(String.format("%d: return false", stack));
-                    return false;
-                }
+                    Node node = relationship.getOtherNode(currentNode);
+                    if (debug) System.out.println(String.format("%s: Current relationship: ->(%s)", currentVertex.name, node.getProperty("name")));
 
-                if (vertex.getEdges().isEmpty())
-                    return true;
+                    // check edge / relationship direction
+                    if (edge.getDirection() == Direction.INCOMING
+                            && currentNode.equals(relationship.getStartNode())) {
+                        if (debug) System.out.println("Relationship has wrong direction, returning false");
+                        return false;
+                    } else if (edge.getDirection() == Direction.OUTGOING
+                            && currentNode.equals(relationship.getEndNode())) {
+                        if (debug) System.out.println("Relationship has wrong direction, returning false");
+                        return false;
+                    }
+                    //otherwise do not care about relationship direction
 
-                Stream<Edge> childEdges = vertex.getEdges().stream().filter(edge1 -> edge1.getDirection() == Direction.OUTGOING);
-                Stream<Relationship> childRelationships = Iterators.stream(node.getRelationships(Direction.OUTGOING).iterator());
+                    // check if edge already used in path
+                    if (!available.contains(relationship)) {
+                        if (debug) System.out.println("Relationship already used in path, returning false");
+                        return false;
+                    }
+                    available.remove(relationship);
 
-                stack++;
-                boolean childPathMatches = recursiveMatch(Iterators.asList(childEdges.iterator()), Iterators.asList(childRelationships.iterator()));
-                stack--;
+                    // check if edge has correct type/properties
+                    boolean edgeToNodeMatches =
+                            matchRelationship(edge, relationship)
+                                    && matchNode(vertex, node);
 
-                System.out.println(String.format(
-                        "%d: Path from %s to bottom and from %s to target bottom match: %s",
-                        stack, vertex.name, node.getProperty("name"), childPathMatches
-                ));
+                    if (debug) System.out.println(String.format(
+                            "%s: Path from root to %s and from target root to %s match: %s",
+                            currentVertex.name, vertex.name, node.getProperty("name"), edgeToNodeMatches
+                    ));
 
-                return childPathMatches;
+                    if (!edgeToNodeMatches) {
+                        if (debug) System.out.println(String.format("%s: return false", currentVertex.name));
+                        // put back relationship as not used
+                        available.add(relationship);
+                        return false;
+                    }
+
+                    if (vertex.getEdges().isEmpty()) {
+                        if (debug) System.out.println(String.format("%s: return true", currentVertex.name));
+                        return true;
+                    }
+
+                    Stream<Edge> childEdges = vertex.getEdges().stream().filter(edge1 -> edge1.getDirection() == Direction.OUTGOING);
+                    Stream<Relationship> childRelationships = Iterators.stream(node.getRelationships(Direction.OUTGOING).iterator());
+
+                    boolean childPathMatches =
+                            recursiveMatch(Iterators.asList(childEdges.iterator()), Iterators.asList(childRelationships.iterator()), vertex, node);
+
+                    if (debug) System.out.println(String.format(
+                            "%s: Path from %s to bottom and from %s to target bottom match: %s",
+                            currentVertex.name, vertex.name, node.getProperty("name"), childPathMatches
+                    ));
+
+                    if (childPathMatches) return true;
+                    else {
+                        // put back relationship as not used
+                        available.add(relationship);
+                        return false;
+                    }
+
+                });
+
+                if (debug) System.out.println(String.format("%s: foundMatchingPath: %s", currentVertex.name, foundMatchingPath));
+
+                return foundMatchingPath;
 
             });
 
-            System.out.println(String.format("%d: foundMatchingPath: %s", stack, foundMatchingPath));
+            if (debug) System.out.println(String.format("%s: foundCompleteMatch: %s", currentVertex.name, foundCompleteMatch));
 
-            return foundMatchingPath;
-
+            return foundCompleteMatch;
+            
         });
 
-        System.out.println(String.format("%d: foundCompleteMatch: %s", stack, foundCompleteMatch));
 
-        return foundCompleteMatch;
+    }
+
+    /**
+     * https://stackoverflow.com/questions/10305153/generating-all-possible-permutations-of-a-list-recursively
+     * DaveFar
+     */
+    private static List<List<Relationship>> generatePerm(List<Relationship> original) {
+        if (original.size() == 0) {
+            List<List<Relationship>> result = new ArrayList<List<Relationship>>();
+            result.add(new ArrayList<Relationship>());
+            return result;
+        }
+        Relationship firstElement = original.remove(0);
+        List<List<Relationship>> returnValue = new ArrayList<List<Relationship>>();
+        List<List<Relationship>> permutations = generatePerm(original);
+        for (List<Relationship> smallerPermutated : permutations) {
+            for (int index=0; index <= smallerPermutated.size(); index++) {
+                List<Relationship> temp = new ArrayList<Relationship>(smallerPermutated);
+                temp.add(index, firstElement);
+                returnValue.add(temp);
+            }
+        }
+        return returnValue;
     }
 
     private boolean matchNode(Vertex vertex, Node node) {
 
-        // check labels
-        if (!vertex.getLabels().stream().allMatch(node::hasLabel)) return false;
-
-        // check properties
-        if (!vertex.getProperties().stream()
-                .allMatch(objectPropertyPair ->
-                        node.getProperty(objectPropertyPair.getKey(), objectPropertyPair.getValue()) != null))
-            return false;
-
-        return true;
+        // check labels & properties
+        return vertex.getLabels().stream().allMatch(node::hasLabel)
+                && vertex.getProperties().stream()
+                    .allMatch(objectPropertyPair ->
+                        node.getProperty(objectPropertyPair.getKey(), objectPropertyPair.getValue()) != null);
     }
 
     /**
@@ -197,12 +272,25 @@ abstract class SCLabeler {
             return false;
 
         // check properties
-        if (!edge.getProperties().stream()
-                .allMatch(objectPropertyPair ->
-                        relationship.getProperty(objectPropertyPair.getKey(), objectPropertyPair.getValue()) != null))
-            return false;
+        return edge.getProperties().stream()
+                    .allMatch(objectPropertyPair ->
+                        relationship.getProperty(objectPropertyPair.getKey(), objectPropertyPair.getValue()) != null);
+    }
 
-        return true;
+    private int getDepth(Node n) { return xGetDepth(n, new HashSet<>()); }
+
+    private int xGetDepth(Node node, Set<Node> seen) {
+
+        if (seen.contains(node)) return 0;
+
+        seen.add(node);
+
+        ResourceIterator<Relationship> rels = (ResourceIterator<Relationship>) node.getRelationships(Direction.OUTGOING).iterator();
+
+        return rels.stream()
+                .map(Relationship::getEndNode)
+                .map(node1 -> xGetDepth(node1, seen) + 1)
+                .reduce(0, (n, m) -> n > m ? n : m);
     }
 
     void labelAllFits() {

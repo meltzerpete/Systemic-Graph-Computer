@@ -14,11 +14,9 @@ import static graphEngine.Components.*;
  */
 abstract class SCSystemHandler {
 
-    private Computer comp;
     private GraphDatabaseService db;
 
-    SCSystemHandler(Computer comp, GraphDatabaseService db) {
-        this.comp = comp;
+    SCSystemHandler(GraphDatabaseService db) {
         this.db = db;
     }
 

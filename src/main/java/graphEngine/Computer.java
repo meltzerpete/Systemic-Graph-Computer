@@ -230,7 +230,7 @@ class Computer implements Runnable {
 
     private class SCSystemHandler extends graphEngine.SCSystemHandler {
         SCSystemHandler() {
-            super(Computer.this, db);
+            super(db);
         }
     }
 

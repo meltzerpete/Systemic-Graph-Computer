@@ -41,9 +41,8 @@ public class SCSystemHandlerTest {
                         + node.getProperty("key")
                         + "'})-[:CONTAINS]->(m) return m.key");
 
-                methodRes.forEach(node1 -> {
-                    assertTrue(testRes.resultAsString().contains((CharSequence) node1.getProperty("key")));
-                });
+                methodRes.forEach(node1 ->
+                        assertTrue(testRes.resultAsString().contains((CharSequence) node1.getProperty("key"))));
 
             });
 
@@ -85,9 +84,8 @@ public class SCSystemHandlerTest {
                         + node.getProperty("key")
                         + "'})-[:CONTAINS]->(m:CONTEXT) return m.key");
 
-                methodRes.forEach(node1 -> {
-                    assertTrue(testRes.resultAsString().contains((CharSequence) node1.getProperty("key")));
-                });
+                methodRes.forEach(node1 ->
+                        assertTrue(testRes.resultAsString().contains((CharSequence) node1.getProperty("key"))));
 
             });
 
@@ -130,11 +128,9 @@ public class SCSystemHandlerTest {
                             + node.getProperty("key")
                             + "'})<-[:CONTAINS]-(m:SCOPE) return m.key");
 
-                    methodRes.forEach(node1 -> {
-                        assertTrue(
-                                testRes.resultAsString().contains(
-                                        (CharSequence) node1.getProperty("key")));
-                    });
+                    methodRes.forEach(node1 ->
+                            assertTrue(testRes.resultAsString().contains(
+                                        (CharSequence) node1.getProperty("key"))));
                 }
 
             });

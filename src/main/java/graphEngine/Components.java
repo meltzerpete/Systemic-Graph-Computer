@@ -7,7 +7,7 @@ import org.neo4j.graphdb.RelationshipType;
  * Created by Pete Meltzer on 11/07/17.
  */
 class Components {
-    private Components(){};
+    private Components(){}
 
     static final Label CONTEXT = Label.label("CONTEXT");
     static final Label DATA = Label.label("DATA");

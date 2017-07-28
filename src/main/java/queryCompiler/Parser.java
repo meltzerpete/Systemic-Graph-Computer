@@ -133,7 +133,7 @@ public class Parser {
 
     private Edge relationship() {
 
-        // RELATIONSHIP :: LABEL PLIST
+        // RELATIONSHIP :: TYPE PLIST
 
         Edge edge = new Edge();
 
