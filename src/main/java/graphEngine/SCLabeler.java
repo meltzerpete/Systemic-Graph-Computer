@@ -12,18 +12,27 @@ import java.util.stream.Stream;
 
 /**
  * Created by Pete Meltzer on 11/07/17.
+ *
+ * Handles all automatic creation of FITS Relationships and Labeling of READY Contexts.
  */
 abstract class SCLabeler {
 
     private Computer comp;
     private GraphDatabaseService db;
-    public boolean debug = false;
+    boolean debug = false;
 
     SCLabeler(Computer comp, GraphDatabaseService db) {
         this.comp = comp;
         this.db = db;
     }
 
+    /**
+     * Checks if a Relationship of a given type already exists between two Nodes.
+     * @param from StartNode
+     * @param to EndNode
+     * @param relationshipType the type of the relationship
+     * @return {@code true} if relationship exists
+     */
     private boolean relationshipExists(Node from, Node to, RelationshipType relationshipType) {
         ResourceIterator<Relationship> rels =
                 (ResourceIterator<Relationship>) from.getRelationships(relationshipType, Direction.OUTGOING).iterator();
@@ -31,7 +40,15 @@ abstract class SCLabeler {
                 .anyMatch(rel -> rel.getEndNode().equals(to));
     }
 
-    void labelFitsInScope(Node scope) {
+    /**
+     * Creates {@code FITS1} and {@code FITS2} {@link Relationship} between all matching
+     * context Nodes and systems that fit according to the {@code s1Query} and
+     * {@code s2Query} properties in the context within a given scope {@link Node}.
+     * Also adds a property to the FITS Relationship to indicate which scope it
+     * is contained in.
+     * @param scope the scope {@code Node} in which to add FITS relationships
+     */
+    void createFitsInScope(Node scope) {
         //TODO can add extra matching conditions here - OR/AND?
 
         SCSystemHandler scHandler = comp.getHandler();
@@ -39,7 +56,7 @@ abstract class SCLabeler {
         containedContexts.forEach(context -> {
 
             // start here
-            System.out.println("\nS1\n");
+            if (debug) System.out.println("\nS1\n");
 
 
             Stream<Node>  targetNodes = scHandler.getAllSystemsInScope(scope)
@@ -59,7 +76,7 @@ abstract class SCLabeler {
                         });
             }
 
-            System.out.println("\nS2\n");
+            if (debug) System.out.println("\nS2\n");
 
             targetNodes = scHandler.getAllSystemsInScope(scope)
                                 .filter(node -> !node.equals(context));
@@ -82,6 +99,14 @@ abstract class SCLabeler {
         });
     }
 
+    /**
+     * Checks if the graph starting at the given {@link Vertex} is a subgraph of the graph
+     * starting at the given {@link Node}. For a match, all Labels, Properties, RelationshipTypes,
+     * and Relationship Directions must match.
+     * @param vertex internal representation of graph compiled from query by {@link queryCompiler.Compiler}
+     * @param target {@code Node} to check for a match
+     * @return {@code true} if match
+     */
     private boolean matchGraph(Vertex vertex, Node target) {
 
          if (debug) System.out.println(String.format(
@@ -128,6 +153,14 @@ abstract class SCLabeler {
         return result;
     }
 
+    /**
+     * A recursive graph matching algorithm.
+     * @param vQueue queue of all query edges to check from current compiled vertex
+     * @param chQueue queue of target relationships to check from target node
+     * @param currentVertex start vertex
+     * @param currentNode start node
+     * @return {@code true} if match is found
+     */
     private boolean recursiveMatch(List<Edge> vQueue, List<Relationship> chQueue, Vertex currentVertex, Node currentNode) {
 
         // get all perms of chQueue
@@ -186,16 +219,26 @@ abstract class SCLabeler {
                         return false;
                     }
 
+                    System.out.println(String.format("v: %s, n: %s, %s ", vertex.name, node.getProperty("name"), matchNode(vertex, node)));
+
+                    // check node
+                    if (!matchNode(vertex, node)) {
+                        if (debug) System.out.println("node does not match, returning false");
+                        // put back relationship as not used
+                        available.add(relationship);
+                        return false;
+                    }
+
                     if (vertex.getEdges().isEmpty()) {
                         if (debug) System.out.println(String.format("%s: return true", currentVertex.name));
                         return true;
                     }
 
-                    Stream<Edge> childEdges = vertex.getEdges().stream().filter(edge1 -> edge1.getDirection() == Direction.OUTGOING);
-                    Stream<Relationship> childRelationships = Iterators.stream(node.getRelationships(Direction.OUTGOING).iterator());
+                    Iterator<Edge> childEdges = vertex.getEdges().iterator();
+                    Iterator<Relationship> childRelationships = node.getRelationships().iterator();
 
                     boolean childPathMatches =
-                            recursiveMatch(Iterators.asList(childEdges.iterator()), Iterators.asList(childRelationships.iterator()), vertex, node);
+                            recursiveMatch(Iterators.asList(childEdges), Iterators.asList(childRelationships), vertex, node);
 
                     if (debug) System.out.println(String.format(
                             "%s: Path from %s to bottom and from %s to target bottom match: %s",
@@ -227,6 +270,7 @@ abstract class SCLabeler {
     }
 
     /**
+     * Generates all permutations of a list of Relationships. Code taken from:
      * https://stackoverflow.com/questions/10305153/generating-all-possible-permutations-of-a-list-recursively
      * DaveFar
      */
@@ -255,14 +299,16 @@ abstract class SCLabeler {
         return vertex.getLabels().stream().allMatch(node::hasLabel)
                 && vertex.getProperties().stream()
                     .allMatch(objectPropertyPair ->
-                        node.getProperty(objectPropertyPair.getKey(), objectPropertyPair.getValue()) != null);
+                        node.getProperty(objectPropertyPair.getKey(), objectPropertyPair.getValue()) != null
+                    && node.getProperty(objectPropertyPair.getKey()).equals(objectPropertyPair.getValue()));
     }
 
     /**
-     * Does not match relationship direction
-     * @param edge
-     * @param relationship
-     * @return
+     * Checks for matching {@link RelationshipType} and Properties.
+     * Does not match relationship direction.
+     * @param edge compiled edge
+     * @param relationship target Relationship
+     * @return true if match
      */
     private boolean matchRelationship(Edge edge, Relationship relationship) {
 
@@ -274,11 +320,24 @@ abstract class SCLabeler {
         // check properties
         return edge.getProperties().stream()
                     .allMatch(objectPropertyPair ->
-                        relationship.getProperty(objectPropertyPair.getKey(), objectPropertyPair.getValue()) != null);
+                        relationship.getProperty(objectPropertyPair.getKey(), objectPropertyPair.getValue()) != null
+                    && relationship.getProperty(objectPropertyPair.getKey()).equals(objectPropertyPair.getValue()));
     }
 
+    /**
+     * Wrapper method to call recursive graph depth algorithm. Only calculates depth of
+     * OUTGOING relationships.
+     * @param n {@code Node} to calculate depth of
+     * @return depth of graph from given Node
+     */
     private int getDepth(Node n) { return xGetDepth(n, new HashSet<>()); }
 
+    /**
+     * Auxiliary function for depth
+     * @param node start Node
+     * @param seen set of Nodes visited so far, should be initialised with empty set
+     * @return depth from given Node
+     */
     private int xGetDepth(Node node, Set<Node> seen) {
 
         if (seen.contains(node)) return 0;
@@ -293,16 +352,32 @@ abstract class SCLabeler {
                 .reduce(0, (n, m) -> n > m ? n : m);
     }
 
-    void labelAllFits() {
+    /**
+     * Creates {@code FITS1} and {@code FITS2} {@link Relationship} between all matching
+     * context Nodes and systems that fit according to the {@code s1Query} and
+     * {@code s2Query} properties.
+     * Also adds a property to the FITS Relationship to indicate which scope it
+     * is contained in.
+     */
+    void createAllFits() {
 
-        db.findNodes(Components.SCOPE).stream().forEach(this::labelFitsInScope);
+        db.findNodes(Components.SCOPE).stream().forEach(this::createFitsInScope);
     }
 
+    /**
+     * Adds {@link Label} to all context Nodes that have at least one distinct pair of
+     * FITS relationships.
+     */
     void labelAllReady() {
 
         db.findNodes(Components.SCOPE).stream().forEach(this::labelReadyInScope);
     }
 
+    /**
+     * Adds {@link Label} to all context Nodes that have at least one distinct pair of
+     * FITS relationships within the given scope.
+     * @param scope scope in which to create the Labels
+     */
     void labelReadyInScope(Node scope) {
 
         SCSystemHandler scHandler = comp.getHandler();

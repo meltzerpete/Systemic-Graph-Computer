@@ -81,7 +81,7 @@ class Computer implements Runnable {
 
         StopWatch timer = new StopWatch();
         timer.start();
-        labeler.labelAllFits();
+        labeler.createAllFits();
         labeler.labelAllReady();
         timer.stop();
         System.out.println(String.format(Locale.UK, "Pre- processing: %,d x10e-9 s", timer.getNanoTime()));
@@ -166,14 +166,14 @@ class Computer implements Runnable {
                 // check for new fits/ready
                 readyPair.getAll().forEach(sNode ->
                 handler.getParentScopes(sNode).forEach(scope -> {
-                    labeler.labelFitsInScope(scope);
+                    labeler.createFitsInScope(scope);
                     labeler.labelReadyInScope(scope);
                 }));
 
                 // check original context if it is no longer in a parent scope of the transformed sNodes
                 if (selectedFunction.affectsS1parentScopes() || selectedFunction.affectsS2parentScopes()) {
                     handler.getParentScopes(readyContext).forEach(scope -> {
-                        labeler.labelFitsInScope(scope);
+                        labeler.createFitsInScope(scope);
                         labeler.labelReadyInScope(scope);
                     });
                 }

@@ -17,6 +17,8 @@ import static queryCompiler.Tokens.*;
  */
 public class Parser {
 
+    private int count;
+
     private LinkedList<Token> tokens;
     Token lookahead;
 
@@ -189,25 +191,33 @@ public class Parser {
         // NODE :: STRING LABELS PLIST
 
 
-        if (lookahead.token != STRING) throw new ParserException("Expected string found %s", lookahead);
+//        if (lookahead.token != STRING) throw new ParserException("Expected string found %s", lookahead);
 
-        String name = lookahead.sequence;
-
+        String name;
         Vertex vertex;
 
-        if (vertices.containsKey(name))
+        if (lookahead.token == STRING) {
+            name = lookahead.sequence;
+            nextToken();    // consume string
+        } else {
+            name = Integer.toString(count++);
+        }
+
+        if (vertices.containsKey(name)) {
             vertex = vertices.get(name);
+        }
         else {
             vertex = new Vertex();
             vertices.put(name, vertex);
         }
 
         vertex.name = name;
-        nextToken();    // consume string
 
-        vertex.labels.addAll(labels());
+        if (lookahead.token == COLON)
+            vertex.labels.addAll(labels());
 
-        vertex.properties.addAll(plist());
+        if (lookahead.token == LCBRKT)
+            vertex.properties.addAll(plist());
 
         return vertex;
     }
@@ -294,6 +304,8 @@ public class Parser {
         nextToken();    // consume :
 
         Object value = value();
+
+//        System.out.println("Adding property " + name + ": " + value);
 
         return new PropertyPair<>(name, value);
     }
