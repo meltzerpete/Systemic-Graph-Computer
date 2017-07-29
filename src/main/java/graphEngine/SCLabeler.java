@@ -171,7 +171,7 @@ abstract class SCLabeler {
 
             if (debug) System.out.println("Current perm: " + rQueue);
 
-            Set<Relationship> available = Iterators.asSet(rQueue.iterator());
+            Set<Relationship> visitedRelationship = new HashSet<>();
 
             boolean foundCompleteMatch = vQueue.stream().allMatch(edge -> {
 
@@ -196,11 +196,10 @@ abstract class SCLabeler {
                     //otherwise do not care about relationship direction
 
                     // check if edge already used in path
-                    if (!available.contains(relationship)) {
+                    if (visitedRelationship.contains(relationship)) {
                         if (debug) System.out.println("Relationship already used in path, returning false");
                         return false;
                     }
-                    available.remove(relationship);
 
                     // check if edge has correct type/properties
                     boolean edgeToNodeMatches =
@@ -214,8 +213,6 @@ abstract class SCLabeler {
 
                     if (!edgeToNodeMatches) {
                         if (debug) System.out.println(String.format("%s: return false", currentVertex.name));
-                        // put back relationship as not used
-                        available.add(relationship);
                         return false;
                     }
 
@@ -224,13 +221,12 @@ abstract class SCLabeler {
                     // check node
                     if (!matchNode(vertex, node)) {
                         if (debug) System.out.println("node does not match, returning false");
-                        // put back relationship as not used
-                        available.add(relationship);
                         return false;
                     }
 
                     if (vertex.getEdges().isEmpty()) {
                         if (debug) System.out.println(String.format("%s: return true", currentVertex.name));
+                        visitedRelationship.add(relationship);
                         return true;
                     }
 
@@ -245,10 +241,10 @@ abstract class SCLabeler {
                             currentVertex.name, vertex.name, node.getProperty("name"), childPathMatches
                     ));
 
-                    if (childPathMatches) return true;
-                    else {
-                        // put back relationship as not used
-                        available.add(relationship);
+                    if (childPathMatches) {
+                        visitedRelationship.add(relationship);
+                        return true;
+                    } else {
                         return false;
                     }
 
@@ -330,7 +326,7 @@ abstract class SCLabeler {
      * @param n {@code Node} to calculate depth of
      * @return depth of graph from given Node
      */
-    private int getDepth(Node n) { return xGetDepth(n, new HashSet<>()); }
+    private int getDepth(Node n) { return getDepth(n, new HashSet<>()); }
 
     /**
      * Auxiliary function for depth
@@ -338,7 +334,7 @@ abstract class SCLabeler {
      * @param seen set of Nodes visited so far, should be initialised with empty set
      * @return depth from given Node
      */
-    private int xGetDepth(Node node, Set<Node> seen) {
+    private int getDepth(Node node, Set<Node> seen) {
 
         if (seen.contains(node)) return 0;
 
@@ -348,7 +344,7 @@ abstract class SCLabeler {
 
         return rels.stream()
                 .map(Relationship::getEndNode)
-                .map(node1 -> xGetDepth(node1, seen) + 1)
+                .map(node1 -> getDepth(node1, seen) + 1)
                 .reduce(0, (n, m) -> n > m ? n : m);
     }
 
