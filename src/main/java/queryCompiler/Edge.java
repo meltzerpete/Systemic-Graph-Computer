@@ -10,12 +10,18 @@ import java.util.LinkedList;
  */
 public class Edge {
 
+    @Override
+    public String toString() {
+        return "-(" + this.next.name + ")";
+    }
+
     public RelationshipType getType() {
         return type;
     }
 
+    @SuppressWarnings("unchecked cast")
     public LinkedList<PropertyPair<Object>> getProperties() {
-        return properties;
+        return (LinkedList<PropertyPair<Object>>) properties.clone();
     }
 
     public Vertex getNext() {

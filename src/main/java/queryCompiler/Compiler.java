@@ -1,10 +1,7 @@
 package queryCompiler;
 
-import org.neo4j.graphdb.Direction;
-
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Set;
 
 import static queryCompiler.Tokens.*;
 
@@ -16,7 +13,7 @@ public class Compiler {
 
     private Tokenizer tokenizer = new Tokenizer();
 
-    private int debugLevel = 3;
+    private int debugLevel = 1;
 
     public Compiler() {
         setTokens();
@@ -39,7 +36,7 @@ public class Compiler {
 
         Vertex v = parser.parse();
 
-        v.depth = getDepth(v);
+//        v.depth = getDepth(v);
 
         if (debugLevel < 2)
             printGraph(v);
@@ -47,20 +44,20 @@ public class Compiler {
         return v;
     }
 
-    private int getDepth(Vertex v) { return xGetDepth(v, new HashSet<>()); }
-
-    private int xGetDepth(Vertex v, Set<Vertex> seen) {
-
-        if (seen.contains(v)) return 0;
-
-        seen.add(v);
-
-        return v.getEdges().stream()
-                .filter(edge -> edge.getDirection() == Direction.OUTGOING)
-                .map(Edge::getNext)
-                .map(vertex -> xGetDepth(vertex, seen) + 1)
-                .reduce(0, (n, m) -> n > m ? n : m);
-    }
+//    int getDepth(Vertex v) { return getDepth(v, new HashSet<>()); }
+//
+//    private int getDepth(Vertex v, Set<Vertex> seen) {
+//
+//        if (seen.contains(v)) return 0;
+//
+//        seen.add(v);
+//
+//        return v.getEdges().stream()
+//                .filter(edge -> edge.getDirection() == Direction.OUTGOING)
+//                .map(Edge::getNext)
+//                .map(vertex -> getDepth(vertex, seen) + 1)
+//                .reduce(0, (n, m) -> n > m ? n : m);
+//    }
 
     private HashSet<Vertex> visited = new HashSet<>();
 
