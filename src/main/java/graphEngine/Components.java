@@ -22,6 +22,7 @@ class Components {
     static final RelationshipType FITS1 = RelationshipType.withName("FITS1");
     static final RelationshipType FITS2 = RelationshipType.withName("FITS2");
 
+    //Property strings
     @Deprecated
     static final String s1Labels = "s1Labels";
     @Deprecated
@@ -29,7 +30,9 @@ class Components {
 
     static final String s1Query = "s1Query";
     static final String s2Query = "s2Query";
-
     static final String readyContextScopeID = "rcsID";
+
+    static final String data = "data";
+    static final String function = "function";
 
 }

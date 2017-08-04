@@ -65,6 +65,7 @@ public class Compiler {
 
         if (visited.contains(v)) {
             System.out.println("SEEN: " + v.name);
+            return;
         } else {
             visited.add(v);
             System.out.print(v.name + ", type: ");

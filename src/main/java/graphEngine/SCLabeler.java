@@ -61,64 +61,115 @@ abstract class SCLabeler {
             if (debug) System.out.println("\nS1\n");
 
 
-            Stream<Node>  targetNodes = scHandler.getAllSystemsInScope(scope)
-                                            .filter(node -> !node.equals(context));
+            if (comp.withCypher) {
 
-            if (context.hasProperty(Components.s1Query)) {
+                if (context.hasProperty(Components.s1Query)) {
 
-                String queryString = (String) context.getProperty(Components.s1Query);
-                Vertex queryGraph = comp.getMatchingGraph(queryString);
+                    String queryString = (String) context.getProperty(Components.s1Query);
+                    ResourceIterator<Node> targetNodes = db.execute("match" + queryString + "return distinct n;").columnAs("n");
+                    targetNodes.stream()
+                            .filter(target -> relationshipExists(scope, target, Components.CONTAINS))
+                            .filter(target -> !target.equals(context))
+                            .filter(target -> !relationshipExists(context, target, Components.FITS1))
+                            .forEach(target -> {
+                                Relationship rel = context.createRelationshipTo(target, Components.FITS1);
+                                rel.setProperty("scope", scope.getId());
+                            });
+                }
 
-                targetNodes
-                        .filter(target -> !relationshipExists(context, target, Components.FITS1))
-                        .filter(target -> {
-                            if (debug) print("=== %s == %s ===", queryGraph.name, target.getProperty("name"));
-                            boolean match = recursiveMatch(queryGraph, target);
-                            if (debug) {
-                                if (match) {
-                                    print("========MATCH========");
-                                } else {
-                                    print("=======NOMATCH=======");
+                if (context.hasProperty(Components.s2Query)) {
+
+                    String queryString = (String) context.getProperty(Components.s2Query);
+                    ResourceIterator<Node> targetNodes = db.execute("match" + queryString + "return distinct n;").columnAs("n");
+                    targetNodes.stream()
+                            .filter(target -> relationshipExists(scope, target, Components.CONTAINS))
+                            .filter(target -> !target.equals(context))
+                            .filter(target -> !relationshipExists(context, target, Components.FITS2))
+                            .forEach(target -> {
+                                Relationship rel = context.createRelationshipTo(target, Components.FITS2);
+                                rel.setProperty("scope", scope.getId());
+                            });
+                }
+            } else {
+                // compiled query matching
+                Stream<Node>  targetNodes = scHandler.getAllSystemsInScope(scope)
+                        .filter(node -> !node.equals(context));
+
+                if (context.hasProperty(Components.s1Query)) {
+
+                    String queryString = (String) context.getProperty(Components.s1Query);
+                    Vertex queryGraph = comp.getMatchingGraph(queryString);
+
+                    targetNodes
+                            .filter(target -> !relationshipExists(context, target, Components.FITS1))
+                            .filter(target -> {
+                                if (debug) print("=== %s == %s ===", queryGraph.name, target.getProperty("name"));
+                                boolean match = recursiveMatch(queryGraph, target);
+                                if (debug) {
+                                    if (match) {
+                                        print("========MATCH========");
+                                    } else {
+                                        print("=======NOMATCH=======");
+                                    }
                                 }
-                            }
-                            return match;})
-                        .forEach(target -> {
-                            Relationship rel = context.createRelationshipTo(target, Components.FITS1);
-                            rel.setProperty("scope", scope.getId());
-                        });
-            }
+                                return match;
+                            })
+                            .forEach(target -> {
+                                Relationship rel = context.createRelationshipTo(target, Components.FITS1);
+                                rel.setProperty("scope", scope.getId());
+                            });
+                }
 
-            if (debug) System.out.println("\nS2\n");
+                if (debug) System.out.println("\nS2\n");
 
-            targetNodes = scHandler.getAllSystemsInScope(scope)
-                                .filter(node -> !node.equals(context));
+                targetNodes = scHandler.getAllSystemsInScope(scope)
+                        .filter(node -> !node.equals(context));
 
-            if (context.hasProperty(Components.s2Query)) {
+                if (context.hasProperty(Components.s2Query)) {
 
-                String queryString = (String) context.getProperty(Components.s2Query);
-                Vertex queryGraph = comp.getMatchingGraph(queryString);
+                    String queryString = (String) context.getProperty(Components.s2Query);
+                    Vertex queryGraph = comp.getMatchingGraph(queryString);
 
-                targetNodes
-                        .filter(target -> !relationshipExists(context, target, Components.FITS2))
-                        .filter(target -> {
-                            if (debug) print("=== %s == %s ===", queryGraph.name, target.getProperty("name"));
-                            boolean match = recursiveMatch(queryGraph, target);
-                            if (debug) {
-                                if (match) {
-                                    print("========MATCH========");
+                    targetNodes
+                            .filter(target -> !relationshipExists(context, target, Components.FITS2))
+                            .filter(target -> {
+                                if (comp.withCypher) {
+                                    return db.execute(queryBuilder(target, queryString)).hasNext();
                                 } else {
-                                    print("=======NOMATCH=======");
+                                    if (debug) print("=== %s == %s ===", queryGraph.name, target.getProperty("name"));
+                                    boolean match = recursiveMatch(queryGraph, target);
+                                    if (debug) {
+                                        if (match) {
+                                            print("========MATCH========");
+                                        } else {
+                                            print("=======NOMATCH=======");
+                                        }
+                                    }
+                                    return match;
                                 }
-                            }
-                            return match;})
-                        .forEach(target -> {
-                            Relationship rel = context.createRelationshipTo(target, Components.FITS2);
-                            rel.setProperty("scope", scope.getId());
-                        });
+                            })
+                            .forEach(target -> {
+                                Relationship rel = context.createRelationshipTo(target, Components.FITS2);
+                                rel.setProperty("scope", scope.getId());
+                            });
+                }
             }
 
 
         });
+    }
+
+    String queryBuilder(Node target, String queryString) {
+//        System.out.println("Checking " + context.getProperty("name") + " against " + other.getProperty("name"));
+
+        String returnString =
+                "START n=node(" +
+                        target.getId() +
+                        ") MATCH " +
+                        queryString +
+                        " RETURN DISTINCT n LIMIT 1";
+//        System.out.println(queryString);
+        return returnString;
     }
 
     /**
@@ -184,6 +235,7 @@ abstract class SCLabeler {
      * @param currentNode start node
      * @return {@code true} if match is found
      */
+    @Deprecated
     private boolean recursiveMatch(List<Edge> vQueue, List<Relationship> chQueue, Vertex currentVertex, Node currentNode, Map<Vertex, Node>visitedNodes) {
 
         // get all perms of chQueue
@@ -349,18 +401,16 @@ abstract class SCLabeler {
             return false;
         }
 
-        visitedVertices.put(currentVertex, currentNode);
-        visitedNodes.add(currentNode);
-
         // check node properties/labels
         if (matchNode(currentVertex, currentNode)) {
             if (debug) print("%s :: %s matchNode - match: true (continue)", currentVertex.name, currentNode.getProperty("name"));
         } else {
             if (debug) print("%s :: %s matchNode - match: false (return)", currentVertex.name, currentNode.getProperty("name"));
-            visitedVertices.remove(currentVertex, currentNode);
-            visitedNodes.remove(currentNode);
             return false;
         }
+
+        visitedVertices.put(currentVertex, currentNode);
+        visitedNodes.add(currentNode);
 
         if (currentVertex.getEdges().size() == 0) {
             if (debug) print("%s :: %s noEdges - match: true (return)", currentVertex.name, currentNode.getProperty("name"));
@@ -369,8 +419,19 @@ abstract class SCLabeler {
 
         // check number of target relationships >= no of query edges
 
-        if (currentVertex.getEdges().size() >
-                Iterators.stream(currentNode.getRelationships().iterator()).count()) {
+        Stream<Relationship> allRelList =
+                Iterators.stream(currentNode.getRelationships().iterator());
+
+        List<Relationship> relList =
+                Iterators.asList(allRelList
+                        .filter(relationship ->
+                                currentVertex.getEdges().stream()
+                                        .anyMatch(edge -> matchRelationship(edge, relationship)
+                                                && matchNode(edge.getNext(), relationship.getOtherNode(currentNode))))
+                        .limit(8)
+                        .iterator());
+
+        if (currentVertex.getEdges().size() > relList.size()) {
             // will not be able to match since not enough target relationships
             if (debug) print("%s has more edges than %s - match: false (return)", currentVertex.name, currentNode.getProperty("name"));
             visitedVertices.remove(currentVertex, currentNode);
@@ -388,23 +449,17 @@ abstract class SCLabeler {
             return false;
         }
 
-        // generate perms of relationships and edges
+//        System.out.println(Permutations.of(relList).count());
 
-        List<List<Edge>> edgePerms =
-                generatePerm2(currentVertex.getEdges());
+        boolean matchToEndOuter = Permutations.of(currentVertex.getEdges()).anyMatch(edges -> {
 
-        List<List<Relationship>> relPerms =
-                generatePerm(Iterators.asList(currentNode.getRelationships().iterator()));
+            boolean matchToEndInner = Permutations.of(relList).anyMatch(perm -> {
 
-
-
-        boolean matchToEndOuter = edgePerms.stream().anyMatch(edges -> {
-
-            boolean matchToEndInner = relPerms.stream().anyMatch(perm -> {
-
-                System.out.print("Current perm from (" + currentNode.getProperty("name") + "): ");
-                perm.forEach(relationship -> System.out.print("->(" + relationship.getOtherNode(currentNode).getProperty("name") + "), "));
-                System.out.print("\n");
+                if (debug) {
+                    System.out.print("Current perm from (" + currentNode.getProperty("name") + "): ");
+                    perm.forEach(relationship -> System.out.print("->(" + relationship.getOtherNode(currentNode).getProperty("name") + "), "));
+                    System.out.print("\n");
+                }
 
                 Set<Node> tempNodes = new HashSet<>(visitedNodes);
                 Map<Vertex, Node> tempVertices = new HashMap<>(visitedVertices);
@@ -497,6 +552,7 @@ abstract class SCLabeler {
                 if (debug) print("%s :: %s setOfEdges - %s (return)", currentVertex.name, currentNode.getProperty("name"), setOfEdges);
 
                 return setOfEdges;
+
             });
 
             // remove vertex and node from visited if not a match
@@ -594,7 +650,7 @@ abstract class SCLabeler {
         if (edgeType != null && !edgeType.name().equals(relationship.getType().name()))
             return false;
 
-        // check properties
+        // check properties - if stream of edge properties is empty returns true
         return edge.getProperties().stream()
                     .allMatch(objectPropertyPair ->
                         relationship.getProperty(objectPropertyPair.getKey(), objectPropertyPair.getValue()) != null

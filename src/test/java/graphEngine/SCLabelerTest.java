@@ -97,7 +97,7 @@ public class SCLabelerTest {
                     "name:'co'})," +
                     "(t1:Data {name:'t1'})," +
                     "(t2:Data {name:'t2'})," +
-                    "(b:CONTEXT {name:'B', s1Query:'(n)-[]->({name:G})'})," +
+                    "(b:CONTEXT {name:'B', s1Query:'(n)-[]->({name:\"G\"})'})," +
                     "(c {name:'C'})," +
                     "(d {name:'D'})," +
                     "(e {name:'E'})," +

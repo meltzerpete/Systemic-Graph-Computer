@@ -5,6 +5,8 @@ import org.neo4j.graphdb.*;
 import queryCompiler.Compiler;
 import queryCompiler.Vertex;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,6 +16,10 @@ import java.util.Locale;
  * Created by Pete Meltzer on 11/07/17.
  */
 class Computer implements Runnable {
+
+    public int maxInteractions = 10000;
+
+    public boolean withCypher = true;
 
     final GraphDatabaseService db;
     private List<Result> output;
@@ -32,7 +38,6 @@ class Computer implements Runnable {
         this.handler = new SCSystemHandler();
         this.labeler = new SCLabeler();
     }
-
 
     /**
      * Returns the compiled graph for the given query.
@@ -56,33 +61,52 @@ class Computer implements Runnable {
 
         /* -- Compile matchingGraphs -- */
 
-        StopWatch compileTimer = new StopWatch();
-        compileTimer.start();
+        if (!withCypher) {
 
-        db.findNodes(Components.CONTEXT).stream().forEach(node -> {
-            if (node.hasProperty(Components.s1Query)) {
-                String s1Query = (String) node.getProperty(Components.s1Query);
-                if (!matchingGraphs.containsKey(s1Query)) {
-                    matchingGraphs.put(s1Query, compiler.compile(s1Query));
-                }
-            }
-            if (node.hasProperty(Components.s2Query)) {
-                String s2Query = (String) node.getProperty(Components.s2Query);
-                if (!matchingGraphs.containsKey(s2Query)) {
-                    matchingGraphs.put(s2Query, compiler.compile(s2Query));
-                }
-            }
-        });
+            StopWatch compileTimer = new StopWatch();
+            compileTimer.start();
 
-        compileTimer.stop();
-        System.out.println(String.format("Compilation took %,d x10e-3 s", compileTimer.getTime()));
+            try (Transaction tx = db.beginTx()) {
+
+                db.findNodes(Components.CONTEXT).stream().forEach(node -> {
+                    if (node.hasProperty(Components.s1Query)) {
+                        String s1Query = (String) node.getProperty(Components.s1Query);
+                        if (!matchingGraphs.containsKey(s1Query)) {
+                            matchingGraphs.put(s1Query, compiler.compile(s1Query));
+                        }
+                    }
+                    if (node.hasProperty(Components.s2Query)) {
+                        String s2Query = (String) node.getProperty(Components.s2Query);
+                        if (!matchingGraphs.containsKey(s2Query)) {
+                            matchingGraphs.put(s2Query, compiler.compile(s2Query));
+                        }
+                    }
+                });
+                tx.success();
+            }
+
+
+            compileTimer.stop();
+            System.out.println(String.format("Compilation took %,d x10e-3 s", compileTimer.getTime()));
+
+        }
 
         /* -- Create initial FITS relationships / label initial READY nodes -- */
 
         StopWatch timer = new StopWatch();
         timer.start();
-        labeler.createAllFits();
-        labeler.labelAllReady();
+        try (Transaction tx = db.beginTx()) {
+
+            labeler.createAllFits();
+            tx.success();
+        }
+
+        try (Transaction tx = db.beginTx()) {
+
+            labeler.labelAllReady();
+            tx.success();
+        }
+
         timer.stop();
         System.out.println(String.format(Locale.UK, "Pre- processing: %,d x10e-9 s", timer.getNanoTime()));
         timer.reset();
@@ -103,14 +127,21 @@ class Computer implements Runnable {
         }
     }
 
-    void compute(int maxInteractions) {
+    void compute(int maxInteractions) {}
+
+    void compute(int maxInteractions, BufferedWriter writer) throws IOException {
 
         StopWatch timer = new StopWatch();
         timer.start();
 
+        StopWatch fineTimer = new StopWatch();
+        fineTimer.start();
+
         int count = 0;
         while (count < maxInteractions && check()) {
 
+            fineTimer.stop();
+            writer.write(fineTimer.getNanoTime() + ", ");
 
             Node readyContext = null;
             Transaction functionTx = db.beginTx();
@@ -119,27 +150,54 @@ class Computer implements Runnable {
 
             /* -- get random trio -- */
 
+                fineTimer.reset();
+                fineTimer.start();
                 readyContext = handler.getRandomReady();
-            /* -- acquire locks -- */
-                Function selectedFunction = Function.valueOf((String) readyContext.getProperty("function"));
-                Pair readyPair = handler.getRandomPair(readyContext);
+                fineTimer.stop();
+                writer.write(fineTimer.getNanoTime() + ", ");
 
+            /* -- acquire locks -- */
+                fineTimer.reset();
+                fineTimer.start();
+                Function selectedFunction = Function.valueOf((String) readyContext.getProperty(Components.function));
+                fineTimer.stop();
+                writer.write(fineTimer.getNanoTime() + ", ");
+
+                fineTimer.reset();
+                fineTimer.start();
+                Pair readyPair = handler.getRandomPair(readyContext);
+                fineTimer.stop();
+                writer.write(fineTimer.getNanoTime() + ", ");
+
+                fineTimer.reset();
+                fineTimer.start();
                 functionTx.acquireWriteLock(readyContext);
                 functionTx.acquireWriteLock(readyPair.s1);
                 functionTx.acquireWriteLock(readyPair.s2);
 
                 // lock parent scopes if necessary
-                if (selectedFunction.affectsS1parentScopes())
-                handler.getParentScopes(readyPair.s1).forEach(functionTx::acquireWriteLock);
-                if (selectedFunction.affectsS2parentScopes())
-                handler.getParentScopes(readyPair.s2).forEach(functionTx::acquireWriteLock);
+                if (selectedFunction.affectsS1parentScopes()) {
+                    handler.getParentScopes(readyPair.s1).forEach(functionTx::acquireWriteLock);
+                }
+                if (selectedFunction.affectsS2parentScopes()) {
+                    handler.getParentScopes(readyPair.s2).forEach(functionTx::acquireWriteLock);
+                }
+                fineTimer.stop();
+                writer.write(fineTimer.getNanoTime() + ", ");
 
             /* -- perform transformation function -- */
 
+                fineTimer.reset();
+                fineTimer.start();
                 selectedFunction.perform(readyContext, readyPair.s1, readyPair.s2);
+                fineTimer.stop();
+                writer.write(fineTimer.getNanoTime() + ", ");
+
 
             /* -- amend READY / FITS properties -- */
 
+                fineTimer.reset();
+                fineTimer.start();
                 ResourceIterator<Relationship> fits1Relationships =
                 (ResourceIterator<Relationship>) readyPair.s1
                                 .getRelationships(Components.FITS1, Direction.INCOMING).iterator();
@@ -162,7 +220,11 @@ class Computer implements Runnable {
                     fitsRel.getStartNode().removeLabel(Components.READY);
                     fitsRel.delete();
                 });
+                fineTimer.stop();
+                writer.write(fineTimer.getNanoTime() + ", ");
 
+                fineTimer.reset();
+                fineTimer.start();
                 // check for new fits/ready
                 readyPair.getAll().forEach(sNode ->
                 handler.getParentScopes(sNode).forEach(scope -> {
@@ -177,6 +239,12 @@ class Computer implements Runnable {
                         labeler.labelReadyInScope(scope);
                     });
                 }
+                fineTimer.stop();
+                writer.write(fineTimer.getNanoTime() + "\n");
+                writer.flush();
+
+                fineTimer.reset();
+                fineTimer.start();
 
             /* -- releases the locks -- */
                 functionTx.success();
@@ -201,6 +269,7 @@ class Computer implements Runnable {
                 functionTx.close();
             }
 
+            if (count % 100 == 0) System.out.println(String.format("%,d interactions...", count));
         }
 
         if (count == maxInteractions)
@@ -223,7 +292,7 @@ class Computer implements Runnable {
     public void run() {
 //        Transaction t = db.beginTx();
 //        System.out.println(db.execute(TestGraphQueries.viewGraph).resultAsString());
-        compute(5000);
+//        compute(this.maxInteractions);
         //        t.success();
 //        t.close();
     }
