@@ -112,20 +112,20 @@ class Computer implements Runnable {
         timer.reset();
     }
 
-    private boolean check() {
-        Transaction checkTx = db.beginTx();
-        try {
-            boolean check = db.getAllLabels().stream().anyMatch(label -> label.equals(Components.READY));
-            checkTx.success();
-            checkTx.close();
-            return check;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            checkTx.failure();
-            checkTx.close();
-            return false;
-        }
-    }
+//    private boolean check() {
+//        Transaction checkTx = db.beginTx();
+//        try {
+//            boolean check = db.getAllLabels().stream().anyMatch(label -> label.equals(Components.READY));
+//            checkTx.success();
+//            checkTx.close();
+//            return check;
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//            checkTx.failure();
+//            checkTx.close();
+//            return false;
+//        }
+//    }
 
     void compute(int maxInteractions) {}
 
@@ -135,16 +135,26 @@ class Computer implements Runnable {
         timer.start();
 
         StopWatch fineTimer = new StopWatch();
-        fineTimer.start();
 
         int count = 0;
-        while (count < maxInteractions && check()) {
+        while (count < maxInteractions) {
 
+            Node readyContext = null;
+
+            fineTimer.reset();
+            fineTimer.start();
+            Transaction functionTx = db.beginTx();
             fineTimer.stop();
             writer.write(fineTimer.getNanoTime() + ", ");
 
-            Node readyContext = null;
-            Transaction functionTx = db.beginTx();
+            fineTimer.reset();
+            fineTimer.start();
+
+            if (!db.getAllLabels().stream().anyMatch(label -> label.equals(Components.READY)))
+                    break;
+
+            fineTimer.stop();
+            writer.write(fineTimer.getNanoTime() + ", ");
 
             try {
 
@@ -240,14 +250,18 @@ class Computer implements Runnable {
                     });
                 }
                 fineTimer.stop();
-                writer.write(fineTimer.getNanoTime() + "\n");
+                writer.write(fineTimer.getNanoTime() + ", ");
                 writer.flush();
+
+
+            /* -- releases the locks -- */
 
                 fineTimer.reset();
                 fineTimer.start();
-
-            /* -- releases the locks -- */
                 functionTx.success();
+                fineTimer.stop();
+                writer.write(fineTimer.getNanoTime() + "\n");
+
                 count++;
 
                 //TODO amend exception types

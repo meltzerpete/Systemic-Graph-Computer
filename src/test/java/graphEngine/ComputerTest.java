@@ -221,7 +221,7 @@ public class ComputerTest {
 
             GraphDatabaseService db = neo4j.getGraphDatabaseService();
 
-            File file = new File("fineTiming.csv");
+            File file = new File("fineTiming2.csv");
             FileWriter fwriter = new FileWriter(file,true);
             BufferedWriter writer = new BufferedWriter(fwriter);
 
@@ -309,7 +309,7 @@ public class ComputerTest {
                     writer.flush();
 
                     System.out.println("Executing...");
-                    writer.write("check, getRandomReady, getFunc, getPair, acquireLocks, perfFunc, rmFITS/READY, newFITS/READY\n");
+                    writer.write("tx, check, getRandomReady, getFunc, getPair, acquireLocks, perfFunc, rmFITS/READY, newFITS/READY, txRelease\n");
                     exeTimer.reset();
                     exeTimer.start();
                     comp.compute(500, writer);
