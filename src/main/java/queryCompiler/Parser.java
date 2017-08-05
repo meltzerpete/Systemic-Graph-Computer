@@ -11,6 +11,7 @@ import java.util.Objects;
 
 import static queryCompiler.Tokens.*;
 
+
 /**
  * Created by Pete Meltzer on 25/07/17.
  * http://cogitolearning.co.uk/?p=573

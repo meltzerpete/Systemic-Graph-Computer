@@ -1,5 +1,7 @@
 package graphEngine;
 
+import nodeParser.NodeMatch;
+import nodeParser.Parser;
 import org.apache.commons.lang3.time.StopWatch;
 import org.neo4j.graphdb.*;
 import queryCompiler.Compiler;
@@ -19,7 +21,7 @@ class Computer implements Runnable {
 
     public int maxInteractions = 10000;
 
-    public boolean withCypher = true;
+    private boolean fine = true;
 
     final GraphDatabaseService db;
     private List<Result> output;
@@ -28,6 +30,7 @@ class Computer implements Runnable {
     private final SCSystemHandler handler;
 
     private Hashtable<String, Vertex> matchingGraphs = new Hashtable<>();
+    private Hashtable<String, NodeMatch> nodeMatches = new Hashtable<>();
 
     private Compiler compiler = new Compiler();
 
@@ -57,39 +60,46 @@ class Computer implements Runnable {
         }
     }
 
+    NodeMatch getNodeMatch(String query) {
+        if (nodeMatches.containsKey(query))
+            return nodeMatches.get(query);
+        else {
+            Parser parser = new Parser();
+            NodeMatch nodeMatch = parser.parse(query);
+            nodeMatches.put(query, nodeMatch);
+            return nodeMatch;
+        }
+    }
+
     void preProcess() {
 
         /* -- Compile matchingGraphs -- */
 
-        if (!withCypher) {
+        StopWatch compileTimer = new StopWatch();
+        compileTimer.start();
 
-            StopWatch compileTimer = new StopWatch();
-            compileTimer.start();
+        try (Transaction tx = db.beginTx()) {
 
-            try (Transaction tx = db.beginTx()) {
-
-                db.findNodes(Components.CONTEXT).stream().forEach(node -> {
-                    if (node.hasProperty(Components.s1Query)) {
-                        String s1Query = (String) node.getProperty(Components.s1Query);
-                        if (!matchingGraphs.containsKey(s1Query)) {
-                            matchingGraphs.put(s1Query, compiler.compile(s1Query));
+            db.findNodes(Components.CONTEXT).stream()
+                    .forEach(node -> {
+                        if (node.hasProperty(Components.s1Query)) {
+                            String queryString = (String) node.getProperty(Components.s1Query);
+                            if (queryString.startsWith("(:"))
+                                getNodeMatch(queryString);
                         }
-                    }
-                    if (node.hasProperty(Components.s2Query)) {
-                        String s2Query = (String) node.getProperty(Components.s2Query);
-                        if (!matchingGraphs.containsKey(s2Query)) {
-                            matchingGraphs.put(s2Query, compiler.compile(s2Query));
+                        if (node.hasProperty(Components.s2Query)) {
+                            String queryString = (String) node.getProperty(Components.s2Query);
+                            if (queryString.startsWith("(:"))
+                                getNodeMatch(queryString);
                         }
-                    }
-                });
-                tx.success();
-            }
+                    });
 
-
-            compileTimer.stop();
-            System.out.println(String.format("Compilation took %,d x10e-3 s", compileTimer.getTime()));
-
+            tx.success();
         }
+
+
+        compileTimer.stop();
+        System.out.println(String.format("Compilation took %,d x10e-3 s", compileTimer.getTime()));
 
         /* -- Create initial FITS relationships / label initial READY nodes -- */
 
@@ -127,9 +137,18 @@ class Computer implements Runnable {
 //        }
 //    }
 
-    void compute(int maxInteractions) {}
+    void compute(int maxInteractions) {
+        fine = false;
+        try {
+            compute(maxInteractions, null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
 
     void compute(int maxInteractions, BufferedWriter writer) throws IOException {
+
 
         StopWatch timer = new StopWatch();
         timer.start();
@@ -141,46 +160,46 @@ class Computer implements Runnable {
 
             Node readyContext = null;
 
-            fineTimer.reset();
-            fineTimer.start();
+            if (fine) fineTimer.reset();
+            if (fine) fineTimer.start();
             Transaction functionTx = db.beginTx();
-            fineTimer.stop();
-            writer.write(fineTimer.getNanoTime() + ", ");
+            if (fine) fineTimer.stop();
+            if (fine) writer.write(fineTimer.getNanoTime() + ", ");
 
-            fineTimer.reset();
-            fineTimer.start();
+            if (fine) fineTimer.reset();
+            if (fine) fineTimer.start();
 
-            if (!db.getAllLabels().stream().anyMatch(label -> label.equals(Components.READY)))
+            if (db.getAllLabels().stream().noneMatch(label -> label.equals(Components.READY)))
                     break;
 
-            fineTimer.stop();
-            writer.write(fineTimer.getNanoTime() + ", ");
+            if (fine) fineTimer.stop();
+            if (fine) writer.write(fineTimer.getNanoTime() + ", ");
 
             try {
 
             /* -- get random trio -- */
 
-                fineTimer.reset();
-                fineTimer.start();
+                if (fine) fineTimer.reset();
+                if (fine) fineTimer.start();
                 readyContext = handler.getRandomReady();
-                fineTimer.stop();
-                writer.write(fineTimer.getNanoTime() + ", ");
+                if (fine) fineTimer.stop();
+                if (fine) writer.write(fineTimer.getNanoTime() + ", ");
 
             /* -- acquire locks -- */
-                fineTimer.reset();
-                fineTimer.start();
+                if (fine) fineTimer.reset();
+                if (fine) fineTimer.start();
                 Function selectedFunction = Function.valueOf((String) readyContext.getProperty(Components.function));
-                fineTimer.stop();
-                writer.write(fineTimer.getNanoTime() + ", ");
+                if (fine) fineTimer.stop();
+                if (fine) writer.write(fineTimer.getNanoTime() + ", ");
 
-                fineTimer.reset();
-                fineTimer.start();
+                if (fine) fineTimer.reset();
+                if (fine) fineTimer.start();
                 Pair readyPair = handler.getRandomPair(readyContext);
-                fineTimer.stop();
-                writer.write(fineTimer.getNanoTime() + ", ");
+                if (fine) fineTimer.stop();
+                if (fine) writer.write(fineTimer.getNanoTime() + ", ");
 
-                fineTimer.reset();
-                fineTimer.start();
+                if (fine) fineTimer.reset();
+                if (fine) fineTimer.start();
                 functionTx.acquireWriteLock(readyContext);
                 functionTx.acquireWriteLock(readyPair.s1);
                 functionTx.acquireWriteLock(readyPair.s2);
@@ -192,22 +211,22 @@ class Computer implements Runnable {
                 if (selectedFunction.affectsS2parentScopes()) {
                     handler.getParentScopes(readyPair.s2).forEach(functionTx::acquireWriteLock);
                 }
-                fineTimer.stop();
-                writer.write(fineTimer.getNanoTime() + ", ");
+                if (fine) fineTimer.stop();
+                if (fine) writer.write(fineTimer.getNanoTime() + ", ");
 
             /* -- perform transformation function -- */
 
-                fineTimer.reset();
-                fineTimer.start();
+                if (fine) fineTimer.reset();
+                if (fine) fineTimer.start();
                 selectedFunction.perform(readyContext, readyPair.s1, readyPair.s2);
-                fineTimer.stop();
-                writer.write(fineTimer.getNanoTime() + ", ");
+                if (fine) fineTimer.stop();
+                if (fine) writer.write(fineTimer.getNanoTime() + ", ");
 
 
             /* -- amend READY / FITS properties -- */
 
-                fineTimer.reset();
-                fineTimer.start();
+                if (fine) fineTimer.reset();
+                if (fine) fineTimer.start();
                 ResourceIterator<Relationship> fits1Relationships =
                 (ResourceIterator<Relationship>) readyPair.s1
                                 .getRelationships(Components.FITS1, Direction.INCOMING).iterator();
@@ -230,17 +249,19 @@ class Computer implements Runnable {
                     fitsRel.getStartNode().removeLabel(Components.READY);
                     fitsRel.delete();
                 });
-                fineTimer.stop();
-                writer.write(fineTimer.getNanoTime() + ", ");
+                if (fine) fineTimer.stop();
+                if (fine) writer.write(fineTimer.getNanoTime() + ", ");
 
-                fineTimer.reset();
-                fineTimer.start();
+                if (fine) fineTimer.reset();
+                if (fine) fineTimer.start();
                 // check for new fits/ready
-                readyPair.getAll().forEach(sNode ->
-                handler.getParentScopes(sNode).forEach(scope -> {
-                    labeler.createFitsInScope(scope);
-                    labeler.labelReadyInScope(scope);
-                }));
+                //TODO
+                readyPair.getAll().forEach(sNode -> {
+                    labeler.createFitsForTarget(sNode);
+                    handler.getParentScopes(sNode).forEach(scope -> {
+                        labeler.labelReadyInScope(scope);
+                    });
+                });
 
                 // check original context if it is no longer in a parent scope of the transformed sNodes
                 if (selectedFunction.affectsS1parentScopes() || selectedFunction.affectsS2parentScopes()) {
@@ -249,18 +270,18 @@ class Computer implements Runnable {
                         labeler.labelReadyInScope(scope);
                     });
                 }
-                fineTimer.stop();
-                writer.write(fineTimer.getNanoTime() + ", ");
-                writer.flush();
+                if (fine) fineTimer.stop();
+                if (fine) writer.write(fineTimer.getNanoTime() + ", ");
+                if (fine) writer.flush();
 
 
             /* -- releases the locks -- */
 
-                fineTimer.reset();
-                fineTimer.start();
+                if (fine) fineTimer.reset();
+                if (fine) fineTimer.start();
                 functionTx.success();
-                fineTimer.stop();
-                writer.write(fineTimer.getNanoTime() + "\n");
+                if (fine) fineTimer.stop();
+                if (fine) writer.write(fineTimer.getNanoTime() + "\n");
 
                 count++;
 

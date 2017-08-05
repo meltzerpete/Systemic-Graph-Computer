@@ -114,7 +114,6 @@ public class MoreQueryTesting {
                 Computer comp = new Computer(db);
                 SCLabeler labeler = comp.getLabeler();
 
-                comp.withCypher = false;
                 labeler.debug = false;
 
                 comp.preProcess();
@@ -191,7 +190,6 @@ public class MoreQueryTesting {
                 Computer comp = new Computer(db);
                 SCLabeler labeler = comp.getLabeler();
 
-                comp.withCypher = true;
                 labeler.debug = false;
 
                 comp.preProcess();

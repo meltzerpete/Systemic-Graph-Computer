@@ -72,7 +72,6 @@ public class ComputerTest {
                     db.execute(TestGraphQueries.terminatingProgramWithQueryMatching);
 
                 Computer comp = new Computer(db);
-                comp.withCypher = true;
 
                 System.out.println("Pre-processing...");
                 comp.preProcess();
@@ -108,7 +107,7 @@ public class ComputerTest {
 
             GraphDatabaseService db = neo4j.getGraphDatabaseService();
 
-            File file = new File("random.csv");
+            File file = new File("reTiming.csv");
             FileWriter fwriter = new FileWriter(file,true);
             BufferedWriter writer = new BufferedWriter(fwriter);
 
@@ -137,28 +136,28 @@ public class ComputerTest {
                         // contexts
                         Node initializer = db.createNode(Components.CONTEXT);
                         initializer.setProperty(Components.function, "INITIALIZE");
-                        initializer.setProperty(Components.s1Query, "(n:Uninitialized)");
-                        initializer.setProperty(Components.s2Query, "(n:Computation)");
+                        initializer.setProperty(Components.s1Query, "(:Uninitialized)");
+                        initializer.setProperty(Components.s2Query, "(:Computation)");
 
                         Node binMutate = db.createNode(Components.CONTEXT);
                         binMutate.setProperty(Components.function, "BINARYMUTATE");
-                        binMutate.setProperty(Components.s1Query, "(n:Initialized)");
-                        binMutate.setProperty(Components.s2Query, "(n:Initialized)");
+                        binMutate.setProperty(Components.s1Query, "(:Initialized)");
+                        binMutate.setProperty(Components.s2Query, "(:Initialized)");
 
                         Node onePointCross = db.createNode(Components.CONTEXT);
                         onePointCross.setProperty(Components.function, "ONEPOINTCROSS");
-                        onePointCross.setProperty(Components.s1Query, "(n:Initialized)");
-                        onePointCross.setProperty(Components.s2Query, "(n:Initialized)");
+                        onePointCross.setProperty(Components.s1Query, "(:Initialized)");
+                        onePointCross.setProperty(Components.s2Query, "(:Initialized)");
 
                         Node uniformCross = db.createNode(Components.CONTEXT);
                         uniformCross.setProperty(Components.function, "UNIFORMCROSS");
-                        uniformCross.setProperty(Components.s1Query, "(n:Initialized)");
-                        uniformCross.setProperty(Components.s2Query, "(n:Initialized)");
+                        uniformCross.setProperty(Components.s1Query, "(:Initialized)");
+                        uniformCross.setProperty(Components.s2Query, "(:Initialized)");
 
                         Node output = db.createNode(Components.CONTEXT);
                         output.setProperty(Components.function, "OUTPUT");
-                        output.setProperty(Components.s1Query, "(n:Fittest)");
-                        output.setProperty(Components.s2Query, "(n:Initialized)");
+                        output.setProperty(Components.s1Query, "(:Fittest)");
+                        output.setProperty(Components.s2Query, "(:Initialized)");
 
                         main.createRelationshipTo(output, Components.CONTAINS);
                         main.createRelationshipTo(initializer, Components.CONTAINS);
@@ -183,7 +182,6 @@ public class ComputerTest {
                     }
 
                     Computer comp = new Computer(db);
-                    comp.withCypher = false;
 
                     System.out.println("Pre-processing...");
                     preTimer.reset();
@@ -250,28 +248,28 @@ public class ComputerTest {
                         // contexts
                         Node initializer = db.createNode(Components.CONTEXT);
                         initializer.setProperty(Components.function, "INITIALIZE");
-                        initializer.setProperty(Components.s1Query, "(n:Uninitialized)");
-                        initializer.setProperty(Components.s2Query, "(n:Computation)");
+                        initializer.setProperty(Components.s1Query, "(:Uninitialized)");
+                        initializer.setProperty(Components.s2Query, "(:Computation)");
 
                         Node binMutate = db.createNode(Components.CONTEXT);
                         binMutate.setProperty(Components.function, "BINARYMUTATE");
-                        binMutate.setProperty(Components.s1Query, "(n:Initialized)");
-                        binMutate.setProperty(Components.s2Query, "(n:Initialized)");
+                        binMutate.setProperty(Components.s1Query, "(:Initialized)");
+                        binMutate.setProperty(Components.s2Query, "(:Initialized)");
 
                         Node onePointCross = db.createNode(Components.CONTEXT);
                         onePointCross.setProperty(Components.function, "ONEPOINTCROSS");
-                        onePointCross.setProperty(Components.s1Query, "(n:Initialized)");
-                        onePointCross.setProperty(Components.s2Query, "(n:Initialized)");
+                        onePointCross.setProperty(Components.s1Query, "(:Initialized)");
+                        onePointCross.setProperty(Components.s2Query, "(:Initialized)");
 
                         Node uniformCross = db.createNode(Components.CONTEXT);
                         uniformCross.setProperty(Components.function, "UNIFORMCROSS");
-                        uniformCross.setProperty(Components.s1Query, "(n:Initialized)");
-                        uniformCross.setProperty(Components.s2Query, "(n:Initialized)");
+                        uniformCross.setProperty(Components.s1Query, "(:Initialized)");
+                        uniformCross.setProperty(Components.s2Query, "(:Initialized)");
 
                         Node output = db.createNode(Components.CONTEXT);
                         output.setProperty(Components.function, "OUTPUT");
-                        output.setProperty(Components.s1Query, "(n:Fittest)");
-                        output.setProperty(Components.s2Query, "(n:Initialized)");
+                        output.setProperty(Components.s1Query, "(:Fittest)");
+                        output.setProperty(Components.s2Query, "(:Initialized)");
 
                         main.createRelationshipTo(output, Components.CONTAINS);
                         main.createRelationshipTo(initializer, Components.CONTAINS);
@@ -296,7 +294,6 @@ public class ComputerTest {
                     }
 
                     Computer comp = new Computer(db);
-                    comp.withCypher = false;
 
                     System.out.println("Pre-processing...");
                     preTimer.reset();
@@ -346,28 +343,28 @@ public class ComputerTest {
 //                // contexts
 //                Node initializer = db.createNode(Components.CONTEXT);
 //                initializer.setProperty(Components.function, "INITIALIZE");
-//                initializer.setProperty(Components.s1Query, "(n:Uninitialized)");
-//                initializer.setProperty(Components.s2Query, "(n:Computation)");
+//                initializer.setProperty(Components.s1Query, "(:Uninitialized)");
+//                initializer.setProperty(Components.s2Query, "(:Computation)");
 //
 //                Node binMutate = db.createNode(Components.CONTEXT);
 //                binMutate.setProperty(Components.function, "BINARYMUTATE");
-//                binMutate.setProperty(Components.s1Query, "(n:Initialized)");
-//                binMutate.setProperty(Components.s2Query, "(n:Initialized)");
+//                binMutate.setProperty(Components.s1Query, "(:Initialized)");
+//                binMutate.setProperty(Components.s2Query, "(:Initialized)");
 //
 //                Node onePointCross = db.createNode(Components.CONTEXT);
 //                onePointCross.setProperty(Components.function, "ONEPOINTCROSS");
-//                onePointCross.setProperty(Components.s1Query, "(n:Initialized)");
-//                onePointCross.setProperty(Components.s2Query, "(n:Initialized)");
+//                onePointCross.setProperty(Components.s1Query, "(:Initialized)");
+//                onePointCross.setProperty(Components.s2Query, "(:Initialized)");
 //
 //                Node uniformCross = db.createNode(Components.CONTEXT);
 //                uniformCross.setProperty(Components.function, "UNIFORMCROSS");
-//                uniformCross.setProperty(Components.s1Query, "(n:Initialized)");
-//                uniformCross.setProperty(Components.s2Query, "(n:Initialized)");
+//                uniformCross.setProperty(Components.s1Query, "(:Initialized)");
+//                uniformCross.setProperty(Components.s2Query, "(:Initialized)");
 //
 //                Node output = db.createNode(Components.CONTEXT);
 //                output.setProperty(Components.function, "OUTPUT");
-//                output.setProperty(Components.s1Query, "(n:Fittest)");
-//                output.setProperty(Components.s2Query, "(n:Initialized)");
+//                output.setProperty(Components.s1Query, "(:Fittest)");
+//                output.setProperty(Components.s2Query, "(:Initialized)");
 //
 //                main.createRelationshipTo(output, Components.CONTAINS);
 //                main.createRelationshipTo(initializer, Components.CONTAINS);
