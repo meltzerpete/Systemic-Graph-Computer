@@ -1,8 +1,12 @@
 package parallel;
 
-import org.apache.commons.lang3.time.StopWatch;
+import org.neo4j.graphdb.DatabaseShutdownException;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
+
+import java.util.Arrays;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static parallel.Manager.*;
 
@@ -10,41 +14,49 @@ import static parallel.Manager.*;
  * Created by Pete Meltzer on 05/08/17.
  */
 public class ConsumeTripletTask implements Runnable {
+
+    private static Semaphore mutex = new Semaphore(1);
+    private static AtomicInteger counter = new AtomicInteger(0);
+
     @Override
     public void run() {
-        while (!Thread.currentThread().isInterrupted()) {
+        while (run) {
             Triplet triplet;
             try {
-                StopWatch timer = new StopWatch();
-                timer.start();
 
                 triplet = tripletQueue.take();
 
                 try (Transaction tx = db.beginTx()) {
                     Node s1 = db.getNodeById(triplet.s1);
                     Node s2 = db.getNodeById(triplet.s2);
-                    triplet.function.accept(s1, s2);
-//                    inQueueSet.remove(triplet.s1);
-//                    inQueueSet.remove(triplet.s2);
-                    int c = (int) count.getCount();
-                    count.countDown();
-                    if (c % 100 == 0) {
-                        System.out.println(c);
-                        if (tripletQueue.size() > (QUEUE_SIZE * 0.9) && !extraProducer.isCancelled()) {
-                            System.out.println("Cancel extra producer");
-                            extraProducer.cancel(true);
-//                            extraConsumer = executor.submit(new ConsumeTripletTask());
-                        } else if (tripletQueue.size() < (QUEUE_SIZE * 0.1) && extraProducer.isCancelled()) {
-                            System.out.println("Enable extra producer");
-//                            extraConsumer.cancel(true);
-                            extraProducer = executor.submit(new ProduceTripletTask());
+
+                    // acquire locks - nodes could be in any order so must be
+                    // wrapped with mutex to avoid deadlock
+                    mutex.acquire();
+                    nodeLocks[(int) triplet.s1].acquire();
+                    nodeLocks[(int) triplet.s2].acquire();
+                    mutex.release();
+                    if ((matchNode(triplet.contextEntry.s1, s1) && matchNode(triplet.contextEntry.s2, s2))) {
+                        triplet.contextEntry.function.accept(s1, s2);
+                        if (counter.getAndIncrement() % 100 == 0) {
+//                            System.out.println(c);
+                            System.out.println((counter.get() - 1) + " queueSize: " + tripletQueue.size());
+//                            System.out.println(String.format("Current: %s", triplet));
+//                            System.out.println(Arrays.toString(db.getAllLabels().stream().toArray()));
                         }
-//                        System.out.println("Queue size: " + tripletQueue.size());
                     }
+                    // commit transaction and release locks
                     tx.success();
-                    timer.stop();
-                    consumerTimes.add(timer.getNanoTime());
+                    nodeLocks[(int) triplet.s1].release();
+                    nodeLocks[(int) triplet.s2].release();
+                    count.countDown();
+
+
+                } catch (DatabaseShutdownException e) {
+                    if (run) e.printStackTrace();
+                    // otherwise ignore exception
                 }
+
             } catch (InterruptedException e) {
 //                e.printStackTrace();
             }

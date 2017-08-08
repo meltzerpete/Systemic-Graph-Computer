@@ -6,17 +6,20 @@ import nodeParser.Parser;
 import org.apache.commons.lang3.time.StopWatch;
 import org.neo4j.graphdb.*;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.concurrent.*;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 import static graphEngine.Components.CONTAINS;
+import static parallel.Manager.*;
+import static parallel.Manager.tripletQueue;
 
 /**
  * Created by Pete Meltzer on 05/08/17.
  */
-public class Manager {
+public class Single {
 
     static final int MAX_INTERACTIONS = 10000;
     static final int QUEUE_SIZE = 20;
@@ -49,7 +52,7 @@ public class Manager {
     }
 
     static void go(GraphDatabaseService db) {
-        Manager.db = db;
+        Single.db = db;
 
         try (Transaction tx = db.beginTx()) {
 
@@ -108,42 +111,111 @@ public class Manager {
             });
         tx.success();
         setupTimer.stop();
-        System.out.println(String.format("setup: %,d x 10e-9 s", setupTimer.getNanoTime()));
+            System.out.println(String.format("setup: %,d x 10e-9 s", setupTimer.getNanoTime()));
         }
 
 
         /* LAUNCH PRODUCER AND CONSUMER THREADS */
-
         StopWatch timer = new StopWatch();
         timer.start();
-        p1.start();
 
-        Thread[] cs = new Thread[NO_OF_CONSUMERS];
-        for (Thread c : cs) {
-            c = new Thread(new ConsumeTripletTask());
-            c.start();
-        }
+        int count = 0;
 
-        try {
-            count.await();
-            timer.stop();
-            run = false;
+        Triplet triplet = null;
 
-            if (p1.isAlive()) p1.getThreadGroup().destroy();
+        while (count < MAX_INTERACTIONS) {
+            /* PRODUCER */
 
-            for (Thread c : cs) {
-                if (c != null && c.isAlive()) c.getThreadGroup().destroy();
+            ContextEntry contextEntry = contextArray[(int) (Math.random() * (contextArray.length))];
+            Long[] containedIDs = scopeContainedIDs.get(contextEntry.scope).clone();
+
+            long s1Match = -1;
+            long s2Match = -1;
+
+            HashSet<Long> visited = new HashSet<>();
+            int visitedCount = 0;
+
+            while (containedIDs.length > visitedCount) {
+
+                // get random targetID
+                long targetID = containedIDs[(int) (Math.random() * containedIDs.length)];
+                if (!visited.add(targetID)) continue;
+                visitedCount++;
+
+                // if target is the context try next target
+                if (targetID == contextEntry.context) {
+                    continue;
+                }
+
+                try (Transaction tx = db.beginTx()) {
+                    // S1
+                    // check node matches properties, labels etc.
+                    if (s1Match < 0 && matchNode(contextEntry.s1, db.getNodeById(targetID))) {
+                        // match
+                        s1Match = targetID;
+                        tx.success();
+                        continue;   // prevent s1 and s2 getting same target
+                    }
+
+                    // S2
+                    // check node matches properties, labels etc.
+                    if (s2Match < 0 && matchNode(contextEntry.s2, db.getNodeById(targetID))) {
+                        // match
+                        s2Match = targetID;
+                    }
+                    tx.success();
+                } catch (DatabaseShutdownException e) {
+                    if (run) e.printStackTrace();
+                    // otherwise ignore exception
+                }
+
+                if (s1Match >= 0 && s2Match >= 0) break;
             }
 
-        } catch (NullPointerException | IllegalThreadStateException | InterruptedException e) {
-            //ignore exception
-        } finally {
-            for (Thread c : cs) {
-                while (c != null && c.isAlive());
+            if (s1Match >= 0 && s2Match >= 0) {
+                // match found - add to tripletQueue
+                triplet = new Triplet(contextEntry, s1Match, s2Match);
+//                tripletQueue.offer(triplet);
             }
-            System.out.println("TERMINATING");
-            System.out.println(String.format("Time: %,d x 10e-3 s", timer.getTime()));
+
+            if (triplet == null) continue;
+
+            /* CONSUMER */
+//            Triplet triplet;
+
+//                triplet = tripletQueue.poll();
+
+            try (Transaction tx = db.beginTx()) {
+                Node s1 = db.getNodeById(triplet.s1);
+                Node s2 = db.getNodeById(triplet.s2);
+
+                // acquire locks - nodes could be in any order so must be
+                // wrapped with mutex to avoid deadlock
+                if ((matchNode(triplet.contextEntry.s1, s1) && matchNode(triplet.contextEntry.s2, s2))) {
+                    triplet.contextEntry.function.accept(s1, s2);
+                    if (count % 100 == 0) {
+//                            System.out.println(c);
+                        System.out.println((count) + " queueSize: " + tripletQueue.size());
+//                            System.out.println(String.format("Current: %s", triplet));
+//                            System.out.println(Arrays.toString(db.getAllLabels().stream().toArray()));
+                    }
+                }
+                // commit transaction and release locks
+                count++;
+                tx.success();
+
+            } catch (DatabaseShutdownException e) {
+                if (run) e.printStackTrace();
+                // otherwise ignore exception
+            }
+
         }
+
+
+        timer.stop();
+        System.out.println("TERMINATING");
+        System.out.println(String.format("Time: %,d x 10e-3 s", timer.getTime()));
+
 
 
     }

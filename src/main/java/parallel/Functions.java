@@ -4,8 +4,7 @@ import graphEngine.Components;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 
-import java.util.Vector;
-import java.util.concurrent.locks.Lock;
+import java.util.Arrays;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiConsumer;
 
@@ -159,9 +158,10 @@ public class Functions {
         // critical section
         scopeVectorsLock.lock();
         try {
-            Vector<Long> scopeVector = Manager.scopeVectors.get(scopeID);
-            scopeVector.add(node.getId());
-            Manager.scopeVectors.replace(scopeID, scopeVector);
+            Long[] oldArray = Single.scopeContainedIDs.get(scopeID);
+            Long[] newArray = Arrays.copyOf(oldArray, oldArray.length + 1);
+            newArray[oldArray.length] = node.getId();
+            Single.scopeContainedIDs.replace(scopeID, newArray);
         } finally {
             scopeVectorsLock.unlock();
         }

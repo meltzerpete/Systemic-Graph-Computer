@@ -10,14 +10,14 @@ import java.util.function.BiConsumer;
  */
 public class ContextEntry {
     long context;
-    BiConsumer<Node, Node> contextFunction;
+    BiConsumer<Node, Node> function;
     NodeMatch s1;
     NodeMatch s2;
     long scope;
 
-    public ContextEntry(long context, BiConsumer<Node, Node> contextFunction, NodeMatch s1, NodeMatch s2, long scope) {
+    public ContextEntry(long context, BiConsumer<Node, Node> function, NodeMatch s1, NodeMatch s2, long scope) {
         this.context = context;
-        this.contextFunction = contextFunction;
+        this.function = function;
         this.s1 = s1;
         this.s2 = s2;
         this.scope = scope;
