@@ -34,7 +34,7 @@ public class ManagerTest {
             GraphDatabaseService db = neo4j.getGraphDatabaseService();
 
             // create program
-            int noOfDataSystems = 1000;
+            int noOfDataSystems = 50;
             try (Transaction tx = db.beginTx()) {
 
                 // scopes
@@ -91,7 +91,7 @@ public class ManagerTest {
 
 
             Manager.go(db);
-            System.out.println(db.execute(viewGraph).resultAsString());
+//            System.out.println(db.execute(viewGraph).resultAsString());
         }
 
     }
@@ -164,7 +164,7 @@ public class ManagerTest {
 
 
             Single.go(db);
-            System.out.println(db.execute(viewGraph).resultAsString());
+//            System.out.println(db.execute(viewGraph).resultAsString());
         }
 
     }

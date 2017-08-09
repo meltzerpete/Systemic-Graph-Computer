@@ -5,15 +5,13 @@ import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 
 import java.util.Arrays;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiConsumer;
 
 /**
  * Created by Pete Meltzer on 06/08/17.
  */
 public class Functions {
-
-    static ReentrantLock scopeVectorsLock = new ReentrantLock();
 
     // extra labels
     static final Label INITIALIZED = Label.label("Initialized");
@@ -37,7 +35,7 @@ public class Functions {
 
     static BiConsumer<Node, Node> initialize = (s1, s2) -> {
         // create random char for uninitialized system
-        char randomChar = (char) (Math.random() * Math.pow(2, 16));
+        char randomChar = (char) (ThreadLocalRandom.current().nextInt((int) Math.pow(2, 16)));
         char x = guard(randomChar);
         s1.setProperty(Components.data, x);
 
@@ -53,7 +51,7 @@ public class Functions {
         for (Node s : new Node[]{s1, s2}) {
 
             // flip random bit
-            char bitMask = (char) (Math.pow(2, (int) (Math.random() * 16)));
+            char bitMask = (char) (Math.pow(2, ThreadLocalRandom.current().nextInt(16)));
 
             char originalChar = (char) s.getProperty(Components.data);
             char newChar = (char) (originalChar ^ bitMask);
@@ -66,7 +64,7 @@ public class Functions {
         char p1 = (char) s1.getProperty(Components.data);
         char p2 = (char) s2.getProperty(Components.data);
 
-        int position = (int) (Math.random() * 16);
+        int position = ThreadLocalRandom.current().nextInt(16);
 
         char bitMaskA = (char) (0xffff >>> position);
         char bitMaskB = (char) (bitMaskA ^ 0xffff);
@@ -82,7 +80,7 @@ public class Functions {
         char p1 = (char) s1.getProperty(Components.data);
         char p2 = (char) s2.getProperty(Components.data);
 
-        char bitMaskA = (char) (Math.random() * Math.pow(2, 16));
+        char bitMaskA = (char) (ThreadLocalRandom.current().nextInt(16));
         char bitMaskB = (char) (bitMaskA ^ 0xffff);
 
         char c1 = (char) ((p1 & bitMaskA) | (p2 & bitMaskB));
@@ -102,8 +100,8 @@ public class Functions {
         if (fitness(other) > fitness(fittest)) {
             s1.setProperty(Components.data, other);
             System.out.println(String.format(
-                    "Fittest solution - weight: %d, value: %d, solution: %s",
-                    weight(other), fitness(other), Integer.toBinaryString(other)
+                    "Fittest solution (compare against %d) - weight: %d, value: %d, solution: %s",
+                    fitness(fittest), weight(other), fitness(other), Integer.toBinaryString(other)
             ));
         }
     };
@@ -139,7 +137,7 @@ public class Functions {
         //TODO random or systematic?
         while (weight(x) > W) {
 
-            char bitMask = (char) (0xffff ^ ((char) (0x0001 << (int) (Math.random() * 16))));
+            char bitMask = (char) (0xffff ^ ((char) (0x0001 << ThreadLocalRandom.current().nextInt( 16))));
             x &= bitMask;
 
         }
@@ -155,15 +153,9 @@ public class Functions {
         scope.createRelationshipTo(node, Components.CONTAINS);
         long scopeID = scope.getId();
 
-        // critical section
-        scopeVectorsLock.lock();
-        try {
-            Long[] oldArray = Single.scopeContainedIDs.get(scopeID);
-            Long[] newArray = Arrays.copyOf(oldArray, oldArray.length + 1);
-            newArray[oldArray.length] = node.getId();
-            Single.scopeContainedIDs.replace(scopeID, newArray);
-        } finally {
-            scopeVectorsLock.unlock();
-        }
+        Long[] oldArray = Manager.scopeContainedIDs.get(scopeID);
+        Long[] newArray = Arrays.copyOf(oldArray, oldArray.length + 1);
+        newArray[oldArray.length] = node.getId();
+        Manager.scopeContainedIDs.replace(scopeID, newArray);
     }
 }

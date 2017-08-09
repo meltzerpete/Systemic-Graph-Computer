@@ -5,6 +5,7 @@ import org.neo4j.graphdb.Transaction;
 
 import java.util.HashSet;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static parallel.Manager.*;
 
@@ -15,15 +16,18 @@ public class ProduceTripletTask implements Runnable {
     @Override
     @SuppressWarnings("unchecked cast")
     public void run() {
+        HashSet<Long> visited = new HashSet<>();
         while(run) {
 
+            // TODO - is there a deadlock opportunity here!?
+
             ContextEntry contextEntry = contextArray[ThreadLocalRandom.current().nextInt(contextArray.length)];
-            Long[] containedIDs = scopeContainedIDs.get(contextEntry.scope).clone();
+            Long[] containedIDs = scopeContainedIDs.get(contextEntry.scope);
 
             long s1Match = -1;
             long s2Match = -1;
 
-            HashSet<Long> visited = new HashSet<>();
+            visited.clear();
             int visitedCount = 0;
 
             while (containedIDs.length > visitedCount) {
@@ -69,7 +73,7 @@ public class ProduceTripletTask implements Runnable {
                 try {
                     tripletQueue.put(triplet);
                 } catch (InterruptedException e) {
-                    System.out.println("Task on thread " + Thread.currentThread().getId() + " cancelled.");
+                    System.out.println("Task on thread " + Thread.currentThread().getId() + " interrupted.");
                 }
             }
         }

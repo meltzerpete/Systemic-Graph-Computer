@@ -6,8 +6,14 @@ import nodeParser.Parser;
 import org.apache.commons.lang3.time.StopWatch;
 import org.neo4j.graphdb.*;
 
-import java.util.LinkedList;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.WeakHashMap;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
@@ -20,11 +26,12 @@ public class Manager {
 
     static final int MAX_INTERACTIONS = 10000;
     static final int QUEUE_SIZE = 20;
-    static final int NO_OF_CONSUMERS = 18;
+    static final int NO_OF_CONSUMERS = 100;
+    static final int NO_OF_PRODUCERS = 2;
 
     static GraphDatabaseService db;
 
-    static Semaphore[] nodeLocks;
+    static WeakHashMap<Long,ReentrantLock> nodeLocks;
 
     static ContextEntry[] contextArray;
     static BlockingQueue<Triplet> tripletQueue = new ArrayBlockingQueue<>(QUEUE_SIZE);
@@ -32,9 +39,6 @@ public class Manager {
 
     static boolean run = true;
     static CountDownLatch count = new CountDownLatch(MAX_INTERACTIONS);
-
-    static ThreadPoolExecutor executor;
-    static Thread p1 = new Thread(new ProduceTripletTask());
 
     /**
      * Get all parent scopes for the given {@link Node}.
@@ -48,7 +52,9 @@ public class Manager {
         return relationships.stream().map(Relationship::getStartNode);
     }
 
-    static void go(GraphDatabaseService db) {
+    //TODO swap single permit semaphores to ReentrantLocks
+
+    public static void go(GraphDatabaseService db) {
         Manager.db = db;
 
         try (Transaction tx = db.beginTx()) {
@@ -59,12 +65,16 @@ public class Manager {
             setupTimer.start();
 
             // create a mutex for every node
-            nodeLocks = new Semaphore[(int) db.getAllNodes().stream().count()];
-            for (int i = 0; i < nodeLocks.length; i++)
-                nodeLocks[i] = new Semaphore(1);
+            nodeLocks = new WeakHashMap<>();
+            db.getAllNodes().stream()
+                    .forEach(node -> nodeLocks.put(node.getId(), new ReentrantLock()));
+
+
+            // create node change cache
+//            cache = new NodeCache(nodeLocks.length);
 
             // for every contextEntry - create a contextEntry entry. if contextEntry appears in multiple scope -> add entry for each
-            LinkedList<ContextEntry> contextEntries = new LinkedList<>();
+            ArrayList<ContextEntry> contextEntries = new ArrayList<>();
             db.findNodes(Components.CONTEXT).stream().forEach(context -> {
                 // check function defined
                 if (!context.hasProperty(Components.function))
@@ -88,7 +98,6 @@ public class Manager {
 
             contextArray = new ContextEntry[contextEntries.size()];
             contextEntries.toArray(contextArray);
-//            contexts = new AtomicReferenceArray<>(contextArray);
 
             // for every scope create a vector for the systems it contains
             int nScopes = (int) db.findNodes(Components.SCOPE).stream().count();
@@ -96,7 +105,7 @@ public class Manager {
 
             db.findNodes(Components.SCOPE).forEachRemaining(scope -> {
 
-                LinkedList<Long> contained = new LinkedList<>();
+                ArrayList<Long> contained = new ArrayList<>(nScopes);
                 ((ResourceIterator<Relationship>)
                         scope.getRelationships(Components.CONTAINS, Direction.OUTGOING).iterator()).stream()
                         .map(Relationship::getEndNode)
@@ -116,11 +125,16 @@ public class Manager {
 
         StopWatch timer = new StopWatch();
         timer.start();
-        p1.start();
 
-        Thread[] cs = new Thread[NO_OF_CONSUMERS];
-        for (Thread c : cs) {
-            c = new Thread(new ConsumeTripletTask());
+        Thread[] producerThreads = new Thread[NO_OF_PRODUCERS];
+        for (Thread p : producerThreads) {
+            p = new Thread(new ProduceTripletTask(),"Producer");
+            p.start();
+        }
+
+        Thread[] consumerThreads = new Thread[NO_OF_CONSUMERS];
+        for (Thread c : consumerThreads) {
+            c = new Thread(new ConsumeTripletTask(), "Consumer");
             c.start();
         }
 
@@ -129,16 +143,18 @@ public class Manager {
             timer.stop();
             run = false;
 
-            if (p1.isAlive()) p1.getThreadGroup().destroy();
-
-            for (Thread c : cs) {
+            for (Thread p : producerThreads) {
+                if (p != null && p.isAlive()) p.getThreadGroup().destroy();
+            }            
+            
+            for (Thread c : consumerThreads) {
                 if (c != null && c.isAlive()) c.getThreadGroup().destroy();
             }
 
         } catch (NullPointerException | IllegalThreadStateException | InterruptedException e) {
             //ignore exception
         } finally {
-            for (Thread c : cs) {
+            for (Thread c : consumerThreads) {
                 while (c != null && c.isAlive());
             }
             System.out.println("TERMINATING");

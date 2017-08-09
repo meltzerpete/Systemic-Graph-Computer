@@ -38,4 +38,17 @@ public class ExecuteTest {
 
         }
     }
+
+    @Test
+    public void executeParallel() throws Throwable {
+        try (Driver driver = GraphDatabase.driver(neo4j.boltURI(), Config.build()
+                .withEncryptionLevel(Config.EncryptionLevel.NONE).toConfig());
+             Session session = driver.session()) {
+
+            session.run("CALL graphEngine.loadParallel(1000)");
+
+            session.run("CALL graphEngine.runParallel");
+
+        }
+    }
 }
