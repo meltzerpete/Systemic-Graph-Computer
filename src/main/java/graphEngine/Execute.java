@@ -68,7 +68,6 @@ public class Execute {
     public void loadParallel(@Name("No of data systems") long dataSystems) {
 
         // create program
-        int noOfDataSystems = 50;
         try (Transaction tx = db.beginTx()) {
 
             // scopes
@@ -110,7 +109,7 @@ public class Execute {
             computation.createRelationshipTo(uniformCross, Components.CONTAINS);
 
             // data nodes
-            for (int i = 0; i < noOfDataSystems; i++) {
+            for (int i = 0; i < (int) dataSystems; i++) {
                 Node data = db.createNode(Label.label("Data"), Label.label("Uninitialized"));
                 main.createRelationshipTo(data, Components.CONTAINS);
             }
@@ -126,10 +125,11 @@ public class Execute {
     }
 
     @Procedure(value = "graphEngine.runParallel", mode = SCHEMA)
-    public void runParallel() {
+    public void runParallel(@Name("Max no. of interactions") long maxInteractions) {
 
 
-        Manager.go(db);
+        Manager manager = new Manager((int) maxInteractions, db);
+        manager.go();
     }
 
 }

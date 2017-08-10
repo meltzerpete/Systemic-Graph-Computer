@@ -1,6 +1,5 @@
 package parallel;
 
-import org.neo4j.graphdb.DatabaseShutdownException;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 
@@ -8,11 +7,11 @@ import java.util.HashSet;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Created by Pete Meltzer on 05/08/17.
+ * Created by Pete Meltzer on 10/08/17.
  */
-public class ProduceTripletTask implements Runnable {
+public class ProduceTripletTask2 implements Runnable {
 
-    public ProduceTripletTask(Manager manager) {
+    public ProduceTripletTask2(Manager manager) {
         this.manager = manager;
     }
 
@@ -22,6 +21,7 @@ public class ProduceTripletTask implements Runnable {
     @SuppressWarnings("unchecked cast")
     public void run() {
         HashSet<Long> visited = new HashSet<>();
+        System.out.println("Producer2");
         while(manager.run.get()) {
 
             // TODO - is there a deadlock opportunity here!?

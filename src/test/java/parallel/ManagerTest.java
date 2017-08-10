@@ -89,8 +89,8 @@ public class ManagerTest {
                 tx.success();
             }
 
-
-            Manager.go(db);
+            Manager manager = new Manager(1000, db);
+            manager.go();
 //            System.out.println(db.execute(viewGraph).resultAsString());
         }
 
@@ -163,7 +163,7 @@ public class ManagerTest {
             }
 
 
-            Single.go(db);
+//            Single.go(db);
 //            System.out.println(db.execute(viewGraph).resultAsString());
         }
 

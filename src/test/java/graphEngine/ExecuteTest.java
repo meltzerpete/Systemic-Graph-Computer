@@ -34,7 +34,7 @@ public class ExecuteTest {
                 .withEncryptionLevel(Config.EncryptionLevel.NONE).toConfig());
              Session session = driver.session()) {
 
-            session.run("CALL graphEngine.execute(1)");
+            session.run("CALL graphEngine.execute(1000)");
 
         }
     }
@@ -45,10 +45,9 @@ public class ExecuteTest {
                 .withEncryptionLevel(Config.EncryptionLevel.NONE).toConfig());
              Session session = driver.session()) {
 
-            session.run("CALL graphEngine.loadParallel(1000)");
+            session.run("CALL graphEngine.loadParallel(100000)");
 
-            session.run("CALL graphEngine.runParallel");
-
+            session.run("CALL graphEngine.runParallel(10000)");
         }
     }
 }

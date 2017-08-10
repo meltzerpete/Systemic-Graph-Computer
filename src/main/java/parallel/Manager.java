@@ -3,16 +3,18 @@ package parallel;
 import graphEngine.Components;
 import nodeParser.NodeMatch;
 import nodeParser.Parser;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.neo4j.graphdb.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.WeakHashMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
@@ -24,38 +26,58 @@ import static graphEngine.Components.CONTAINS;
  */
 public class Manager {
 
-    static final int MAX_INTERACTIONS = 10000;
-    static final int QUEUE_SIZE = 20;
-    static final int NO_OF_CONSUMERS = 100;
-    static final int NO_OF_PRODUCERS = 2;
+    final int MAX_INTERACTIONS;
+    final int QUEUE_SIZE;
+    final int NO_OF_CONSUMERS;
 
-    static GraphDatabaseService db;
+    final ReentrantLock consumerMutex;
+    HashMap<Long, ReentrantLock> producerLocks;
+    final AtomicInteger upCounter;
+    CountDownLatch count;
 
-    static WeakHashMap<Long,ReentrantLock> nodeLocks;
+    int NO_OF_PRODUCERS = 2;
 
-    static ContextEntry[] contextArray;
-    static BlockingQueue<Triplet> tripletQueue = new ArrayBlockingQueue<>(QUEUE_SIZE);
-    static ConcurrentHashMap<Long,Long[]> scopeContainedIDs;
+    GraphDatabaseService db;
 
-    static boolean run = true;
-    static CountDownLatch count = new CountDownLatch(MAX_INTERACTIONS);
+    HashMap<Long,ReentrantLock> nodeLocks;
+
+    ContextEntry[] contextArray;
+
+    BlockingQueue<Triplet> tripletQueue;
+    ConcurrentHashMap<Long,Long[]> scopeContainedIDs;
+    AtomicBoolean run;
+
+
+    public Manager(int MAX_INTERACTIONS, int QUEUE_SIZE, int NO_OF_CONSUMERS, int NO_OF_PRODUCERS, GraphDatabaseService db) {
+        this.MAX_INTERACTIONS = MAX_INTERACTIONS;
+        this.QUEUE_SIZE = QUEUE_SIZE;
+        this.NO_OF_CONSUMERS = NO_OF_CONSUMERS;
+        this.NO_OF_PRODUCERS = NO_OF_PRODUCERS;
+        this.db = db;
+        tripletQueue = new ArrayBlockingQueue<>(this.QUEUE_SIZE);
+        count = new CountDownLatch(this.MAX_INTERACTIONS);
+        run = new AtomicBoolean(true);
+        consumerMutex = new ReentrantLock();
+        upCounter = new AtomicInteger(0);
+    }
+
+    public Manager(int MAX_INTERACTIONS, GraphDatabaseService db) {
+        this(MAX_INTERACTIONS, 20, 20, 4, db);
+    }
 
     /**
      * Get all parent scopes for the given {@link Node}.
      * @param node {@link Node} for which to find containing scopes
      * @return {@link Stream} of scope {@link Node}s
      */
-    static Stream<Node> getParentScopes(Node node) {
+    Stream<Node> getParentScopes(Node node) {
         ResourceIterator<Relationship> relationships =
                 (ResourceIterator<Relationship>) node.getRelationships(CONTAINS, Direction.INCOMING).iterator();
 
         return relationships.stream().map(Relationship::getStartNode);
     }
 
-    //TODO swap single permit semaphores to ReentrantLocks
-
-    public static void go(GraphDatabaseService db) {
-        Manager.db = db;
+    public void go() {
 
         try (Transaction tx = db.beginTx()) {
 
@@ -64,14 +86,14 @@ public class Manager {
             StopWatch setupTimer = new StopWatch();
             setupTimer.start();
 
-            // create a mutex for every node
-            nodeLocks = new WeakHashMap<>();
+            // create a consumerMutex for every node
+            nodeLocks = new HashMap<>();
+            producerLocks = new HashMap<>();
             db.getAllNodes().stream()
-                    .forEach(node -> nodeLocks.put(node.getId(), new ReentrantLock()));
-
-
-            // create node change cache
-//            cache = new NodeCache(nodeLocks.length);
+                    .forEach(node -> {
+                        nodeLocks.put(node.getId(), new ReentrantLock());
+                        producerLocks.put(node.getId(), new ReentrantLock());
+                    });
 
             // for every contextEntry - create a contextEntry entry. if contextEntry appears in multiple scope -> add entry for each
             ArrayList<ContextEntry> contextEntries = new ArrayList<>();
@@ -80,13 +102,12 @@ public class Manager {
                 if (!context.hasProperty(Components.function))
                     return;
 
-                BiConsumer<Node, Node> function = Functions.getFunction((String) context.getProperty(Components.function));
+                Functions functions = new Functions(this);
+                BiConsumer<Node, Node> function = functions.getFunction((String) context.getProperty(Components.function));
 
                 // compile queries
                 if (!(context.hasProperty(Components.s1Query) && context.hasProperty(Components.s2Query)))
                     return;
-
-//                Parser parser = new Parser();
 
                 NodeMatch s1 = (new Parser()).parse((String) context.getProperty(Components.s1Query));
                 NodeMatch s2 = (new Parser()).parse((String) context.getProperty(Components.s2Query));
@@ -126,37 +147,36 @@ public class Manager {
         StopWatch timer = new StopWatch();
         timer.start();
 
-        Thread[] producerThreads = new Thread[NO_OF_PRODUCERS];
-        for (Thread p : producerThreads) {
-            p = new Thread(new ProduceTripletTask(),"Producer");
-            p.start();
-        }
-
         Thread[] consumerThreads = new Thread[NO_OF_CONSUMERS];
         for (Thread c : consumerThreads) {
-            c = new Thread(new ConsumeTripletTask(), "Consumer");
+            c = new Thread(new ConsumeTripletTask(this));
+            c.setName("Consumer[" + c.getId() + "]");
             c.start();
+        }
+
+        Thread[] producerThreads = new Thread[NO_OF_PRODUCERS];
+        for (Thread p : producerThreads) {
+            p = new Thread(new ProduceTripletTask2(this),"Producer");
+            p.start();
         }
 
         try {
             count.await();
             timer.stop();
-            run = false;
+            run.set(false);
 
-            for (Thread p : producerThreads) {
-                if (p != null && p.isAlive()) p.getThreadGroup().destroy();
-            }            
-            
-            for (Thread c : consumerThreads) {
-                if (c != null && c.isAlive()) c.getThreadGroup().destroy();
+            // poison the queue
+            tripletQueue.put(new Triplet(null, 0, 0));
+
+            for (Thread thread : ArrayUtils.addAll(producerThreads, consumerThreads)) {
+                if (thread != null) thread.interrupt();
+                if (thread != null) thread.join();
             }
 
         } catch (NullPointerException | IllegalThreadStateException | InterruptedException e) {
             //ignore exception
+            e.printStackTrace();
         } finally {
-            for (Thread c : consumerThreads) {
-                while (c != null && c.isAlive());
-            }
             System.out.println("TERMINATING");
             System.out.println(String.format("Time: %,d x 10e-3 s", timer.getTime()));
         }
@@ -164,14 +184,14 @@ public class Manager {
 
     }
 
-    static void printQueue() {
+    void printQueue() {
         int pos = 0;
         tripletQueue.forEach(triplet -> {
             System.out.println(String.format("%d: %s", pos, triplet));
         });
     }
 
-    static boolean matchNode(NodeMatch queryNode, Node targetNode) {
+    boolean matchNode(NodeMatch queryNode, Node targetNode) {
 
         // check labels & properties
         if (!queryNode.getLabels().parallelStream().allMatch(targetNode::hasLabel))
@@ -181,5 +201,19 @@ public class Manager {
                 .allMatch(objectPropertyPair ->
                         targetNode.getProperty(objectPropertyPair.getKey(), objectPropertyPair.getValue()) != null
                                 && targetNode.getProperty(objectPropertyPair.getKey()).equals(objectPropertyPair.getValue()));
+    }
+
+    boolean match(NodeMatch queryNode, NodeMatch targetNode) {
+
+        // labels
+        if (!queryNode.getLabels().parallelStream()
+                .allMatch(label -> targetNode.getLabels().contains(label))) {
+            return false;
+        }
+
+        return queryNode.getProperties().parallelStream()
+                .allMatch(objectPropertyPair ->
+                        targetNode.getProperties().contains(objectPropertyPair));
+
     }
 }

@@ -1,5 +1,7 @@
 package parallel;
 
+import org.apache.commons.lang3.tuple.Triple;
+
 /**
  * Created by Pete Meltzer on 05/08/17.
  */
@@ -10,6 +12,12 @@ public class Triplet {
     long s2;
 
     public Triplet(ContextEntry contextEntry, long s1, long s2) {
+        this.contextEntry = contextEntry;
+        this.s1 = s1;
+        this.s2 = s2;
+    }
+
+    public void set(ContextEntry contextEntry, long s1, long s2) {
         this.contextEntry = contextEntry;
         this.s1 = s1;
         this.s2 = s2;

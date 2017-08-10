@@ -2,6 +2,7 @@ package nodeParser;
 
 import org.neo4j.graphdb.Label;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 import static nodeParser.Tokens.*;
@@ -17,8 +18,8 @@ public class Parser {
     private LinkedList<Token> tokens;
     private Token lookahead;
 
-    private LinkedList<Label> labels = new LinkedList<>();
-    private LinkedList<PropertyPair> properties = new LinkedList<>();
+    private ArrayList<Label> labels = new ArrayList<>();
+    private ArrayList<PropertyPair> properties = new ArrayList<>();
 
     public NodeMatch parse(String queryString) {
 

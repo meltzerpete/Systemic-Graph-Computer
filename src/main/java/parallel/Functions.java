@@ -13,15 +13,21 @@ import java.util.function.BiConsumer;
  */
 public class Functions {
 
+    private final Manager manager;
+
+    public Functions(Manager manager) {
+        this.manager = manager;
+    }
+
     // extra labels
-    static final Label INITIALIZED = Label.label("Initialized");
-    static final Label UNINITIALIZED = Label.label("Uninitialized");
+    final Label INITIALIZED = Label.label("Initialized");
+    final Label UNINITIALIZED = Label.label("Uninitialized");
 
-    static int W = 80;
-    static int[] w = {15,20,1,3,8,2,16,17,11,19,10,5,18,4,7,9};
-    static int[] v = {20,14,12,9,5,17,7,6,1,11,4,19,13,2,15,3};
+    int W = 80;
+    int[] w = {15,20,1,3,8,2,16,17,11,19,10,5,18,4,7,9};
+    int[] v = {20,14,12,9,5,17,7,6,1,11,4,19,13,2,15,3};
 
-    public static BiConsumer<Node, Node> getFunction(String functionName) {
+    public BiConsumer<Node, Node> getFunction(String functionName) {
         switch (functionName) {
             case "INITIALIZE": return initialize;
             case "BINARYMUTATE": return binaryMutate;
@@ -33,7 +39,7 @@ public class Functions {
         }
     }
 
-    static BiConsumer<Node, Node> initialize = (s1, s2) -> {
+    BiConsumer<Node, Node> initialize = (s1, s2) -> {
         // create random char for uninitialized system
         char randomChar = (char) (ThreadLocalRandom.current().nextInt((int) Math.pow(2, 16)));
         char x = guard(randomChar);
@@ -47,7 +53,7 @@ public class Functions {
         s1.addLabel(INITIALIZED);
     };
 
-    static BiConsumer<Node, Node> binaryMutate = (s1, s2) -> {
+    BiConsumer<Node, Node> binaryMutate = (s1, s2) -> {
         for (Node s : new Node[]{s1, s2}) {
 
             // flip random bit
@@ -60,7 +66,7 @@ public class Functions {
         }
     };
 
-    static BiConsumer<Node, Node> onePointCross = (s1, s2) -> {
+    BiConsumer<Node, Node> onePointCross = (s1, s2) -> {
         char p1 = (char) s1.getProperty(Components.data);
         char p2 = (char) s2.getProperty(Components.data);
 
@@ -76,7 +82,7 @@ public class Functions {
         s2.setProperty(Components.data, guard(c2));
     };
 
-    static BiConsumer<Node, Node> uniformCross = (s1, s2) -> {
+    BiConsumer<Node, Node> uniformCross = (s1, s2) -> {
         char p1 = (char) s1.getProperty(Components.data);
         char p2 = (char) s2.getProperty(Components.data);
 
@@ -90,7 +96,7 @@ public class Functions {
         s2.setProperty(Components.data, guard(c2));
     };
 
-    static BiConsumer<Node, Node> output = (s1, s2) -> {
+    BiConsumer<Node, Node> output = (s1, s2) -> {
         if (!s1.hasProperty(Components.data))
             s1.setProperty(Components.data, (char) 0x0000);
 
@@ -106,7 +112,7 @@ public class Functions {
         }
     };
 
-    private static int fitness(char x) {
+    private int fitness(char x) {
 
         int value = 0;
         char bitMask = 0x8000;
@@ -119,7 +125,7 @@ public class Functions {
         return value;
     }
 
-    private static int weight(char x) {
+    private int weight(char x) {
 
         int value = 0;
         char bitMask = 0x8000;
@@ -132,7 +138,7 @@ public class Functions {
         return value;
     }
 
-    private static char guard(char x) {
+    private char guard(char x) {
 
         //TODO random or systematic?
         while (weight(x) > W) {
@@ -145,17 +151,17 @@ public class Functions {
     }
 
     //TODO function to change scope of node
-//    private static void removeFromScope(Node scope, Node node) {
+//    private void removeFromScope(Node scope, Node node) {
 //        scope.get
 //    }
 
-    private static void addToScope(Node scope, Node node) {
+    private void addToScope(Node scope, Node node) {
         scope.createRelationshipTo(node, Components.CONTAINS);
         long scopeID = scope.getId();
 
-        Long[] oldArray = Manager.scopeContainedIDs.get(scopeID);
+        Long[] oldArray = manager.scopeContainedIDs.get(scopeID);
         Long[] newArray = Arrays.copyOf(oldArray, oldArray.length + 1);
         newArray[oldArray.length] = node.getId();
-        Manager.scopeContainedIDs.replace(scopeID, newArray);
+        manager.scopeContainedIDs.replace(scopeID, newArray);
     }
 }
