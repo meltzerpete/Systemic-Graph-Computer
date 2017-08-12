@@ -158,10 +158,16 @@ public class Functions {
     private void addToScope(Node scope, Node node) {
         scope.createRelationshipTo(node, Components.CONTAINS);
         long scopeID = scope.getId();
+        long nodeID = node.getId();
 
-        Long[] oldArray = manager.scopeContainedIDs.get(scopeID);
+        Long[] oldArray = manager.nodesContainedInScope.get(scopeID);
         Long[] newArray = Arrays.copyOf(oldArray, oldArray.length + 1);
-        newArray[oldArray.length] = node.getId();
-        manager.scopeContainedIDs.replace(scopeID, newArray);
+        newArray[oldArray.length] = nodeID;
+        manager.nodesContainedInScope.replace(scopeID, newArray);
+
+        oldArray = manager.parentScopes.get(nodeID);
+        newArray = Arrays.copyOf(oldArray, oldArray.length + 1);
+        newArray[oldArray.length] = scopeID;
+        manager.parentScopes.replace(nodeID, newArray);
     }
 }

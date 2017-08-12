@@ -3,7 +3,6 @@ package parallel;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 
-import java.util.HashSet;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -20,73 +19,75 @@ public class ProduceTripletTask2 implements Runnable {
     @Override
     @SuppressWarnings("unchecked cast")
     public void run() {
-        HashSet<Long> visited = new HashSet<>();
-        System.out.println("Producer2");
-        while(manager.run.get()) {
+        try (Transaction tx = manager.db.beginTx()) {
+            while(manager.run.get()) {
 
-            // TODO - is there a deadlock opportunity here!?
+                // choose a nodeID at random, and get its scope - better distribution of selection
+                long s1ID = manager.allNodeIDs[ThreadLocalRandom.current().nextInt(manager.totalNoOfNodes)];
 
-            ContextEntry contextEntry = manager.contextArray[ThreadLocalRandom.current().nextInt(manager.contextArray.length)];
-            Long[] containedIDs = manager.scopeContainedIDs.get(contextEntry.scope);
-
-            long s1Match = -1;
-            long s2Match = -1;
-
-            visited.clear();
-            int visitedCount = 0;
-
-            while (containedIDs.length > visitedCount) {
-
-                // get random targetID
-                long targetID = containedIDs[ThreadLocalRandom.current().nextInt(containedIDs.length)];
-                if (!visited.add(targetID)) continue;
-
-                visitedCount++;
-
-                // if target is the context try next target
-                if (targetID == contextEntry.context) {
+                // get a random parent scopeID
+                // if it doesn't have one - try next
+                Long[] scopesIDs = manager.parentScopes.get(s1ID);
+                if (scopesIDs.length == 0) {
+                    // node has no parent scopes - must be main
                     continue;
                 }
+                long scopeID = scopesIDs[ThreadLocalRandom.current().nextInt(scopesIDs.length)];
 
-                // if target is currently locked try next target
-//                if (!manager.producerLocks.get(targetID).tryLock()) continue;
+                // choose a random partner nodeID from the same scope
+                Long[] others = manager.nodesContainedInScope.get(scopeID);
+                // if only one node in scope - try next
+                if (others.length < 2) continue;
 
-                try (Transaction tx = manager.db.beginTx()) {
-                    // S1
-                    // check node matches properties, labels etc.
-                    Node s1Node = manager.db.getNodeById(targetID);
-                    tx.acquireReadLock(s1Node);
-                    if (s1Match < 0 && manager.matchNode(contextEntry.s1, s1Node)) {
-                        // match
-                        s1Match = targetID;
-                        continue;   // prevent s1 and s2 getting same target
+                long s2ID = others[ThreadLocalRandom.current().nextInt(others.length)];
+                // ensure it is not the same as S1
+                while (s2ID == s1ID)
+                    s2ID = others[ThreadLocalRandom.current().nextInt(others.length)];
+
+                // begin Tx
+//            try (Transaction tx = manager.db.beginTx()) {
+//
+//                // get S1 and S2 nodes form db
+//                Node s1Node = manager.db.getNodeById(s1ID);
+//                Node s2Node = manager.db.getNodeById(s2ID);
+//
+//                // create nodeMatch for S1 and S2
+//                LinkedList<Label> s1Labels = new LinkedList<>(Iterators.asList(s1Node.getLabels().iterator()));
+//                LinkedList<PropertyPair> s1Properties = new LinkedList<>();
+//                s1Node.getProperties().forEach((s, o) -> s1Properties.add(new PropertyPair(s,o)));
+//                s1 = new NodeMatch(s1Labels, s1Properties);
+//
+//                LinkedList<Label> s2Labels = new LinkedList<>(Iterators.asList(s2Node.getLabels().iterator()));
+//                LinkedList<PropertyPair> s2Properties = new LinkedList<>();
+//                s2Node.getProperties().forEach((s, o) -> s2Properties.add(new PropertyPair(s,o)));
+//                s2 = new NodeMatch(s2Labels, s2Properties);
+//                // endTx
+//            }
+
+                int noOfContexts = manager.contextArray.length;
+                int initialPosition = ThreadLocalRandom.current().nextInt(noOfContexts);
+
+                ContextEntry randomContextEntry = manager.contextArray[initialPosition];
+
+                int count = 0;
+                while (randomContextEntry.scope != scopeID && count < noOfContexts)
+                    randomContextEntry = manager.contextArray[(initialPosition + ++count) % manager.contextArray.length];
+
+                // if still can't find a matching context - try next pair of nodes
+                if (randomContextEntry.scope != scopeID) continue;
+
+                Node s1 = manager.db.getNodeById(s1ID);
+                Node s2 = manager.db.getNodeById(s2ID);
+
+                if (manager.matchNode(randomContextEntry.s1, s1)
+                        && manager.matchNode(randomContextEntry.s2, s2)) {
+//                    tx.close();
+                    try {
+                        // add to queue
+                        manager.tripletQueue.put(new Triplet(randomContextEntry, s1ID, s2ID));
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
-
-                    // S2
-                    // check node matches properties, labels etc.
-                    Node s2Node = manager.db.getNodeById(targetID);
-                    tx.acquireReadLock(s2Node);
-                    if (s2Match < 0 && manager.matchNode(contextEntry.s2, s2Node)) {
-                        // match
-                        s2Match = targetID;
-                    }
-                } finally {
-//                    manager.producerLocks.get(targetID).unlock();
-                }
-
-                if (s1Match >= 0 && s2Match >= 0) {
-                    break;
-                }
-            }
-
-            if (s1Match >= 0 && s2Match >= 0) {
-                // match found - add to tripletQueue
-                Triplet triplet = new Triplet(contextEntry, s1Match, s2Match);
-                try {
-//                    System.out.println("queue: " + manager.tripletQueue.size());
-                    manager.tripletQueue.put(triplet);
-                } catch (InterruptedException e) {
-                    System.out.println("Task on thread " + Thread.currentThread().getId() + " interrupted.");
                 }
             }
         }

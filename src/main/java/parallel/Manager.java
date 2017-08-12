@@ -30,22 +30,29 @@ public class Manager {
     final int QUEUE_SIZE;
     final int NO_OF_CONSUMERS;
 
+    int totalNoOfNodes;
+
     final ReentrantLock consumerMutex;
     HashMap<Long, ReentrantLock> producerLocks;
     final AtomicInteger upCounter;
     CountDownLatch count;
 
-    int NO_OF_PRODUCERS = 2;
+    final int NO_OF_PRODUCERS;
 
     GraphDatabaseService db;
 
     HashMap<Long,ReentrantLock> nodeLocks;
 
+    // ONLY USED IN PRODUCER TO GET RANDOM CONTEXT
     ContextEntry[] contextArray;
 
+    Long[] allNodeIDs;
+
     BlockingQueue<Triplet> tripletQueue;
-    ConcurrentHashMap<Long,Long[]> scopeContainedIDs;
+    ConcurrentHashMap<Long,Long[]> nodesContainedInScope;
     AtomicBoolean run;
+
+    ConcurrentHashMap<Long, Long[]> parentScopes;
 
 
     public Manager(int MAX_INTERACTIONS, int QUEUE_SIZE, int NO_OF_CONSUMERS, int NO_OF_PRODUCERS, GraphDatabaseService db) {
@@ -62,7 +69,7 @@ public class Manager {
     }
 
     public Manager(int MAX_INTERACTIONS, GraphDatabaseService db) {
-        this(MAX_INTERACTIONS, 20, 20, 4, db);
+        this(MAX_INTERACTIONS, 100, 200, 10, db);
     }
 
     /**
@@ -88,54 +95,82 @@ public class Manager {
 
             // create a consumerMutex for every node
             nodeLocks = new HashMap<>();
-            producerLocks = new HashMap<>();
             db.getAllNodes().stream()
                     .forEach(node -> {
                         nodeLocks.put(node.getId(), new ReentrantLock());
-                        producerLocks.put(node.getId(), new ReentrantLock());
                     });
 
             // for every contextEntry - create a contextEntry entry. if contextEntry appears in multiple scope -> add entry for each
-            ArrayList<ContextEntry> contextEntries = new ArrayList<>();
-            db.findNodes(Components.CONTEXT).stream().forEach(context -> {
-                // check function defined
-                if (!context.hasProperty(Components.function))
-                    return;
+            ArrayList<ContextEntry> contextEntriesArrayList = new ArrayList<>();
+            db.findNodes(Components.CONTEXT).stream()
+                    // check has function defined
+                    .filter(context -> context.hasProperty(Components.function))
+                    // check has Query properties defined
+                    .filter(context -> context.hasProperty(Components.s1Query))
+                    .filter(context -> context.hasProperty(Components.s2Query))
+                    .forEach(context -> {
 
-                Functions functions = new Functions(this);
-                BiConsumer<Node, Node> function = functions.getFunction((String) context.getProperty(Components.function));
+                        // get function
+                        Functions functions = new Functions(this);
+                        BiConsumer<Node, Node> function = functions.getFunction((String) context.getProperty(Components.function));
 
-                // compile queries
-                if (!(context.hasProperty(Components.s1Query) && context.hasProperty(Components.s2Query)))
-                    return;
+                        // compile queries
+                        NodeMatch s1 = (new Parser()).parse((String) context.getProperty(Components.s1Query));
+                        NodeMatch s2 = (new Parser()).parse((String) context.getProperty(Components.s2Query));
 
-                NodeMatch s1 = (new Parser()).parse((String) context.getProperty(Components.s1Query));
-                NodeMatch s2 = (new Parser()).parse((String) context.getProperty(Components.s2Query));
-
-                getParentScopes(context).forEach(scope -> {
-                    contextEntries.add(new ContextEntry(context.getId(), function, s1, s2, scope.getId()));
-                });
+                        getParentScopes(context).forEach(scope -> {
+                            ContextEntry entry = new ContextEntry(context.getId(), function, s1, s2, scope.getId());
+                            contextEntriesArrayList.add(entry);
+                        });
             });
 
-            contextArray = new ContextEntry[contextEntries.size()];
-            contextEntries.toArray(contextArray);
+            // convert to array
+            contextArray = new ContextEntry[contextEntriesArrayList.size()];
+            contextEntriesArrayList.toArray(contextArray);
 
-            // for every scope create a vector for the systems it contains
+            // for every scope create an array for the systems it contains
             int nScopes = (int) db.findNodes(Components.SCOPE).stream().count();
-            scopeContainedIDs = new ConcurrentHashMap<>((nScopes * 3) / 2);
+            nodesContainedInScope = new ConcurrentHashMap<>((nScopes * 3) / 2);
 
             db.findNodes(Components.SCOPE).forEachRemaining(scope -> {
 
-                ArrayList<Long> contained = new ArrayList<>(nScopes);
+                ArrayList<Long> containedNodesArrayList = new ArrayList<>();
                 ((ResourceIterator<Relationship>)
                         scope.getRelationships(Components.CONTAINS, Direction.OUTGOING).iterator()).stream()
                         .map(Relationship::getEndNode)
-                        .forEach(node -> contained.add(node.getId()));
+                        .forEach(node -> containedNodesArrayList.add(node.getId()));
 
-                Long[] containedArray = new Long[contained.size()];
-                contained.toArray(containedArray);
-                scopeContainedIDs.put(scope.getId(), containedArray);
+                Long[] containedNodesArray = new Long[containedNodesArrayList.size()];
+                containedNodesArrayList.toArray(containedNodesArray);
+                nodesContainedInScope.put(scope.getId(), containedNodesArray);
             });
+
+            // for every system create an array for the scopes it is in
+            totalNoOfNodes = (int) db.getAllNodes().stream().count();
+            parentScopes = new ConcurrentHashMap<>((totalNoOfNodes * 3) / 2);
+
+            db.getAllNodes().forEach(node -> {
+
+                ArrayList<Long> parents = new ArrayList<>();
+                ((ResourceIterator<Relationship>)
+                        node.getRelationships(Components.CONTAINS, Direction.INCOMING).iterator()).stream()
+                        .map(Relationship::getStartNode)
+                        .forEach(scope -> parents.add(scope.getId()));
+
+                Long[] parentsArray = new Long[parents.size()];
+                parents.toArray(parentsArray);
+                parentScopes.put(node.getId(), parentsArray);
+            });
+
+            // create an array of all node IDs
+            ArrayList<Long> allNodes = new ArrayList<>();
+            db.getAllNodes().stream()
+                    .map(Node::getId)
+                    .forEach(allNodes::add);
+
+            allNodeIDs = new Long[allNodes.size()];
+            allNodes.toArray(allNodeIDs);
+
         tx.success();
         setupTimer.stop();
         System.out.println(String.format("setup: %,d x 10e-9 s", setupTimer.getNanoTime()));

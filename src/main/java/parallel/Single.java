@@ -31,7 +31,7 @@
 //
 //    static ContextEntry[] contextArray;
 //    static BlockingQueue<Triplet> tripletQueue = new ArrayBlockingQueue<>(QUEUE_SIZE);
-//    static ConcurrentHashMap<Long,Long[]> scopeContainedIDs;
+//    static ConcurrentHashMap<Long,Long[]> nodesContainedInScope;
 //
 //    static boolean run = true;
 //    static CountDownLatch count = new CountDownLatch(MAX_INTERACTIONS);
@@ -95,7 +95,7 @@
 //
 //            // for every scope create a vector for the systems it contains
 //            int nScopes = (int) db.findNodes(Components.SCOPE).stream().count();
-//            scopeContainedIDs = new ConcurrentHashMap<>((nScopes * 3) / 2);
+//            nodesContainedInScope = new ConcurrentHashMap<>((nScopes * 3) / 2);
 //
 //            db.findNodes(Components.SCOPE).forEachRemaining(scope -> {
 //
@@ -107,7 +107,7 @@
 //
 //                Long[] containedArray = new Long[contained.size()];
 //                contained.toArray(containedArray);
-//                scopeContainedIDs.put(scope.getId(), containedArray);
+//                nodesContainedInScope.put(scope.getId(), containedArray);
 //            });
 //        tx.success();
 //        setupTimer.stop();
@@ -127,7 +127,7 @@
 //            /* PRODUCER */
 //
 //            ContextEntry contextEntry = contextArray[(int) (Math.random() * (contextArray.length))];
-//            Long[] containedIDs = scopeContainedIDs.get(contextEntry.scope).clone();
+//            Long[] containedIDs = nodesContainedInScope.get(contextEntry.scope).clone();
 //
 //            long s1Match = -1;
 //            long s2Match = -1;

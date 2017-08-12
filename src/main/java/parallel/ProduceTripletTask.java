@@ -1,6 +1,5 @@
 package parallel;
 
-import org.neo4j.graphdb.DatabaseShutdownException;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 
@@ -22,12 +21,13 @@ public class ProduceTripletTask implements Runnable {
     @SuppressWarnings("unchecked cast")
     public void run() {
         HashSet<Long> visited = new HashSet<>();
+        try (Transaction tx = manager.db.beginTx()) {
         while(manager.run.get()) {
 
             // TODO - is there a deadlock opportunity here!?
 
             ContextEntry contextEntry = manager.contextArray[ThreadLocalRandom.current().nextInt(manager.contextArray.length)];
-            Long[] containedIDs = manager.scopeContainedIDs.get(contextEntry.scope);
+            Long[] containedIDs = manager.nodesContainedInScope.get(contextEntry.scope);
 
             long s1Match = -1;
             long s2Match = -1;
@@ -51,11 +51,11 @@ public class ProduceTripletTask implements Runnable {
                 // if target is currently locked try next target
 //                if (!manager.producerLocks.get(targetID).tryLock()) continue;
 
-                try (Transaction tx = manager.db.beginTx()) {
+
                     // S1
                     // check node matches properties, labels etc.
                     Node s1Node = manager.db.getNodeById(targetID);
-                    tx.acquireReadLock(s1Node);
+//                    tx.acquireReadLock(s1Node);
                     if (s1Match < 0 && manager.matchNode(contextEntry.s1, s1Node)) {
                         // match
                         s1Match = targetID;
@@ -65,14 +65,12 @@ public class ProduceTripletTask implements Runnable {
                     // S2
                     // check node matches properties, labels etc.
                     Node s2Node = manager.db.getNodeById(targetID);
-                    tx.acquireReadLock(s2Node);
+//                    tx.acquireReadLock(s2Node);
                     if (s2Match < 0 && manager.matchNode(contextEntry.s2, s2Node)) {
                         // match
                         s2Match = targetID;
                     }
-                } finally {
-//                    manager.producerLocks.get(targetID).unlock();
-                }
+
 
                 if (s1Match >= 0 && s2Match >= 0) {
                     break;
@@ -89,6 +87,9 @@ public class ProduceTripletTask implements Runnable {
                     System.out.println("Task on thread " + Thread.currentThread().getId() + " interrupted.");
                 }
             }
+        }
+        } finally {
+//                    manager.producerLocks.get(targetID).unlock();
         }
     }
 }
