@@ -127,7 +127,6 @@ public class Execute {
     @Procedure(value = "graphEngine.runParallel", mode = SCHEMA)
     public void runParallel(@Name("Max no. of interactions") long maxInteractions) {
 
-
         Manager manager = new Manager((int) maxInteractions, db);
         manager.go();
     }

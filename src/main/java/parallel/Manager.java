@@ -33,7 +33,6 @@ public class Manager {
     int totalNoOfNodes;
 
     final ReentrantLock consumerMutex;
-    HashMap<Long, ReentrantLock> producerLocks;
     final AtomicInteger upCounter;
     CountDownLatch count;
 
