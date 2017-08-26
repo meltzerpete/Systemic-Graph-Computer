@@ -166,23 +166,27 @@ public class TestGraphQueries {
 
     public static String programWithQueryMatching =
             "CREATE" +
-                    "(a1:System:Data:Data1 {key:'a1', data:10})," +
-                    "(a2:System:Data:Data2 {key:'a2', data:8})," +
-                    "(a3:System:Data:Data1 {key:'a3', data:9})," +
-                    "(a4:System:Data:Data2 {key:'a4', data:6})," +
-                    "(main:System:SCOPE {key:'main'})," +
 
-                    "(subE:System:CONTEXT {key:'subE', function:'SUBTRACTe', " +
-                    "s1Query:'(n:Data1)', s2Query:'(n:Data2)'})," +
+                    // scopes
+                    "(main:SCOPE)," +
+                    "(c1:SCOPE)," +
+                    "(c2:SCOPE)," +
 
-                    "(mul:System:CONTEXT {key:'mul', function:'MULTIPLY'," +
-                    "s1Query:'(n:Data)', s2Query:'Data'})," +
+                    // contexts
+                    "(subE:CONTEXT {function:'SUBTRACTe', " +
+                    "s1Query:'(:Data1)', s2Query:'(:Data2)'})," +
+                    "(mul:CONTEXT {function:'MULTIPLY'," +
+                    "s1Query:'(:Data)', s2Query:'(:Data)'})," +
+                    "(print:CONTEXT {function:'PRINT'," +
+                    "s1Query:'(:Data)', s2Query:'(:Data)'})," +
 
-                    "(print:System:CONTEXT {key:'print', function:'PRINT'," +
-                    "s1Query:'(n:Data)', s2Query:'Data'})," +
+                    // data systems
+                    "(a1:Data:Data1 {data:10})," +
+                    "(a2:Data:Data2 {data:8})," +
+                    "(a3:Data:Data1 {data:9})," +
+                    "(a4:Data:Data2 {data:6})," +
 
-                    "(c1:System:SCOPE {key:'c1'})," +
-                    "(c2:System:SCOPE {key:'c2'})," +
+                    // relationships
                     "(main)-[:CONTAINS]->(print)," +
                     "(main)-[:CONTAINS]->(mul)," +
                     "(main)-[:CONTAINS]->(c1)," +

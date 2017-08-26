@@ -308,11 +308,11 @@ class Computer implements Runnable {
         }
 
         if (count == maxInteractions)
-        System.out.println(String.format(Locale.UK, "** Max interactions (%,d) reached **", maxInteractions));
+        System.out.println(String.format("** Max interactions (%,d) reached **", maxInteractions));
         else
-        System.out.println(String.format(Locale.UK, "** No more active systems **\nExecution completed in %,d interactions.", count));
+        System.out.println(String.format("** No more active systems **\nExecution completed in %,d interactions.", count));
 
-        System.out.println(String.format(Locale.UK, "Thread: %s\nTotal execution time: %,d x10e-9 s", Thread.currentThread().getId(), timer.getNanoTime()));
+        System.out.println(String.format("Execution time: %,d x10e-9 s", timer.getNanoTime()));
     }
 
     SCLabeler getLabeler() {
