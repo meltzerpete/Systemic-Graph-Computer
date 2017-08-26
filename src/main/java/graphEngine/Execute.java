@@ -36,6 +36,14 @@ public class Execute {
         //TODO deal with return
     }
 
+    @Procedure(value = "graphEngine.loadOriginal", mode = Mode.SCHEMA)
+    public void loadOriginal(@Name("No. of graphs") long graphs) {
+
+        for (int i = 0; i < (int) graphs; i++)
+            db.execute(TestGraphQueries.programWithQueryMatching);
+
+    }
+
     @Procedure(value = "graphEngine.loadMany", mode = Mode.SCHEMA)
     public void loadMany(@Name("No. of graphs") long graphs) {
 
