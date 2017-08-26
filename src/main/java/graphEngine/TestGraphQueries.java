@@ -164,6 +164,36 @@ public class TestGraphQueries {
                     "(c2)-[:CONTAINS]->(a3)," +
                     "(c2)-[:CONTAINS]->(a4)";
 
+    public static String programWithQueryMatching =
+            "CREATE" +
+                    "(a1:System:Data:Data1 {key:'a1', data:10})," +
+                    "(a2:System:Data:Data2 {key:'a2', data:8})," +
+                    "(a3:System:Data:Data1 {key:'a3', data:9})," +
+                    "(a4:System:Data:Data2 {key:'a4', data:6})," +
+                    "(main:System:SCOPE {key:'main'})," +
+
+                    "(subE:System:CONTEXT {key:'subE', function:'SUBTRACTe', " +
+                    "s1Query:'(n:Data1)', s2Query:'(n:Data2)'})," +
+
+                    "(mul:System:CONTEXT {key:'mul', function:'MULTIPLY'," +
+                    "s1Query:'(n:Data)', s2Query:'Data'})," +
+
+                    "(print:System:CONTEXT {key:'print', function:'PRINT'," +
+                    "s1Query:'(n:Data)', s2Query:'Data'})," +
+
+                    "(c1:System:SCOPE {key:'c1'})," +
+                    "(c2:System:SCOPE {key:'c2'})," +
+                    "(main)-[:CONTAINS]->(print)," +
+                    "(main)-[:CONTAINS]->(mul)," +
+                    "(main)-[:CONTAINS]->(c1)," +
+                    "(main)-[:CONTAINS]->(c2)," +
+                    "(c1)-[:CONTAINS]->(subE)," +
+                    "(c1)-[:CONTAINS]->(a1)," +
+                    "(c1)-[:CONTAINS]->(a2)," +
+                    "(c2)-[:CONTAINS]->(subE)," +
+                    "(c2)-[:CONTAINS]->(a3)," +
+                    "(c2)-[:CONTAINS]->(a4)";
+
     public static String terminatingProgramWithQueryMatching =
             "CREATE" +
                     "(a1:System:Data:Data1 {key:'a1', data:10})," +

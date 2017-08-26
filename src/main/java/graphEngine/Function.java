@@ -196,8 +196,10 @@ enum Function {
 
     //TODO add remaining functions
 
+    // all functions must provide an implementation of the perform method according to the following contract
     abstract void perform(Node context, Node s1, Node s2);
 
+    // any function that changes the parent scope membership of either system must override either/both of the following to return true
     boolean affectsS1parentScopes() {
         return false;
     }
