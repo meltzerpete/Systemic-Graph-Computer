@@ -244,7 +244,6 @@ enum Function {
 
     char guard(char x) {
 
-        //TODO random or systematic?
         while (weight(x) > W) {
 
             char bitMask = (char) (0xffff ^ ((char) (0x0001 << (int) (Math.random() * 16))));

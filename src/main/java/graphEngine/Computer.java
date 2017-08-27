@@ -94,32 +94,27 @@ class Computer implements Runnable {
                         }
                     });
 
-            tx.success();
-        }
 
+            compileTimer.stop();
+            System.out.println(String.format("Compilation took %,d x10e-3 s", compileTimer.getTime()));
 
-        compileTimer.stop();
-        System.out.println(String.format("Compilation took %,d x10e-3 s", compileTimer.getTime()));
+            /* -- Create initial FITS relationships / label initial READY nodes -- */
 
-        /* -- Create initial FITS relationships / label initial READY nodes -- */
+            StopWatch timer = new StopWatch();
+            timer.start();
 
-        StopWatch timer = new StopWatch();
-        timer.start();
-        try (Transaction tx = db.beginTx()) {
 
             labeler.createAllFits();
-            tx.success();
-        }
-
-        try (Transaction tx = db.beginTx()) {
 
             labeler.labelAllReady();
-            tx.success();
-        }
 
-        timer.stop();
-        System.out.println(String.format(Locale.UK, "Pre- processing: %,d x10e-9 s", timer.getNanoTime()));
-        timer.reset();
+            timer.stop();
+            System.out.println(String.format(Locale.UK, "Pre- processing: %,d x10e-9 s", timer.getNanoTime()));
+            timer.reset();
+            tx.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 //    private boolean check() {

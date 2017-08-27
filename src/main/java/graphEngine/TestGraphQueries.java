@@ -1,6 +1,8 @@
 package graphEngine;
 
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Label;
+import org.neo4j.graphdb.Node;
 import org.neo4j.logging.Log;
 import org.neo4j.procedure.Context;
 import org.neo4j.procedure.Mode;
@@ -200,23 +202,23 @@ public class TestGraphQueries {
 
     public static String terminatingProgramWithQueryMatching =
             "CREATE" +
-                    "(a1:System:Data:Data1 {key:'a1', data:10})," +
-                    "(a2:System:Data:Data2 {key:'a2', data:8})," +
-                    "(a3:System:Data:Data1 {key:'a3', data:9})," +
-                    "(a4:System:Data:Data2 {key:'a4', data:6})," +
-                    "(main:System:SCOPE {key:'main'})," +
 
-                    "(subE:System:CONTEXT {key:'subE', function:'SUBTRACTe', " +
+                    // scopes
+                    "(main:SCOPE)," +
+                    "(c1:SCOPE)," +
+                    "(c2:SCOPE)," +
+
+                    // contexts
+                    "(subE:System:CONTEXT {function:'SUBTRACTe', " +
                     "s1Query:'(n:Data1)', s2Query:'(n:Data2)'})," +
 
-                    "(mul:System:CONTEXT {key:'mul', function:'MULTIPLY'})," +
+                    // data systems
+                    "(a1:Data:Data1 {data:10})," +
+                    "(a2:Data:Data2 {data:8})," +
+                    "(a3:Data:Data1 {data:9})," +
+                    "(a4:Data:Data2 {data:6})," +
 
-                    "(print:System:CONTEXT {key:'print', function:'PRINT'})," +
-
-                    "(c1:System:SCOPE {key:'c1'})," +
-                    "(c2:System:SCOPE {key:'c2'})," +
-                    "(main)-[:CONTAINS]->(print)," +
-                    "(main)-[:CONTAINS]->(mul)," +
+                    // relationships
                     "(main)-[:CONTAINS]->(c1)," +
                     "(main)-[:CONTAINS]->(c2)," +
                     "(c1)-[:CONTAINS]->(subE)," +
@@ -226,8 +228,55 @@ public class TestGraphQueries {
                     "(c2)-[:CONTAINS]->(a3)," +
                     "(c2)-[:CONTAINS]->(a4)";
 
-    public static String knapsack = "CREATE" +
-            "";
+    public static void knapsack(GraphDatabaseService db, int noOfDataSystems) {
+        // scopes
+        Node main = db.createNode(Components.SCOPE);
+        Node computation = db.createNode(Components.SCOPE, Components.COMPUTATION);
+
+        // contexts
+        Node initializer = db.createNode(Components.CONTEXT);
+        initializer.setProperty(Components.function, "INITIALIZE");
+        initializer.setProperty(Components.s1Query, "(:Uninitialized)");
+        initializer.setProperty(Components.s2Query, "(:Computation)");
+
+        Node binMutate = db.createNode(Components.CONTEXT);
+        binMutate.setProperty(Components.function, "BINARYMUTATE");
+        binMutate.setProperty(Components.s1Query, "(:Initialized)");
+        binMutate.setProperty(Components.s2Query, "(:Initialized)");
+
+        Node onePointCross = db.createNode(Components.CONTEXT);
+        onePointCross.setProperty(Components.function, "ONEPOINTCROSS");
+        onePointCross.setProperty(Components.s1Query, "(:Initialized)");
+        onePointCross.setProperty(Components.s2Query, "(:Initialized)");
+
+        Node uniformCross = db.createNode(Components.CONTEXT);
+        uniformCross.setProperty(Components.function, "UNIFORMCROSS");
+        uniformCross.setProperty(Components.s1Query, "(:Initialized)");
+        uniformCross.setProperty(Components.s2Query, "(:Initialized)");
+
+        Node output = db.createNode(Components.CONTEXT);
+        output.setProperty(Components.function, "OUTPUT");
+        output.setProperty(Components.s1Query, "(:Fittest)");
+        output.setProperty(Components.s2Query, "(:Initialized)");
+
+        main.createRelationshipTo(output, Components.CONTAINS);
+        main.createRelationshipTo(initializer, Components.CONTAINS);
+        main.createRelationshipTo(computation, Components.CONTAINS);
+
+        computation.createRelationshipTo(binMutate, Components.CONTAINS);
+        computation.createRelationshipTo(onePointCross, Components.CONTAINS);
+        computation.createRelationshipTo(uniformCross, Components.CONTAINS);
+
+        // data nodes
+        for (int i = 0; i < noOfDataSystems; i++) {
+            Node data = db.createNode(Components.DATA, Components.UNINITIALIZED);
+            main.createRelationshipTo(data, Components.CONTAINS);
+        }
+
+        // fittest solution
+        Node fittest = db.createNode(Components.DATA, Components.FITTEST);
+        main.createRelationshipTo(fittest, Components.CONTAINS);
+    }
 
     public static String viewGraph = "MATCH (n)" +
             "OPTIONAL MATCH (n)-[r]->(m)" +

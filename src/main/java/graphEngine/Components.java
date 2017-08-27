@@ -15,8 +15,13 @@ class Components {
      */
     @Deprecated // use WriteLocks instead
     static final Label PROCESSING = Label.label("PROCESSING");
+
     static final Label READY = Label.label("READY");
     static final Label SCOPE = Label.label("SCOPE");
+    static final Label COMPUTATION = Label.label("COMPUTATION");
+    static final Label DATA = Label.label("DATA");
+    static final Label UNINITIALIZED = Label.label("Uninitialized");
+    static final Label FITTEST = Label.label("Fittest");
 
     static final RelationshipType CONTAINS = RelationshipType.withName("CONTAINS");
     static final RelationshipType FITS1 = RelationshipType.withName("FITS1");

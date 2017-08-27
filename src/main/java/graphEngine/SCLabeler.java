@@ -281,7 +281,9 @@ abstract class SCLabeler {
      */
     void createAllFits() {
 
-        db.findNodes(Components.SCOPE).stream().forEach(this::createFitsInScope);
+        db.getAllNodes().stream().filter(node -> node.hasLabel(Components.SCOPE))
+                .forEach(this::createFitsInScope);
+//        db.findNodes(Components.SCOPE).stream().forEach(this::createFitsInScope);
     }
 
     /**
@@ -290,7 +292,9 @@ abstract class SCLabeler {
      */
     void labelAllReady() {
 
-        db.findNodes(Components.SCOPE).stream().forEach(this::labelReadyInScope);
+        db.getAllNodes().stream().filter(node -> node.hasLabel(Components.SCOPE))
+                .forEach(this::labelReadyInScope);
+//        db.findNodes(Components.SCOPE).stream().forEach(this::labelReadyInScope);
     }
 
     /**
