@@ -30,18 +30,36 @@ public class Execute {
     @Procedure(value = "graphEngine.sc1ExampleProgram", mode = Mode.SCHEMA)
     public void sc1ExampleProgram() {
 
-        for (int i = 0; i < 10; i++) {
+        try {
 
-            System.out.println("Trial " + i + ":");
+            File file = new File("sc1-example-program.csv");
+            FileWriter fwriter = new FileWriter(file,true);
+            BufferedWriter writer = new BufferedWriter(fwriter);
 
-            db.execute(TestGraphQueries.programWithQueryMatching);
+            StopWatch timer = new StopWatch();
+            writer.write("trial,time (ms)\n");
 
-            Computer sc = new Computer(db);
-            sc.preProcess();
-            sc.compute(10);
+            for (int i = 0; i < 100; i++) {
 
-            db.execute("match (n) detach delete n");
+                System.out.println("Trial " + i + ":");
 
+                db.execute(TestGraphQueries.programWithQueryMatching);
+
+                timer.reset();
+                timer.start();
+                Computer sc = new Computer(db);
+                sc.preProcess();
+                sc.compute(10);
+                timer.stop();
+                writer.write(String.format("%d,%d\n", i, timer.getTime()));
+                writer.flush();
+
+                db.execute("match (n) detach delete n");
+            }
+            writer.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -95,12 +113,12 @@ public class Execute {
         }
     }
 
-    @Procedure
-    public void knapsack() {
+    @Procedure(value = "graphEngine.sc1Knapsack", mode = Mode.SCHEMA)
+    public void sc1Knapsack() {
         try {
             int[] noOfDataSystems = {50, 100, 200, 400, 800, 1000};
 
-            File file = new File("reTiming.csv");
+            File file = new File("sc1-knapsack.csv");
             FileWriter fwriter = new FileWriter(file,true);
             BufferedWriter writer = new BufferedWriter(fwriter);
 
@@ -110,7 +128,7 @@ public class Execute {
             StopWatch preTimer = new StopWatch();
             StopWatch exeTimer = new StopWatch();
 
-            for (int n = 0; n < 3; n++) {
+            for (int n = 0; n < noOfDataSystems.length; n++) {
                 for (int t = 0; t < 5; t++) {
 
                     System.out.println(String.format(
@@ -156,11 +174,11 @@ public class Execute {
         }
     }
 
-    @Procedure
+    @Procedure(value = "graphEngine.sc1KnapsackFine", mode = Mode.SCHEMA)
     public void knapsackFine() {
         int[] noOfDataSystems = {50, 100, 200, 400, 800, 1000};
 
-        File file = new File("fineTiming2.csv");
+        File file = new File("sc1-knapsack-fine.csv");
         FileWriter fwriter = null;
         try {
             fwriter = new FileWriter(file,true);

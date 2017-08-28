@@ -103,11 +103,11 @@ public class ComputerTest {
                 .withEncryptionLevel(Config.EncryptionLevel.NONE).toConfig());
              Session session = driver.session()) {
 
-            int[] noOfDataSystems = {50, 100, 200};
+            int[] noOfDataSystems = {50, 100, 200, 400, 800, 1000};
 
             GraphDatabaseService db = neo4j.getGraphDatabaseService();
 
-            File file = new File("reTiming.csv");
+            File file = new File("geneticKnapsackTiming.csv");
             FileWriter fwriter = new FileWriter(file,true);
             BufferedWriter writer = new BufferedWriter(fwriter);
 
@@ -117,7 +117,7 @@ public class ComputerTest {
             StopWatch preTimer = new StopWatch();
             StopWatch exeTimer = new StopWatch();
 
-            for (int n = 0; n < 3; n++) {
+            for (int n = 0; n < 5; n++) {
                 for (int t = 0; t < 5; t++) {
 
                     System.out.println(String.format(
@@ -219,7 +219,7 @@ public class ComputerTest {
 
             GraphDatabaseService db = neo4j.getGraphDatabaseService();
 
-            File file = new File("fineTiming2.csv");
+            File file = new File("geneticKnapsackFineTiming.csv");
             FileWriter fwriter = new FileWriter(file,true);
             BufferedWriter writer = new BufferedWriter(fwriter);
 

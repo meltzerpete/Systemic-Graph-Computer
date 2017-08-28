@@ -22,6 +22,7 @@ class Computer implements Runnable {
     public int maxInteractions = 10000;
 
     private boolean fine = true;
+    private boolean optimized = true;
 
     final GraphDatabaseService db;
     private List<Result> output;
@@ -249,11 +250,12 @@ class Computer implements Runnable {
 
                 if (fine) fineTimer.reset();
                 if (fine) fineTimer.start();
+
                 // check for new fits/ready
-                //TODO
                 readyPair.getAll().forEach(sNode -> {
-                    labeler.createFitsForTarget(sNode);
+                    if (optimized) labeler.createFitsForTarget(sNode);
                     handler.getParentScopes(sNode).forEach(scope -> {
+                        if (!optimized) labeler.createFitsInScope(scope);
                         labeler.labelReadyInScope(scope);
                     });
                 });
