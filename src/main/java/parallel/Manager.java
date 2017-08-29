@@ -29,15 +29,14 @@ public class Manager {
     final int MAX_INTERACTIONS;
     final int QUEUE_SIZE;
     final int NO_OF_CONSUMERS;
+    final int NO_OF_PRODUCERS;
 
     int totalNoOfNodes;
 
     final ReentrantLock consumerMutex;
-    HashMap<Long, ReentrantLock> producerLocks;
     final AtomicInteger upCounter;
     CountDownLatch count;
 
-    final int NO_OF_PRODUCERS;
 
     GraphDatabaseService db;
 
@@ -69,7 +68,7 @@ public class Manager {
     }
 
     public Manager(int MAX_INTERACTIONS, GraphDatabaseService db) {
-        this(MAX_INTERACTIONS, 100, 200, 10, db);
+        this(MAX_INTERACTIONS, 20, 200, 2, db);
     }
 
     /**
@@ -236,19 +235,5 @@ public class Manager {
                 .allMatch(objectPropertyPair ->
                         targetNode.getProperty(objectPropertyPair.getKey(), objectPropertyPair.getValue()) != null
                                 && targetNode.getProperty(objectPropertyPair.getKey()).equals(objectPropertyPair.getValue()));
-    }
-
-    boolean match(NodeMatch queryNode, NodeMatch targetNode) {
-
-        // labels
-        if (!queryNode.getLabels().parallelStream()
-                .allMatch(label -> targetNode.getLabels().contains(label))) {
-            return false;
-        }
-
-        return queryNode.getProperties().parallelStream()
-                .allMatch(objectPropertyPair ->
-                        targetNode.getProperties().contains(objectPropertyPair));
-
     }
 }

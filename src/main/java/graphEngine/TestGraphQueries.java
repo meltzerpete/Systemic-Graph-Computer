@@ -1,6 +1,8 @@
 package graphEngine;
 
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Label;
+import org.neo4j.graphdb.Node;
 import org.neo4j.logging.Log;
 import org.neo4j.procedure.Context;
 import org.neo4j.procedure.Mode;
@@ -164,23 +166,29 @@ public class TestGraphQueries {
                     "(c2)-[:CONTAINS]->(a3)," +
                     "(c2)-[:CONTAINS]->(a4)";
 
-    public static String terminatingProgramWithQueryMatching =
+    public static String programWithQueryMatching =
             "CREATE" +
-                    "(a1:System:Data:Data1 {key:'a1', data:10})," +
-                    "(a2:System:Data:Data2 {key:'a2', data:8})," +
-                    "(a3:System:Data:Data1 {key:'a3', data:9})," +
-                    "(a4:System:Data:Data2 {key:'a4', data:6})," +
-                    "(main:System:SCOPE {key:'main'})," +
 
-                    "(subE:System:CONTEXT {key:'subE', function:'SUBTRACTe', " +
-                    "s1Query:'(n:Data1)', s2Query:'(n:Data2)'})," +
+                    // scopes
+                    "(main:SCOPE)," +
+                    "(c1:SCOPE)," +
+                    "(c2:SCOPE)," +
 
-                    "(mul:System:CONTEXT {key:'mul', function:'MULTIPLY'})," +
+                    // contexts
+                    "(subE:CONTEXT {function:'SUBTRACTe', " +
+                    "s1Query:'(:Data1)', s2Query:'(:Data2)'})," +
+                    "(mul:CONTEXT {function:'MULTIPLY'," +
+                    "s1Query:'(:Data)', s2Query:'(:Data)'})," +
+                    "(print:CONTEXT {function:'PRINT'," +
+                    "s1Query:'(:Data)', s2Query:'(:Data)'})," +
 
-                    "(print:System:CONTEXT {key:'print', function:'PRINT'})," +
+                    // data systems
+                    "(a1:Data:Data1 {data:10})," +
+                    "(a2:Data:Data2 {data:8})," +
+                    "(a3:Data:Data1 {data:9})," +
+                    "(a4:Data:Data2 {data:6})," +
 
-                    "(c1:System:SCOPE {key:'c1'})," +
-                    "(c2:System:SCOPE {key:'c2'})," +
+                    // relationships
                     "(main)-[:CONTAINS]->(print)," +
                     "(main)-[:CONTAINS]->(mul)," +
                     "(main)-[:CONTAINS]->(c1)," +
@@ -192,8 +200,83 @@ public class TestGraphQueries {
                     "(c2)-[:CONTAINS]->(a3)," +
                     "(c2)-[:CONTAINS]->(a4)";
 
-    public static String knapsack = "CREATE" +
-            "";
+    public static String terminatingProgramWithQueryMatching =
+            "CREATE" +
+
+                    // scopes
+                    "(main:SCOPE)," +
+                    "(c1:SCOPE)," +
+                    "(c2:SCOPE)," +
+
+                    // contexts
+                    "(subE:System:CONTEXT {function:'SUBTRACTe', " +
+                    "s1Query:'(n:Data1)', s2Query:'(n:Data2)'})," +
+
+                    // data systems
+                    "(a1:Data:Data1 {data:10})," +
+                    "(a2:Data:Data2 {data:8})," +
+                    "(a3:Data:Data1 {data:9})," +
+                    "(a4:Data:Data2 {data:6})," +
+
+                    // relationships
+                    "(main)-[:CONTAINS]->(c1)," +
+                    "(main)-[:CONTAINS]->(c2)," +
+                    "(c1)-[:CONTAINS]->(subE)," +
+                    "(c1)-[:CONTAINS]->(a1)," +
+                    "(c1)-[:CONTAINS]->(a2)," +
+                    "(c2)-[:CONTAINS]->(subE)," +
+                    "(c2)-[:CONTAINS]->(a3)," +
+                    "(c2)-[:CONTAINS]->(a4)";
+
+    public static void knapsack(GraphDatabaseService db, int noOfDataSystems) {
+        // scopes
+        Node main = db.createNode(Components.SCOPE);
+        Node computation = db.createNode(Components.SCOPE, Components.COMPUTATION);
+
+        // contexts
+        Node initializer = db.createNode(Components.CONTEXT);
+        initializer.setProperty(Components.function, "INITIALIZE");
+        initializer.setProperty(Components.s1Query, "(:UNINITIALIZED)");
+        initializer.setProperty(Components.s2Query, "(:COMPUTATION)");
+
+        Node binMutate = db.createNode(Components.CONTEXT);
+        binMutate.setProperty(Components.function, "BINARYMUTATE");
+        binMutate.setProperty(Components.s1Query, "(:INITIALIZED)");
+        binMutate.setProperty(Components.s2Query, "(:INITIALIZED)");
+
+        Node onePointCross = db.createNode(Components.CONTEXT);
+        onePointCross.setProperty(Components.function, "ONEPOINTCROSS");
+        onePointCross.setProperty(Components.s1Query, "(:INITIALIZED)");
+        onePointCross.setProperty(Components.s2Query, "(:INITIALIZED)");
+
+        Node uniformCross = db.createNode(Components.CONTEXT);
+        uniformCross.setProperty(Components.function, "UNIFORMCROSS");
+        uniformCross.setProperty(Components.s1Query, "(:INITIALIZED)");
+        uniformCross.setProperty(Components.s2Query, "(:INITIALIZED)");
+
+        Node output = db.createNode(Components.CONTEXT);
+        output.setProperty(Components.function, "OUTPUT");
+        output.setProperty(Components.s1Query, "(:FITTEST)");
+        output.setProperty(Components.s2Query, "(:INITIALIZED)");
+
+        main.createRelationshipTo(output, Components.CONTAINS);
+        main.createRelationshipTo(initializer, Components.CONTAINS);
+        main.createRelationshipTo(computation, Components.CONTAINS);
+
+        computation.createRelationshipTo(binMutate, Components.CONTAINS);
+        computation.createRelationshipTo(onePointCross, Components.CONTAINS);
+        computation.createRelationshipTo(uniformCross, Components.CONTAINS);
+
+        // data nodes
+        for (int i = 0; i < noOfDataSystems; i++) {
+            Node data = db.createNode(Components.DATA, Components.UNINITIALIZED);
+            main.createRelationshipTo(data, Components.CONTAINS);
+        }
+
+        // fittest solution
+        Node fittest = db.createNode(Components.DATA, Components.FITTEST);
+        main.createRelationshipTo(fittest, Components.CONTAINS);
+    }
 
     public static String viewGraph = "MATCH (n)" +
             "OPTIONAL MATCH (n)-[r]->(m)" +

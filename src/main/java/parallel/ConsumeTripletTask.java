@@ -18,10 +18,10 @@ public class ConsumeTripletTask implements Runnable {
     public void run() {
         long s1ID;
         long s2ID;
+
         while (manager.run.get()) {
             Triplet triplet;
 
-            //TODO time this part
             try {
                 triplet = manager.tripletQueue.take();
                 // check for poison

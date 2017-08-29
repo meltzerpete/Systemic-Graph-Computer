@@ -44,26 +44,6 @@ public class ProduceTripletTask2 implements Runnable {
                 while (s2ID == s1ID)
                     s2ID = others[ThreadLocalRandom.current().nextInt(others.length)];
 
-                // begin Tx
-//            try (Transaction tx = manager.db.beginTx()) {
-//
-//                // get S1 and S2 nodes form db
-//                Node s1Node = manager.db.getNodeById(s1ID);
-//                Node s2Node = manager.db.getNodeById(s2ID);
-//
-//                // create nodeMatch for S1 and S2
-//                LinkedList<Label> s1Labels = new LinkedList<>(Iterators.asList(s1Node.getLabels().iterator()));
-//                LinkedList<PropertyPair> s1Properties = new LinkedList<>();
-//                s1Node.getProperties().forEach((s, o) -> s1Properties.add(new PropertyPair(s,o)));
-//                s1 = new NodeMatch(s1Labels, s1Properties);
-//
-//                LinkedList<Label> s2Labels = new LinkedList<>(Iterators.asList(s2Node.getLabels().iterator()));
-//                LinkedList<PropertyPair> s2Properties = new LinkedList<>();
-//                s2Node.getProperties().forEach((s, o) -> s2Properties.add(new PropertyPair(s,o)));
-//                s2 = new NodeMatch(s2Labels, s2Properties);
-//                // endTx
-//            }
-
                 int noOfContexts = manager.contextArray.length;
                 int initialPosition = ThreadLocalRandom.current().nextInt(noOfContexts);
 
@@ -81,7 +61,6 @@ public class ProduceTripletTask2 implements Runnable {
 
                 if (manager.matchNode(randomContextEntry.s1, s1)
                         && manager.matchNode(randomContextEntry.s2, s2)) {
-//                    tx.close();
                     try {
                         // add to queue
                         manager.tripletQueue.put(new Triplet(randomContextEntry, s1ID, s2ID));

@@ -40,12 +40,23 @@ public class ExecuteTest {
     }
 
     @Test
+    public void testExecut() throws Throwable {
+        try (Driver driver = GraphDatabase.driver(neo4j.boltURI(), Config.build()
+                .withEncryptionLevel(Config.EncryptionLevel.NONE).toConfig());
+             Session session = driver.session()) {
+
+            session.run("CALL graphEngine.sc2Knapsack;");
+
+        }
+    }
+
+    @Test
     public void executeParallel() throws Throwable {
         try (Driver driver = GraphDatabase.driver(neo4j.boltURI(), Config.build()
                 .withEncryptionLevel(Config.EncryptionLevel.NONE).toConfig());
              Session session = driver.session()) {
 
-            session.run("CALL graphEngine.loadParallel(50)");
+            session.run("CALL graphEngine.loadParallel(100)");
 
             session.run("CALL graphEngine.runParallel(10000)");
         }

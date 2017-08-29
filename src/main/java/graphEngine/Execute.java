@@ -1,5 +1,6 @@
 package graphEngine;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
@@ -12,6 +13,11 @@ import org.neo4j.procedure.Mode;
 import org.neo4j.procedure.Name;
 import org.neo4j.procedure.Procedure;
 import parallel.Manager;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import static graphEngine.TestGraphQueries.viewGraph;
 import static org.neo4j.procedure.Mode.SCHEMA;
@@ -27,6 +33,64 @@ public class Execute {
 
     @Context
     public Log log;
+
+    @Procedure(value = "graphEngine.sc2Knapsack", mode = Mode.SCHEMA)
+    public void sc2Knapsack() {
+        try {
+            int[] noOfDataSystems = {50, 100, 200, 400, 800, 1000};
+
+            File file = new File("sc2-knapsack.csv");
+            FileWriter fwriter = new FileWriter(file,true);
+            BufferedWriter writer = new BufferedWriter(fwriter);
+
+            writer.write("Knapsack Testing\n");
+            writer.write("No. of Solution Systems, Trial, Time (ms)\n");
+
+            StopWatch exeTimer = new StopWatch();
+
+            for (int n = 0; n < noOfDataSystems.length; n++) {
+                for (int t = 0; t < 5; t++) {
+
+                    System.out.println(String.format(
+                            "\nNo. of solution systems: %d, Trial: %d",
+                            noOfDataSystems[n], t
+                    ));
+
+                    System.out.println("Loading program...");
+                    // create program
+                    try (Transaction tx = db.beginTx()) {
+
+                        TestGraphQueries.knapsack(db, noOfDataSystems[n]);
+                        tx.success();
+                    }
+
+                    Manager manager = new Manager(10000, db);
+
+                    System.out.println(db.execute("match (n) return n limit 100").resultAsString());
+
+                    System.out.println("Executing...");
+                    exeTimer.reset();
+                    exeTimer.start();
+                    manager.go();
+                    exeTimer.stop();
+
+                    writer.write(noOfDataSystems[n] + "," + t + "," + exeTimer.getTime());
+                    writer.newLine();
+
+                    writer.flush();
+
+                    db.execute("match (n) detach delete n;");
+                }
+
+                writer.newLine();
+                writer.flush();
+            }
+
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Procedure(value = "graphEngine.execute", mode = SCHEMA)
     public void execute(@Name("Max no. of interactions") long maxInteractions) {
@@ -70,55 +134,7 @@ public class Execute {
         // create program
         try (Transaction tx = db.beginTx()) {
 
-            // scopes
-            Node main = db.createNode(Components.SCOPE);
-            Node computation = db.createNode(Components.SCOPE, Label.label("Computation"));
-
-            // contexts
-            Node initializer = db.createNode(Components.CONTEXT);
-            initializer.setProperty(Components.function, "INITIALIZE");
-            initializer.setProperty(Components.s1Query, "(:Uninitialized)");
-            initializer.setProperty(Components.s2Query, "(:Computation)");
-
-            Node binMutate = db.createNode(Components.CONTEXT);
-            binMutate.setProperty(Components.function, "BINARYMUTATE");
-            binMutate.setProperty(Components.s1Query, "(:Initialized)");
-            binMutate.setProperty(Components.s2Query, "(:Initialized)");
-
-            Node onePointCross = db.createNode(Components.CONTEXT);
-            onePointCross.setProperty(Components.function, "ONEPOINTCROSS");
-            onePointCross.setProperty(Components.s1Query, "(:Initialized)");
-            onePointCross.setProperty(Components.s2Query, "(:Initialized)");
-
-            Node uniformCross = db.createNode(Components.CONTEXT);
-            uniformCross.setProperty(Components.function, "UNIFORMCROSS");
-            uniformCross.setProperty(Components.s1Query, "(:Initialized)");
-            uniformCross.setProperty(Components.s2Query, "(:Initialized)");
-
-            Node output = db.createNode(Components.CONTEXT);
-            output.setProperty(Components.function, "OUTPUT");
-            output.setProperty(Components.s1Query, "(:Fittest)");
-            output.setProperty(Components.s2Query, "(:Initialized)");
-
-            main.createRelationshipTo(output, Components.CONTAINS);
-            main.createRelationshipTo(initializer, Components.CONTAINS);
-            main.createRelationshipTo(computation, Components.CONTAINS);
-
-            computation.createRelationshipTo(binMutate, Components.CONTAINS);
-            computation.createRelationshipTo(onePointCross, Components.CONTAINS);
-            computation.createRelationshipTo(uniformCross, Components.CONTAINS);
-
-            // data nodes
-            for (int i = 0; i < (int) dataSystems; i++) {
-                Node data = db.createNode(Label.label("Data"), Label.label("Uninitialized"));
-                main.createRelationshipTo(data, Components.CONTAINS);
-            }
-
-            // fittest solution
-            Node fittest = db.createNode(Label.label("Data"), Label.label("Fittest"));
-            main.createRelationshipTo(fittest, Components.CONTAINS);
-
-
+            TestGraphQueries.knapsack(db, (int) dataSystems);
             tx.success();
         }
 

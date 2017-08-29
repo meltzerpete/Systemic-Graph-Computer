@@ -1,7 +1,6 @@
 package parallel;
 
 import graphEngine.Components;
-import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 
 import java.util.Arrays;
@@ -18,10 +17,6 @@ public class Functions {
     public Functions(Manager manager) {
         this.manager = manager;
     }
-
-    // extra labels
-    final Label INITIALIZED = Label.label("Initialized");
-    final Label UNINITIALIZED = Label.label("Uninitialized");
 
     int W = 80;
     int[] w = {15,20,1,3,8,2,16,17,11,19,10,5,18,4,7,9};
@@ -49,8 +44,8 @@ public class Functions {
         addToScope(s2, s1);
 
         // change label to initialized
-        s1.removeLabel(UNINITIALIZED);
-        s1.addLabel(INITIALIZED);
+        s1.removeLabel(Components.UNINITIALIZED);
+        s1.addLabel(Components.INITIALIZED);
     };
 
     BiConsumer<Node, Node> binaryMutate = (s1, s2) -> {
