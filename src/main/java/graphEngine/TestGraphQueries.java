@@ -236,28 +236,28 @@ public class TestGraphQueries {
         // contexts
         Node initializer = db.createNode(Components.CONTEXT);
         initializer.setProperty(Components.function, "INITIALIZE");
-        initializer.setProperty(Components.s1Query, "(:Uninitialized)");
-        initializer.setProperty(Components.s2Query, "(:Computation)");
+        initializer.setProperty(Components.s1Query, "(:UNINITIALIZED)");
+        initializer.setProperty(Components.s2Query, "(:COMPUTATION)");
 
         Node binMutate = db.createNode(Components.CONTEXT);
         binMutate.setProperty(Components.function, "BINARYMUTATE");
-        binMutate.setProperty(Components.s1Query, "(:Initialized)");
-        binMutate.setProperty(Components.s2Query, "(:Initialized)");
+        binMutate.setProperty(Components.s1Query, "(:INITIALIZED)");
+        binMutate.setProperty(Components.s2Query, "(:INITIALIZED)");
 
         Node onePointCross = db.createNode(Components.CONTEXT);
         onePointCross.setProperty(Components.function, "ONEPOINTCROSS");
-        onePointCross.setProperty(Components.s1Query, "(:Initialized)");
-        onePointCross.setProperty(Components.s2Query, "(:Initialized)");
+        onePointCross.setProperty(Components.s1Query, "(:INITIALIZED)");
+        onePointCross.setProperty(Components.s2Query, "(:INITIALIZED)");
 
         Node uniformCross = db.createNode(Components.CONTEXT);
         uniformCross.setProperty(Components.function, "UNIFORMCROSS");
-        uniformCross.setProperty(Components.s1Query, "(:Initialized)");
-        uniformCross.setProperty(Components.s2Query, "(:Initialized)");
+        uniformCross.setProperty(Components.s1Query, "(:INITIALIZED)");
+        uniformCross.setProperty(Components.s2Query, "(:INITIALIZED)");
 
         Node output = db.createNode(Components.CONTEXT);
         output.setProperty(Components.function, "OUTPUT");
-        output.setProperty(Components.s1Query, "(:Fittest)");
-        output.setProperty(Components.s2Query, "(:Initialized)");
+        output.setProperty(Components.s1Query, "(:FITTEST)");
+        output.setProperty(Components.s2Query, "(:INITIALIZED)");
 
         main.createRelationshipTo(output, Components.CONTAINS);
         main.createRelationshipTo(initializer, Components.CONTAINS);

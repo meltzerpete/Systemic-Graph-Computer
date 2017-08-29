@@ -116,8 +116,8 @@ enum Function {
             s2.createRelationshipTo(s1, Components.CONTAINS);
 
             // change label to initialized
-            s1.removeLabel(UNINITIALIZED);
-            s1.addLabel(INITIALIZED);
+            s1.removeLabel(Components.UNINITIALIZED);
+            s1.addLabel(Components.INITIALIZED);
 
         }
     },
@@ -207,10 +207,6 @@ enum Function {
     boolean affectsS2parentScopes() {
         return false;
     }
-
-    // extra labels
-    final Label INITIALIZED = Label.label("Initialized");
-    final Label UNINITIALIZED = Label.label("Uninitialized");
 
     int W = 80;
     int[] w = {15,20,1,3,8,2,16,17,11,19,10,5,18,4,7,9};

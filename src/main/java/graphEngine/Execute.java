@@ -162,6 +162,8 @@ public class Execute {
                     writer.newLine();
 
                     writer.flush();
+
+                    db.execute("match (n) detach delete n;");
                 }
 
                 writer.newLine();
@@ -229,6 +231,8 @@ public class Execute {
 
                 writer.newLine();
                 writer.flush();
+
+                db.execute("match (n) detach delete n;");
             }
 
             writer.close();

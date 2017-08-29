@@ -20,8 +20,9 @@ class Components {
     static final Label SCOPE = Label.label("SCOPE");
     static final Label COMPUTATION = Label.label("COMPUTATION");
     static final Label DATA = Label.label("DATA");
-    static final Label UNINITIALIZED = Label.label("Uninitialized");
-    static final Label FITTEST = Label.label("Fittest");
+    static final Label INITIALIZED = Label.label("INITIALIZED");
+    static final Label UNINITIALIZED = Label.label("UNINITIALIZED");
+    static final Label FITTEST = Label.label("FITTEST");
 
     static final RelationshipType CONTAINS = RelationshipType.withName("CONTAINS");
     static final RelationshipType FITS1 = RelationshipType.withName("FITS1");
