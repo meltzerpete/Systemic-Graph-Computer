@@ -24,8 +24,6 @@ public class ProduceTripletTask implements Runnable {
         try (Transaction tx = manager.db.beginTx()) {
         while(manager.run.get()) {
 
-            // TODO - is there a deadlock opportunity here!?
-
             ContextEntry contextEntry = manager.contextArray[ThreadLocalRandom.current().nextInt(manager.contextArray.length)];
             Long[] containedIDs = manager.nodesContainedInScope.get(contextEntry.scope);
 
@@ -35,7 +33,7 @@ public class ProduceTripletTask implements Runnable {
             visited.clear();
             int visitedCount = 0;
 
-            while (containedIDs.length > visitedCount) {
+            while (visitedCount < containedIDs.length) {
 
                 // get random targetID
                 long targetID = containedIDs[ThreadLocalRandom.current().nextInt(containedIDs.length)];

@@ -7,6 +7,10 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.neo4j.graphdb.*;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -37,9 +41,11 @@ public class Manager {
     final AtomicInteger upCounter;
     CountDownLatch count;
 
+    AtomicBoolean run;
 
     GraphDatabaseService db;
 
+    BlockingQueue<Triplet> tripletQueue;
     HashMap<Long,ReentrantLock> nodeLocks;
 
     // ONLY USED IN PRODUCER TO GET RANDOM CONTEXT
@@ -47,11 +53,11 @@ public class Manager {
 
     Long[] allNodeIDs;
 
-    BlockingQueue<Triplet> tripletQueue;
     ConcurrentHashMap<Long,Long[]> nodesContainedInScope;
-    AtomicBoolean run;
-
     ConcurrentHashMap<Long, Long[]> parentScopes;
+
+    // USED FOR TESTING
+    volatile StringBuilder timingLog = new StringBuilder();
 
 
     public Manager(int MAX_INTERACTIONS, int QUEUE_SIZE, int NO_OF_CONSUMERS, int NO_OF_PRODUCERS, GraphDatabaseService db) {
@@ -190,7 +196,7 @@ public class Manager {
 
         Thread[] producerThreads = new Thread[NO_OF_PRODUCERS];
         for (Thread p : producerThreads) {
-            p = new Thread(new ProduceTripletTask2(this),"Producer");
+            p = new Thread(new ProduceTripletTask(this),"Producer");
             p.start();
         }
 
@@ -207,8 +213,17 @@ public class Manager {
                 if (thread != null) thread.join();
             }
 
+            // write the timing log to file
+            File file = new File("sc2-knapsack-100interactions.csv");
+            FileWriter writer = new FileWriter(file, true);
+            writer.append("sc2 Knapsack\n");
+            writer.append(timingLog);
+            writer.close();
+
         } catch (NullPointerException | IllegalThreadStateException | InterruptedException e) {
             //ignore exception
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
             System.out.println("TERMINATING");

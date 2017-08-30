@@ -12,6 +12,7 @@ import org.neo4j.procedure.Context;
 import org.neo4j.procedure.Mode;
 import org.neo4j.procedure.Name;
 import org.neo4j.procedure.Procedure;
+import parallel.LoadGraphTask;
 import parallel.Manager;
 
 import java.io.BufferedWriter;
@@ -37,7 +38,7 @@ public class Execute {
     @Procedure(value = "graphEngine.sc2Knapsack", mode = Mode.SCHEMA)
     public void sc2Knapsack() {
         try {
-            int[] noOfDataSystems = {50, 100, 200, 400, 800, 1000};
+            int[] noOfDataSystems = {50, 100, 200, 400, 1000, 10000, 20000, 50000};
 
             File file = new File("sc2-knapsack.csv");
             FileWriter fwriter = new FileWriter(file,true);
@@ -58,15 +59,12 @@ public class Execute {
 
                     System.out.println("Loading program...");
                     // create program
-                    try (Transaction tx = db.beginTx()) {
-
-                        TestGraphQueries.knapsack(db, noOfDataSystems[n]);
-                        tx.success();
-                    }
+                    LoadGraphTask gLoader = new LoadGraphTask(db, noOfDataSystems[n]);
+                    Thread graphThread = new Thread(gLoader);
+                    graphThread.start();
+                    graphThread.join();
 
                     Manager manager = new Manager(10000, db);
-
-                    System.out.println(db.execute("match (n) return n limit 100").resultAsString());
 
                     System.out.println("Executing...");
                     exeTimer.reset();
@@ -88,6 +86,8 @@ public class Execute {
 
             writer.close();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }

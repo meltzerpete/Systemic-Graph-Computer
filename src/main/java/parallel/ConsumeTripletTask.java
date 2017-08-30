@@ -70,6 +70,8 @@ public class ConsumeTripletTask implements Runnable {
                     if (manager.upCounter.getAndIncrement() % 100 == 0) {
 //                        System.out.println(upCounter.get() - 1);
                             System.out.println((manager.upCounter.get() - 1) + " queueSize: " + manager.tripletQueue.size());
+                            manager.timingLog.append(System.currentTimeMillis());
+                            manager.timingLog.append("\n");
                     }
                 }
                 // commit transaction and release locks
