@@ -1,0 +1,320 @@
++----------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ID | Labels                    | Properties                                                                              | Relationships                 |
++----------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 0  | ["System","Data","Data1"] | {name -> "a1", data -> 10}                                                              | {r -> <null>, n -> <null>}    |
+| 1  | ["System","Data","Data2"] | {name -> "a2", data -> 8}                                                               | {r -> <null>, n -> <null>}    |
+| 2  | ["System","Data","Data1"] | {name -> "a3", data -> 9}                                                               | {r -> <null>, n -> <null>}    |
+| 3  | ["System","Data","Data2"] | {name -> "a4", data -> 6}                                                               | {r -> <null>, n -> <null>}    |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[3]{}, n -> 9} |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[2]{}, n -> 8} |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[1]{}, n -> 6} |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[0]{}, n -> 7} |
+| 5  | ["System","Context"]      | {s2Labels -> ["Data2"], name -> "subE", function -> "SUBTRACTe", s1Labels -> ["Data1"]} | {r -> <null>, n -> <null>}    |
+| 6  | ["System","Context"]      | {s2Labels -> ["Data"], name -> "mul", function -> "MULTIPLY", s1Labels -> ["Data"]}     | {r -> <null>, n -> <null>}    |
+| 7  | ["System","Context"]      | {name -> "print", function -> "PRINT", s1Labels -> ["Data"], s2Labels -> ["Data"]}      | {r -> <null>, n -> <null>}    |
+| 8  | ["System","Scope"]        | {name -> "c1"}                                                                          | {r -> :CONTAINS[6]{}, n -> 1} |
+| 8  | ["System","Scope"]        | {name -> "c1"}                                                                          | {r -> :CONTAINS[5]{}, n -> 0} |
+| 8  | ["System","Scope"]        | {name -> "c1"}                                                                          | {r -> :CONTAINS[4]{}, n -> 5} |
+| 9  | ["System","Scope"]        | {name -> "c2"}                                                                          | {r -> :CONTAINS[9]{}, n -> 3} |
+| 9  | ["System","Scope"]        | {name -> "c2"}                                                                          | {r -> :CONTAINS[8]{}, n -> 2} |
+| 9  | ["System","Scope"]        | {name -> "c2"}                                                                          | {r -> :CONTAINS[7]{}, n -> 5} |
++----------------------------------------------------------------------------------------------------------------------------------------------------------+
+17 rows
++-------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ID | Labels                       | Properties                                                                              | Relationships                 |
++-------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 0  | ["System","Data","Data1"]    | {name -> "a1", data -> 10}                                                              | {r -> <null>, n -> <null>}    |
+| 1  | ["System","Data","Data2"]    | {name -> "a2", data -> 8}                                                               | {r -> <null>, n -> <null>}    |
+| 2  | ["System","Data","Data1"]    | {name -> "a3", data -> 9}                                                               | {r -> <null>, n -> <null>}    |
+| 3  | ["System","Data","Data2"]    | {name -> "a4", data -> 6}                                                               | {r -> <null>, n -> <null>}    |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[3]{}, n -> 9} |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[2]{}, n -> 8} |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[1]{}, n -> 6} |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[0]{}, n -> 7} |
+| 5  | ["System","Context","Ready"] | {s2Labels -> ["Data2"], name -> "subE", function -> "SUBTRACTe", s1Labels -> ["Data1"]} | {r -> :FITS_2[10]{}, n -> 1}  |
+| 5  | ["System","Context","Ready"] | {s2Labels -> ["Data2"], name -> "subE", function -> "SUBTRACTe", s1Labels -> ["Data1"]} | {r -> :FITS_2[12]{}, n -> 3}  |
+| 5  | ["System","Context","Ready"] | {s2Labels -> ["Data2"], name -> "subE", function -> "SUBTRACTe", s1Labels -> ["Data1"]} | {r -> :FITS_1[11]{}, n -> 0}  |
+| 5  | ["System","Context","Ready"] | {s2Labels -> ["Data2"], name -> "subE", function -> "SUBTRACTe", s1Labels -> ["Data1"]} | {r -> :FITS_1[13]{}, n -> 2}  |
+| 6  | ["System","Context"]         | {s2Labels -> ["Data"], name -> "mul", function -> "MULTIPLY", s1Labels -> ["Data"]}     | {r -> <null>, n -> <null>}    |
+| 7  | ["System","Context"]         | {name -> "print", function -> "PRINT", s1Labels -> ["Data"], s2Labels -> ["Data"]}      | {r -> <null>, n -> <null>}    |
+| 8  | ["System","Scope"]           | {name -> "c1"}                                                                          | {r -> :CONTAINS[6]{}, n -> 1} |
+| 8  | ["System","Scope"]           | {name -> "c1"}                                                                          | {r -> :CONTAINS[5]{}, n -> 0} |
+| 8  | ["System","Scope"]           | {name -> "c1"}                                                                          | {r -> :CONTAINS[4]{}, n -> 5} |
+| 9  | ["System","Scope"]           | {name -> "c2"}                                                                          | {r -> :CONTAINS[9]{}, n -> 3} |
+| 9  | ["System","Scope"]           | {name -> "c2"}                                                                          | {r -> :CONTAINS[8]{}, n -> 2} |
+| 9  | ["System","Scope"]           | {name -> "c2"}                                                                          | {r -> :CONTAINS[7]{}, n -> 5} |
++-------------------------------------------------------------------------------------------------------------------------------------------------------------+
+20 rows
++-----------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ID | Labels                    | Properties                                                                              | Relationships                  |
++-----------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 0  | ["System","Data","Data1"] | {name -> "a1", data -> 2}                                                               | {r -> <null>, n -> <null>}     |
+| 1  | ["System","Data","Data2"] | {name -> "a2", data -> 0}                                                               | {r -> <null>, n -> <null>}     |
+| 2  | ["System","Data","Data1"] | {name -> "a3", data -> 9}                                                               | {r -> <null>, n -> <null>}     |
+| 3  | ["System","Data","Data2"] | {name -> "a4", data -> 6}                                                               | {r -> <null>, n -> <null>}     |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[3]{}, n -> 9}  |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[2]{}, n -> 8}  |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[1]{}, n -> 6}  |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[0]{}, n -> 7}  |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[14]{}, n -> 0} |
+| 5  | ["System","Context"]      | {s2Labels -> ["Data2"], name -> "subE", function -> "SUBTRACTe", s1Labels -> ["Data1"]} | {r -> <null>, n -> <null>}     |
+| 6  | ["System","Context"]      | {s2Labels -> ["Data"], name -> "mul", function -> "MULTIPLY", s1Labels -> ["Data"]}     | {r -> <null>, n -> <null>}     |
+| 7  | ["System","Context"]      | {name -> "print", function -> "PRINT", s1Labels -> ["Data"], s2Labels -> ["Data"]}      | {r -> <null>, n -> <null>}     |
+| 8  | ["System","Scope"]        | {name -> "c1"}                                                                          | {r -> :CONTAINS[6]{}, n -> 1}  |
+| 8  | ["System","Scope"]        | {name -> "c1"}                                                                          | {r -> :CONTAINS[4]{}, n -> 5}  |
+| 9  | ["System","Scope"]        | {name -> "c2"}                                                                          | {r -> :CONTAINS[9]{}, n -> 3}  |
+| 9  | ["System","Scope"]        | {name -> "c2"}                                                                          | {r -> :CONTAINS[8]{}, n -> 2}  |
+| 9  | ["System","Scope"]        | {name -> "c2"}                                                                          | {r -> :CONTAINS[7]{}, n -> 5}  |
++-----------------------------------------------------------------------------------------------------------------------------------------------------------+
+17 rows
++--------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ID | Labels                       | Properties                                                                              | Relationships                  |
++--------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 0  | ["System","Data","Data1"]    | {name -> "a1", data -> 2}                                                               | {r -> <null>, n -> <null>}     |
+| 1  | ["System","Data","Data2"]    | {name -> "a2", data -> 0}                                                               | {r -> <null>, n -> <null>}     |
+| 2  | ["System","Data","Data1"]    | {name -> "a3", data -> 9}                                                               | {r -> <null>, n -> <null>}     |
+| 3  | ["System","Data","Data2"]    | {name -> "a4", data -> 6}                                                               | {r -> <null>, n -> <null>}     |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[3]{}, n -> 9}  |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[2]{}, n -> 8}  |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[1]{}, n -> 6}  |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[0]{}, n -> 7}  |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[14]{}, n -> 0} |
+| 5  | ["System","Context","Ready"] | {s2Labels -> ["Data2"], name -> "subE", function -> "SUBTRACTe", s1Labels -> ["Data1"]} | {r -> :FITS_2[19]{}, n -> 1}   |
+| 5  | ["System","Context","Ready"] | {s2Labels -> ["Data2"], name -> "subE", function -> "SUBTRACTe", s1Labels -> ["Data1"]} | {r -> :FITS_2[20]{}, n -> 3}   |
+| 5  | ["System","Context","Ready"] | {s2Labels -> ["Data2"], name -> "subE", function -> "SUBTRACTe", s1Labels -> ["Data1"]} | {r -> :FITS_1[21]{}, n -> 2}   |
+| 6  | ["System","Context"]         | {s2Labels -> ["Data"], name -> "mul", function -> "MULTIPLY", s1Labels -> ["Data"]}     | {r -> :FITS_2[16]{}, n -> 0}   |
+| 6  | ["System","Context"]         | {s2Labels -> ["Data"], name -> "mul", function -> "MULTIPLY", s1Labels -> ["Data"]}     | {r -> :FITS_1[15]{}, n -> 0}   |
+| 7  | ["System","Context"]         | {name -> "print", function -> "PRINT", s1Labels -> ["Data"], s2Labels -> ["Data"]}      | {r -> :FITS_2[18]{}, n -> 0}   |
+| 7  | ["System","Context"]         | {name -> "print", function -> "PRINT", s1Labels -> ["Data"], s2Labels -> ["Data"]}      | {r -> :FITS_1[17]{}, n -> 0}   |
+| 8  | ["System","Scope"]           | {name -> "c1"}                                                                          | {r -> :CONTAINS[6]{}, n -> 1}  |
+| 8  | ["System","Scope"]           | {name -> "c1"}                                                                          | {r -> :CONTAINS[4]{}, n -> 5}  |
+| 9  | ["System","Scope"]           | {name -> "c2"}                                                                          | {r -> :CONTAINS[9]{}, n -> 3}  |
+| 9  | ["System","Scope"]           | {name -> "c2"}                                                                          | {r -> :CONTAINS[8]{}, n -> 2}  |
+| 9  | ["System","Scope"]           | {name -> "c2"}                                                                          | {r -> :CONTAINS[7]{}, n -> 5}  |
++--------------------------------------------------------------------------------------------------------------------------------------------------------------+
+21 rows
++-----------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ID | Labels                    | Properties                                                                              | Relationships                  |
++-----------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 0  | ["System","Data","Data1"] | {name -> "a1", data -> 2}                                                               | {r -> <null>, n -> <null>}     |
+| 1  | ["System","Data","Data2"] | {name -> "a2", data -> 0}                                                               | {r -> <null>, n -> <null>}     |
+| 2  | ["System","Data","Data1"] | {name -> "a3", data -> 3}                                                               | {r -> <null>, n -> <null>}     |
+| 3  | ["System","Data","Data2"] | {name -> "a4", data -> 0}                                                               | {r -> <null>, n -> <null>}     |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[3]{}, n -> 9}  |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[2]{}, n -> 8}  |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[1]{}, n -> 6}  |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[0]{}, n -> 7}  |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[22]{}, n -> 2} |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[14]{}, n -> 0} |
+| 5  | ["System","Context"]      | {s2Labels -> ["Data2"], name -> "subE", function -> "SUBTRACTe", s1Labels -> ["Data1"]} | {r -> <null>, n -> <null>}     |
+| 6  | ["System","Context"]      | {s2Labels -> ["Data"], name -> "mul", function -> "MULTIPLY", s1Labels -> ["Data"]}     | {r -> <null>, n -> <null>}     |
+| 7  | ["System","Context"]      | {name -> "print", function -> "PRINT", s1Labels -> ["Data"], s2Labels -> ["Data"]}      | {r -> <null>, n -> <null>}     |
+| 8  | ["System","Scope"]        | {name -> "c1"}                                                                          | {r -> :CONTAINS[6]{}, n -> 1}  |
+| 8  | ["System","Scope"]        | {name -> "c1"}                                                                          | {r -> :CONTAINS[4]{}, n -> 5}  |
+| 9  | ["System","Scope"]        | {name -> "c2"}                                                                          | {r -> :CONTAINS[9]{}, n -> 3}  |
+| 9  | ["System","Scope"]        | {name -> "c2"}                                                                          | {r -> :CONTAINS[7]{}, n -> 5}  |
++-----------------------------------------------------------------------------------------------------------------------------------------------------------+
+17 rows
++--------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ID | Labels                       | Properties                                                                              | Relationships                  |
++--------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 0  | ["System","Data","Data1"]    | {name -> "a1", data -> 2}                                                               | {r -> <null>, n -> <null>}     |
+| 1  | ["System","Data","Data2"]    | {name -> "a2", data -> 0}                                                               | {r -> <null>, n -> <null>}     |
+| 2  | ["System","Data","Data1"]    | {name -> "a3", data -> 3}                                                               | {r -> <null>, n -> <null>}     |
+| 3  | ["System","Data","Data2"]    | {name -> "a4", data -> 0}                                                               | {r -> <null>, n -> <null>}     |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[3]{}, n -> 9}  |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[2]{}, n -> 8}  |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[1]{}, n -> 6}  |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[0]{}, n -> 7}  |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[22]{}, n -> 2} |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[14]{}, n -> 0} |
+| 5  | ["System","Context"]         | {s2Labels -> ["Data2"], name -> "subE", function -> "SUBTRACTe", s1Labels -> ["Data1"]} | {r -> :FITS_2[32]{}, n -> 3}   |
+| 5  | ["System","Context"]         | {s2Labels -> ["Data2"], name -> "subE", function -> "SUBTRACTe", s1Labels -> ["Data1"]} | {r -> :FITS_2[31]{}, n -> 1}   |
+| 6  | ["System","Context","Ready"] | {s2Labels -> ["Data"], name -> "mul", function -> "MULTIPLY", s1Labels -> ["Data"]}     | {r -> :FITS_2[24]{}, n -> 2}   |
+| 6  | ["System","Context","Ready"] | {s2Labels -> ["Data"], name -> "mul", function -> "MULTIPLY", s1Labels -> ["Data"]}     | {r -> :FITS_2[26]{}, n -> 0}   |
+| 6  | ["System","Context","Ready"] | {s2Labels -> ["Data"], name -> "mul", function -> "MULTIPLY", s1Labels -> ["Data"]}     | {r -> :FITS_1[23]{}, n -> 2}   |
+| 6  | ["System","Context","Ready"] | {s2Labels -> ["Data"], name -> "mul", function -> "MULTIPLY", s1Labels -> ["Data"]}     | {r -> :FITS_1[25]{}, n -> 0}   |
+| 7  | ["System","Context","Ready"] | {name -> "print", function -> "PRINT", s1Labels -> ["Data"], s2Labels -> ["Data"]}      | {r -> :FITS_2[28]{}, n -> 2}   |
+| 7  | ["System","Context","Ready"] | {name -> "print", function -> "PRINT", s1Labels -> ["Data"], s2Labels -> ["Data"]}      | {r -> :FITS_2[30]{}, n -> 0}   |
+| 7  | ["System","Context","Ready"] | {name -> "print", function -> "PRINT", s1Labels -> ["Data"], s2Labels -> ["Data"]}      | {r -> :FITS_1[27]{}, n -> 2}   |
+| 7  | ["System","Context","Ready"] | {name -> "print", function -> "PRINT", s1Labels -> ["Data"], s2Labels -> ["Data"]}      | {r -> :FITS_1[29]{}, n -> 0}   |
+| 8  | ["System","Scope"]           | {name -> "c1"}                                                                          | {r -> :CONTAINS[6]{}, n -> 1}  |
+| 8  | ["System","Scope"]           | {name -> "c1"}                                                                          | {r -> :CONTAINS[4]{}, n -> 5}  |
+| 9  | ["System","Scope"]           | {name -> "c2"}                                                                          | {r -> :CONTAINS[9]{}, n -> 3}  |
+| 9  | ["System","Scope"]           | {name -> "c2"}                                                                          | {r -> :CONTAINS[7]{}, n -> 5}  |
++--------------------------------------------------------------------------------------------------------------------------------------------------------------+
+24 rows
++-----------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ID | Labels                    | Properties                                                                              | Relationships                  |
++-----------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 0  | ["System","Data","Data1"] | {name -> "a1", data -> 2}                                                               | {r -> <null>, n -> <null>}     |
+| 1  | ["System","Data","Data2"] | {name -> "a2", data -> 0}                                                               | {r -> <null>, n -> <null>}     |
+| 2  | ["System","Data","Data1"] | {name -> "a3", data -> 3}                                                               | {r -> <null>, n -> <null>}     |
+| 3  | ["System","Data","Data2"] | {name -> "a4", data -> 0}                                                               | {r -> <null>, n -> <null>}     |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[3]{}, n -> 9}  |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[2]{}, n -> 8}  |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[1]{}, n -> 6}  |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[0]{}, n -> 7}  |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[22]{}, n -> 2} |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[14]{}, n -> 0} |
+| 5  | ["System","Context"]      | {s2Labels -> ["Data2"], name -> "subE", function -> "SUBTRACTe", s1Labels -> ["Data1"]} | {r -> <null>, n -> <null>}     |
+| 6  | ["System","Context"]      | {s2Labels -> ["Data"], name -> "mul", function -> "MULTIPLY", s1Labels -> ["Data"]}     | {r -> <null>, n -> <null>}     |
+| 7  | ["System","Context"]      | {name -> "print", function -> "PRINT", s1Labels -> ["Data"], s2Labels -> ["Data"]}      | {r -> <null>, n -> <null>}     |
+| 8  | ["System","Scope"]        | {name -> "c1"}                                                                          | {r -> :CONTAINS[6]{}, n -> 1}  |
+| 8  | ["System","Scope"]        | {name -> "c1"}                                                                          | {r -> :CONTAINS[4]{}, n -> 5}  |
+| 9  | ["System","Scope"]        | {name -> "c2"}                                                                          | {r -> :CONTAINS[9]{}, n -> 3}  |
+| 9  | ["System","Scope"]        | {name -> "c2"}                                                                          | {r -> :CONTAINS[7]{}, n -> 5}  |
++-----------------------------------------------------------------------------------------------------------------------------------------------------------+
+17 rows
++--------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ID | Labels                       | Properties                                                                              | Relationships                  |
++--------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 0  | ["System","Data","Data1"]    | {name -> "a1", data -> 2}                                                               | {r -> <null>, n -> <null>}     |
+| 1  | ["System","Data","Data2"]    | {name -> "a2", data -> 0}                                                               | {r -> <null>, n -> <null>}     |
+| 2  | ["System","Data","Data1"]    | {name -> "a3", data -> 3}                                                               | {r -> <null>, n -> <null>}     |
+| 3  | ["System","Data","Data2"]    | {name -> "a4", data -> 0}                                                               | {r -> <null>, n -> <null>}     |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[3]{}, n -> 9}  |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[2]{}, n -> 8}  |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[1]{}, n -> 6}  |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[0]{}, n -> 7}  |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[22]{}, n -> 2} |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[14]{}, n -> 0} |
+| 5  | ["System","Context"]         | {s2Labels -> ["Data2"], name -> "subE", function -> "SUBTRACTe", s1Labels -> ["Data1"]} | {r -> :FITS_2[42]{}, n -> 3}   |
+| 5  | ["System","Context"]         | {s2Labels -> ["Data2"], name -> "subE", function -> "SUBTRACTe", s1Labels -> ["Data1"]} | {r -> :FITS_2[41]{}, n -> 1}   |
+| 6  | ["System","Context","Ready"] | {s2Labels -> ["Data"], name -> "mul", function -> "MULTIPLY", s1Labels -> ["Data"]}     | {r -> :FITS_2[34]{}, n -> 2}   |
+| 6  | ["System","Context","Ready"] | {s2Labels -> ["Data"], name -> "mul", function -> "MULTIPLY", s1Labels -> ["Data"]}     | {r -> :FITS_2[36]{}, n -> 0}   |
+| 6  | ["System","Context","Ready"] | {s2Labels -> ["Data"], name -> "mul", function -> "MULTIPLY", s1Labels -> ["Data"]}     | {r -> :FITS_1[35]{}, n -> 0}   |
+| 6  | ["System","Context","Ready"] | {s2Labels -> ["Data"], name -> "mul", function -> "MULTIPLY", s1Labels -> ["Data"]}     | {r -> :FITS_1[33]{}, n -> 2}   |
+| 7  | ["System","Context","Ready"] | {name -> "print", function -> "PRINT", s1Labels -> ["Data"], s2Labels -> ["Data"]}      | {r -> :FITS_2[38]{}, n -> 2}   |
+| 7  | ["System","Context","Ready"] | {name -> "print", function -> "PRINT", s1Labels -> ["Data"], s2Labels -> ["Data"]}      | {r -> :FITS_2[40]{}, n -> 0}   |
+| 7  | ["System","Context","Ready"] | {name -> "print", function -> "PRINT", s1Labels -> ["Data"], s2Labels -> ["Data"]}      | {r -> :FITS_1[39]{}, n -> 0}   |
+| 7  | ["System","Context","Ready"] | {name -> "print", function -> "PRINT", s1Labels -> ["Data"], s2Labels -> ["Data"]}      | {r -> :FITS_1[37]{}, n -> 2}   |
+| 8  | ["System","Scope"]           | {name -> "c1"}                                                                          | {r -> :CONTAINS[6]{}, n -> 1}  |
+| 8  | ["System","Scope"]           | {name -> "c1"}                                                                          | {r -> :CONTAINS[4]{}, n -> 5}  |
+| 9  | ["System","Scope"]           | {name -> "c2"}                                                                          | {r -> :CONTAINS[9]{}, n -> 3}  |
+| 9  | ["System","Scope"]           | {name -> "c2"}                                                                          | {r -> :CONTAINS[7]{}, n -> 5}  |
++--------------------------------------------------------------------------------------------------------------------------------------------------------------+
+24 rows
++-----------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ID | Labels                    | Properties                                                                              | Relationships                  |
++-----------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 0  | ["System","Data","Data1"] | {name -> "a1", data -> 1}                                                               | {r -> <null>, n -> <null>}     |
+| 1  | ["System","Data","Data2"] | {name -> "a2", data -> 0}                                                               | {r -> <null>, n -> <null>}     |
+| 2  | ["System","Data","Data1"] | {name -> "a3", data -> 6}                                                               | {r -> <null>, n -> <null>}     |
+| 3  | ["System","Data","Data2"] | {name -> "a4", data -> 0}                                                               | {r -> <null>, n -> <null>}     |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[3]{}, n -> 9}  |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[2]{}, n -> 8}  |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[1]{}, n -> 6}  |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[0]{}, n -> 7}  |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[22]{}, n -> 2} |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[14]{}, n -> 0} |
+| 5  | ["System","Context"]      | {s2Labels -> ["Data2"], name -> "subE", function -> "SUBTRACTe", s1Labels -> ["Data1"]} | {r -> <null>, n -> <null>}     |
+| 6  | ["System","Context"]      | {s2Labels -> ["Data"], name -> "mul", function -> "MULTIPLY", s1Labels -> ["Data"]}     | {r -> <null>, n -> <null>}     |
+| 7  | ["System","Context"]      | {name -> "print", function -> "PRINT", s1Labels -> ["Data"], s2Labels -> ["Data"]}      | {r -> <null>, n -> <null>}     |
+| 8  | ["System","Scope"]        | {name -> "c1"}                                                                          | {r -> :CONTAINS[6]{}, n -> 1}  |
+| 8  | ["System","Scope"]        | {name -> "c1"}                                                                          | {r -> :CONTAINS[4]{}, n -> 5}  |
+| 9  | ["System","Scope"]        | {name -> "c2"}                                                                          | {r -> :CONTAINS[9]{}, n -> 3}  |
+| 9  | ["System","Scope"]        | {name -> "c2"}                                                                          | {r -> :CONTAINS[7]{}, n -> 5}  |
++-----------------------------------------------------------------------------------------------------------------------------------------------------------+
+17 rows
++--------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ID | Labels                       | Properties                                                                              | Relationships                  |
++--------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 0  | ["System","Data","Data1"]    | {name -> "a1", data -> 1}                                                               | {r -> <null>, n -> <null>}     |
+| 1  | ["System","Data","Data2"]    | {name -> "a2", data -> 0}                                                               | {r -> <null>, n -> <null>}     |
+| 2  | ["System","Data","Data1"]    | {name -> "a3", data -> 6}                                                               | {r -> <null>, n -> <null>}     |
+| 3  | ["System","Data","Data2"]    | {name -> "a4", data -> 0}                                                               | {r -> <null>, n -> <null>}     |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[3]{}, n -> 9}  |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[2]{}, n -> 8}  |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[1]{}, n -> 6}  |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[0]{}, n -> 7}  |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[22]{}, n -> 2} |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[14]{}, n -> 0} |
+| 5  | ["System","Context"]         | {s2Labels -> ["Data2"], name -> "subE", function -> "SUBTRACTe", s1Labels -> ["Data1"]} | {r -> :FITS_2[51]{}, n -> 1}   |
+| 5  | ["System","Context"]         | {s2Labels -> ["Data2"], name -> "subE", function -> "SUBTRACTe", s1Labels -> ["Data1"]} | {r -> :FITS_2[52]{}, n -> 3}   |
+| 6  | ["System","Context","Ready"] | {s2Labels -> ["Data"], name -> "mul", function -> "MULTIPLY", s1Labels -> ["Data"]}     | {r -> :FITS_2[46]{}, n -> 0}   |
+| 6  | ["System","Context","Ready"] | {s2Labels -> ["Data"], name -> "mul", function -> "MULTIPLY", s1Labels -> ["Data"]}     | {r -> :FITS_2[44]{}, n -> 2}   |
+| 6  | ["System","Context","Ready"] | {s2Labels -> ["Data"], name -> "mul", function -> "MULTIPLY", s1Labels -> ["Data"]}     | {r -> :FITS_1[43]{}, n -> 2}   |
+| 6  | ["System","Context","Ready"] | {s2Labels -> ["Data"], name -> "mul", function -> "MULTIPLY", s1Labels -> ["Data"]}     | {r -> :FITS_1[45]{}, n -> 0}   |
+| 7  | ["System","Context","Ready"] | {name -> "print", function -> "PRINT", s1Labels -> ["Data"], s2Labels -> ["Data"]}      | {r -> :FITS_2[50]{}, n -> 0}   |
+| 7  | ["System","Context","Ready"] | {name -> "print", function -> "PRINT", s1Labels -> ["Data"], s2Labels -> ["Data"]}      | {r -> :FITS_2[48]{}, n -> 2}   |
+| 7  | ["System","Context","Ready"] | {name -> "print", function -> "PRINT", s1Labels -> ["Data"], s2Labels -> ["Data"]}      | {r -> :FITS_1[49]{}, n -> 0}   |
+| 7  | ["System","Context","Ready"] | {name -> "print", function -> "PRINT", s1Labels -> ["Data"], s2Labels -> ["Data"]}      | {r -> :FITS_1[47]{}, n -> 2}   |
+| 8  | ["System","Scope"]           | {name -> "c1"}                                                                          | {r -> :CONTAINS[6]{}, n -> 1}  |
+| 8  | ["System","Scope"]           | {name -> "c1"}                                                                          | {r -> :CONTAINS[4]{}, n -> 5}  |
+| 9  | ["System","Scope"]           | {name -> "c2"}                                                                          | {r -> :CONTAINS[9]{}, n -> 3}  |
+| 9  | ["System","Scope"]           | {name -> "c2"}                                                                          | {r -> :CONTAINS[7]{}, n -> 5}  |
++--------------------------------------------------------------------------------------------------------------------------------------------------------------+
+24 rows
++-----------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ID | Labels                    | Properties                                                                              | Relationships                  |
++-----------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 0  | ["System","Data","Data1"] | {name -> "a1", data -> 1}                                                               | {r -> <null>, n -> <null>}     |
+| 1  | ["System","Data","Data2"] | {name -> "a2", data -> 0}                                                               | {r -> <null>, n -> <null>}     |
+| 2  | ["System","Data","Data1"] | {name -> "a3", data -> 6}                                                               | {r -> <null>, n -> <null>}     |
+| 3  | ["System","Data","Data2"] | {name -> "a4", data -> 0}                                                               | {r -> <null>, n -> <null>}     |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[3]{}, n -> 9}  |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[2]{}, n -> 8}  |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[1]{}, n -> 6}  |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[0]{}, n -> 7}  |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[22]{}, n -> 2} |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[14]{}, n -> 0} |
+| 5  | ["System","Context"]      | {s2Labels -> ["Data2"], name -> "subE", function -> "SUBTRACTe", s1Labels -> ["Data1"]} | {r -> <null>, n -> <null>}     |
+| 6  | ["System","Context"]      | {s2Labels -> ["Data"], name -> "mul", function -> "MULTIPLY", s1Labels -> ["Data"]}     | {r -> <null>, n -> <null>}     |
+| 7  | ["System","Context"]      | {name -> "print", function -> "PRINT", s1Labels -> ["Data"], s2Labels -> ["Data"]}      | {r -> <null>, n -> <null>}     |
+| 8  | ["System","Scope"]        | {name -> "c1"}                                                                          | {r -> :CONTAINS[6]{}, n -> 1}  |
+| 8  | ["System","Scope"]        | {name -> "c1"}                                                                          | {r -> :CONTAINS[4]{}, n -> 5}  |
+| 9  | ["System","Scope"]        | {name -> "c2"}                                                                          | {r -> :CONTAINS[9]{}, n -> 3}  |
+| 9  | ["System","Scope"]        | {name -> "c2"}                                                                          | {r -> :CONTAINS[7]{}, n -> 5}  |
++-----------------------------------------------------------------------------------------------------------------------------------------------------------+
+17 rows
++--------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ID | Labels                       | Properties                                                                              | Relationships                  |
++--------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 0  | ["System","Data","Data1"]    | {name -> "a1", data -> 1}                                                               | {r -> <null>, n -> <null>}     |
+| 1  | ["System","Data","Data2"]    | {name -> "a2", data -> 0}                                                               | {r -> <null>, n -> <null>}     |
+| 2  | ["System","Data","Data1"]    | {name -> "a3", data -> 6}                                                               | {r -> <null>, n -> <null>}     |
+| 3  | ["System","Data","Data2"]    | {name -> "a4", data -> 0}                                                               | {r -> <null>, n -> <null>}     |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[3]{}, n -> 9}  |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[2]{}, n -> 8}  |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[1]{}, n -> 6}  |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[0]{}, n -> 7}  |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[22]{}, n -> 2} |
+| 4  | ["System","Scope"]           | {name -> "main"}                                                                        | {r -> :CONTAINS[14]{}, n -> 0} |
+| 5  | ["System","Context"]         | {s2Labels -> ["Data2"], name -> "subE", function -> "SUBTRACTe", s1Labels -> ["Data1"]} | {r -> :FITS_2[62]{}, n -> 3}   |
+| 5  | ["System","Context"]         | {s2Labels -> ["Data2"], name -> "subE", function -> "SUBTRACTe", s1Labels -> ["Data1"]} | {r -> :FITS_2[61]{}, n -> 1}   |
+| 6  | ["System","Context","Ready"] | {s2Labels -> ["Data"], name -> "mul", function -> "MULTIPLY", s1Labels -> ["Data"]}     | {r -> :FITS_2[54]{}, n -> 2}   |
+| 6  | ["System","Context","Ready"] | {s2Labels -> ["Data"], name -> "mul", function -> "MULTIPLY", s1Labels -> ["Data"]}     | {r -> :FITS_2[56]{}, n -> 0}   |
+| 6  | ["System","Context","Ready"] | {s2Labels -> ["Data"], name -> "mul", function -> "MULTIPLY", s1Labels -> ["Data"]}     | {r -> :FITS_1[55]{}, n -> 0}   |
+| 6  | ["System","Context","Ready"] | {s2Labels -> ["Data"], name -> "mul", function -> "MULTIPLY", s1Labels -> ["Data"]}     | {r -> :FITS_1[53]{}, n -> 2}   |
+| 7  | ["System","Context","Ready"] | {name -> "print", function -> "PRINT", s1Labels -> ["Data"], s2Labels -> ["Data"]}      | {r -> :FITS_2[58]{}, n -> 2}   |
+| 7  | ["System","Context","Ready"] | {name -> "print", function -> "PRINT", s1Labels -> ["Data"], s2Labels -> ["Data"]}      | {r -> :FITS_2[60]{}, n -> 0}   |
+| 7  | ["System","Context","Ready"] | {name -> "print", function -> "PRINT", s1Labels -> ["Data"], s2Labels -> ["Data"]}      | {r -> :FITS_1[59]{}, n -> 0}   |
+| 7  | ["System","Context","Ready"] | {name -> "print", function -> "PRINT", s1Labels -> ["Data"], s2Labels -> ["Data"]}      | {r -> :FITS_1[57]{}, n -> 2}   |
+| 8  | ["System","Scope"]           | {name -> "c1"}                                                                          | {r -> :CONTAINS[6]{}, n -> 1}  |
+| 8  | ["System","Scope"]           | {name -> "c1"}                                                                          | {r -> :CONTAINS[4]{}, n -> 5}  |
+| 9  | ["System","Scope"]           | {name -> "c2"}                                                                          | {r -> :CONTAINS[9]{}, n -> 3}  |
+| 9  | ["System","Scope"]           | {name -> "c2"}                                                                          | {r -> :CONTAINS[7]{}, n -> 5}  |
++--------------------------------------------------------------------------------------------------------------------------------------------------------------+
+24 rows
++-----------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ID | Labels                    | Properties                                                                              | Relationships                  |
++-----------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 0  | ["System","Data","Data1"] | {name -> "a1", data -> 1}                                                               | {r -> <null>, n -> <null>}     |
+| 1  | ["System","Data","Data2"] | {name -> "a2", data -> 0}                                                               | {r -> <null>, n -> <null>}     |
+| 2  | ["System","Data","Data1"] | {name -> "a3", data -> 6}                                                               | {r -> <null>, n -> <null>}     |
+| 3  | ["System","Data","Data2"] | {name -> "a4", data -> 0}                                                               | {r -> <null>, n -> <null>}     |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[3]{}, n -> 9}  |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[2]{}, n -> 8}  |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[1]{}, n -> 6}  |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[0]{}, n -> 7}  |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[22]{}, n -> 2} |
+| 4  | ["System","Scope"]        | {name -> "main"}                                                                        | {r -> :CONTAINS[14]{}, n -> 0} |
+| 5  | ["System","Context"]      | {s2Labels -> ["Data2"], name -> "subE", function -> "SUBTRACTe", s1Labels -> ["Data1"]} | {r -> <null>, n -> <null>}     |
+| 6  | ["System","Context"]      | {s2Labels -> ["Data"], name -> "mul", function -> "MULTIPLY", s1Labels -> ["Data"]}     | {r -> <null>, n -> <null>}     |
+| 7  | ["System","Context"]      | {name -> "print", function -> "PRINT", s1Labels -> ["Data"], s2Labels -> ["Data"]}      | {r -> <null>, n -> <null>}     |
+| 8  | ["System","Scope"]        | {name -> "c1"}                                                                          | {r -> :CONTAINS[6]{}, n -> 1}  |
+| 8  | ["System","Scope"]        | {name -> "c1"}                                                                          | {r -> :CONTAINS[4]{}, n -> 5}  |
+| 9  | ["System","Scope"]        | {name -> "c2"}                                                                          | {r -> :CONTAINS[9]{}, n -> 3}  |
+| 9  | ["System","Scope"]        | {name -> "c2"}                                                                          | {r -> :CONTAINS[7]{}, n -> 5}  |
++---------------------------------------------------------------------------------------------------------------

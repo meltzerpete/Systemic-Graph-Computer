@@ -1,0 +1,37 @@
+Knapsack Testing
+No. of Solution Systems, Trial, Pre-processing, Execution
+50, 0, 2466, 0
+50, 1, 216, 0
+50, 2, 205, 0
+50, 3, 194, 0
+50, 4, 839, 0
+
+100, 0, 265, 0
+100, 1, 1411, 0
+100, 2, 283, 0
+100, 3, 294, 0
+100, 4, 310, 0
+
+200, 0, 364, 0
+200, 1, 409, 0
+200, 2, 488, 0
+200, 3, 830, 0
+200, 4, 709, 0
+
+Knapsack Testing
+No. of Solution Systems, Trial, Pre-processing, Execution
+50, 0, 3169, 0
+50, 1, 201, 0
+50, 2, 184, 0
+50, 3, 216, 0
+50, 4, 274, 0
+
+Knapsack Testing
+No. of Solution Systems, Trial, Pre-processing, Execution
+50, 0, 2540, 0
+50, 1, 206, 0
+50, 2, 207, 0
+50, 3, 510, 0
+50, 4, 264, 0
+
+100, 0, 273, 0
