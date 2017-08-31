@@ -9,6 +9,10 @@ import org.neo4j.driver.v1.GraphDatabase;
 import org.neo4j.driver.v1.Session;
 import org.neo4j.harness.junit.Neo4jRule;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+
 import static org.junit.Assert.*;
 
 /**
@@ -27,10 +31,38 @@ public class ExecuteTest {
                 .withEncryptionLevel(Config.EncryptionLevel.NONE).toConfig());
              Session session = driver.session()) {
 
-            session.run("CALL graphEngine.loadProbability(1000, 1000)");
+            int[] nDataSystems = {1000, 2000, 4000, 8000, 16000};
 
-            session.run("CALL graphEngine.runProbability(100000)");
+            File file = new File("sc3-probability-execution.csv");
+            BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
 
+            writer.append("SC3 Probability\n");
+            writer.append("nDataSystems,trial,execution time\n");
+
+            StopWatch timer = new StopWatch();
+
+            for (int n = 0; n < nDataSystems.length; n++) {
+                for (int trial = 0; trial < 10; trial++) {
+
+                    // load graph
+                    session.run("CALL graphEngine.loadProbability(" + nDataSystems[n] + ", " + nDataSystems[n] + ");");
+
+                    // execute
+                    timer.reset();
+                    timer.start();
+                    session.run("CALL graphEngine.runProbability(10000);");
+                    timer.stop();
+
+                    // log
+                    writer.append(String.format("%d,%d,%d\n", nDataSystems[n], trial, timer.getTime()));
+                    writer.flush();
+
+                    // delete database
+                    session.run("match (n) detach delete n;");
+                }
+            }
+
+            writer.close();
         }
     }
 
