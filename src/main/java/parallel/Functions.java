@@ -160,9 +160,9 @@ public class Functions {
         newArray[oldArray.length] = nodeID;
         manager.nodesContainedInScope.replace(scopeID, newArray);
 
-        oldArray = manager.parentScopes.get(nodeID);
-        newArray = Arrays.copyOf(oldArray, oldArray.length + 1);
-        newArray[oldArray.length] = scopeID;
-        manager.parentScopes.replace(nodeID, newArray);
+//        oldArray = manager.parentScopes.get(nodeID);
+//        newArray = Arrays.copyOf(oldArray, oldArray.length + 1);
+//        newArray[oldArray.length] = scopeID;
+//        manager.parentScopes.replace(nodeID, newArray);
     }
 }

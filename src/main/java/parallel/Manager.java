@@ -51,10 +51,10 @@ public class Manager {
     // ONLY USED IN PRODUCER TO GET RANDOM CONTEXT
     ContextEntry[] contextArray;
 
-    Long[] allNodeIDs;
+//    Long[] allNodeIDs;
 
     ConcurrentHashMap<Long,Long[]> nodesContainedInScope;
-    ConcurrentHashMap<Long, Long[]> parentScopes;
+//    ConcurrentHashMap<Long, Long[]> parentScopes;
 
     // USED FOR TESTING
     volatile StringBuilder timingLog = new StringBuilder();
@@ -151,30 +151,30 @@ public class Manager {
             });
 
             // for every system create an array for the scopes it is in
-            totalNoOfNodes = (int) db.getAllNodes().stream().count();
-            parentScopes = new ConcurrentHashMap<>((totalNoOfNodes * 3) / 2);
-
-            db.getAllNodes().forEach(node -> {
-
-                ArrayList<Long> parents = new ArrayList<>();
-                ((ResourceIterator<Relationship>)
-                        node.getRelationships(Components.CONTAINS, Direction.INCOMING).iterator()).stream()
-                        .map(Relationship::getStartNode)
-                        .forEach(scope -> parents.add(scope.getId()));
-
-                Long[] parentsArray = new Long[parents.size()];
-                parents.toArray(parentsArray);
-                parentScopes.put(node.getId(), parentsArray);
-            });
+//            totalNoOfNodes = (int) db.getAllNodes().stream().count();
+//            parentScopes = new ConcurrentHashMap<>((totalNoOfNodes * 3) / 2);
+//
+//            db.getAllNodes().forEach(node -> {
+//
+//                ArrayList<Long> parents = new ArrayList<>();
+//                ((ResourceIterator<Relationship>)
+//                        node.getRelationships(Components.CONTAINS, Direction.INCOMING).iterator()).stream()
+//                        .map(Relationship::getStartNode)
+//                        .forEach(scope -> parents.add(scope.getId()));
+//
+//                Long[] parentsArray = new Long[parents.size()];
+//                parents.toArray(parentsArray);
+//                parentScopes.put(node.getId(), parentsArray);
+//            });
 
             // create an array of all node IDs
-            ArrayList<Long> allNodes = new ArrayList<>();
-            db.getAllNodes().stream()
-                    .map(Node::getId)
-                    .forEach(allNodes::add);
-
-            allNodeIDs = new Long[allNodes.size()];
-            allNodes.toArray(allNodeIDs);
+//            ArrayList<Long> allNodes = new ArrayList<>();
+//            db.getAllNodes().stream()
+//                    .map(Node::getId)
+//                    .forEach(allNodes::add);
+//
+//            allNodeIDs = new Long[allNodes.size()];
+//            allNodes.toArray(allNodeIDs);
 
         tx.success();
         setupTimer.stop();
