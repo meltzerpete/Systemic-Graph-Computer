@@ -23,18 +23,19 @@ public class Functions {
     int[] v = {20,14,12,9,5,17,7,6,1,11,4,19,13,2,15,3};
 
     public BiConsumer<Node, Node> getFunction(String functionName) {
+
         switch (functionName) {
             case "INITIALIZE": return initialize;
             case "BINARYMUTATE": return binaryMutate;
             case "ONEPOINTCROSS": return onePointCross;
             case "UNIFORMCROSS": return uniformCross;
             case "OUTPUT": return output;
-            //TODO
             default: throw new AssertionError("Invalid Function Code");
         }
     }
 
     BiConsumer<Node, Node> initialize = (s1, s2) -> {
+
         // create random char for uninitialized system
         char randomChar = (char) (ThreadLocalRandom.current().nextInt((int) Math.pow(2, 16)));
         char x = guard(randomChar);
@@ -49,6 +50,7 @@ public class Functions {
     };
 
     BiConsumer<Node, Node> binaryMutate = (s1, s2) -> {
+
         for (Node s : new Node[]{s1, s2}) {
 
             // flip random bit
@@ -62,6 +64,7 @@ public class Functions {
     };
 
     BiConsumer<Node, Node> onePointCross = (s1, s2) -> {
+
         char p1 = (char) s1.getProperty(Components.data);
         char p2 = (char) s2.getProperty(Components.data);
 
@@ -78,6 +81,7 @@ public class Functions {
     };
 
     BiConsumer<Node, Node> uniformCross = (s1, s2) -> {
+
         char p1 = (char) s1.getProperty(Components.data);
         char p2 = (char) s2.getProperty(Components.data);
 
@@ -92,6 +96,7 @@ public class Functions {
     };
 
     BiConsumer<Node, Node> output = (s1, s2) -> {
+
         if (!s1.hasProperty(Components.data))
             s1.setProperty(Components.data, (char) 0x0000);
 
@@ -135,22 +140,16 @@ public class Functions {
 
     private char guard(char x) {
 
-        //TODO random or systematic?
         while (weight(x) > W) {
-
             char bitMask = (char) (0xffff ^ ((char) (0x0001 << ThreadLocalRandom.current().nextInt( 16))));
             x &= bitMask;
-
         }
+
         return x;
     }
 
-    //TODO function to change scope of node
-//    private void removeFromScope(Node scope, Node node) {
-//        scope.get
-//    }
-
     private void addToScope(Node scope, Node node) {
+
         scope.createRelationshipTo(node, Components.CONTAINS);
         long scopeID = scope.getId();
         long nodeID = node.getId();
@@ -159,10 +158,5 @@ public class Functions {
         Long[] newArray = Arrays.copyOf(oldArray, oldArray.length + 1);
         newArray[oldArray.length] = nodeID;
         manager.nodesContainedInScope.replace(scopeID, newArray);
-
-//        oldArray = manager.parentScopes.get(nodeID);
-//        newArray = Arrays.copyOf(oldArray, oldArray.length + 1);
-//        newArray[oldArray.length] = scopeID;
-//        manager.parentScopes.replace(nodeID, newArray);
     }
 }

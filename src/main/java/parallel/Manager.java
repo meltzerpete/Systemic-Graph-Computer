@@ -30,12 +30,8 @@ import static graphEngine.Components.CONTAINS;
  */
 public class Manager {
 
-    final int MAX_INTERACTIONS;
-    final int QUEUE_SIZE;
-    final int NO_OF_CONSUMERS;
-    final int NO_OF_PRODUCERS;
-
-    int totalNoOfNodes;
+    private final int NO_OF_CONSUMERS;
+    private final int NO_OF_PRODUCERS;
 
     final ReentrantLock consumerMutex;
     final AtomicInteger upCounter;
@@ -51,30 +47,30 @@ public class Manager {
     // ONLY USED IN PRODUCER TO GET RANDOM CONTEXT
     ContextEntry[] contextArray;
 
-//    Long[] allNodeIDs;
-
     ConcurrentHashMap<Long,Long[]> nodesContainedInScope;
-//    ConcurrentHashMap<Long, Long[]> parentScopes;
 
     // USED FOR TESTING
     volatile StringBuilder timingLog = new StringBuilder();
 
 
     public Manager(int MAX_INTERACTIONS, int QUEUE_SIZE, int NO_OF_CONSUMERS, int NO_OF_PRODUCERS, GraphDatabaseService db) {
-        this.MAX_INTERACTIONS = MAX_INTERACTIONS;
-        this.QUEUE_SIZE = QUEUE_SIZE;
         this.NO_OF_CONSUMERS = NO_OF_CONSUMERS;
         this.NO_OF_PRODUCERS = NO_OF_PRODUCERS;
         this.db = db;
-        tripletQueue = new ArrayBlockingQueue<>(this.QUEUE_SIZE);
-        count = new CountDownLatch(this.MAX_INTERACTIONS);
+        tripletQueue = new ArrayBlockingQueue<>(QUEUE_SIZE);
+        count = new CountDownLatch(MAX_INTERACTIONS);
         run = new AtomicBoolean(true);
         consumerMutex = new ReentrantLock();
         upCounter = new AtomicInteger(0);
     }
 
     public Manager(int MAX_INTERACTIONS, GraphDatabaseService db) {
-        this(MAX_INTERACTIONS, 20, 200, 2, db);
+
+        this(MAX_INTERACTIONS,
+                20,
+                200,
+                2,
+                db);
     }
 
     /**
@@ -82,7 +78,7 @@ public class Manager {
      * @param node {@link Node} for which to find containing scopes
      * @return {@link Stream} of scope {@link Node}s
      */
-    Stream<Node> getParentScopes(Node node) {
+    private Stream<Node> getParentScopes(Node node) {
         ResourceIterator<Relationship> relationships =
                 (ResourceIterator<Relationship>) node.getRelationships(CONTAINS, Direction.INCOMING).iterator();
 
@@ -150,35 +146,9 @@ public class Manager {
                 nodesContainedInScope.put(scope.getId(), containedNodesArray);
             });
 
-            // for every system create an array for the scopes it is in
-//            totalNoOfNodes = (int) db.getAllNodes().stream().count();
-//            parentScopes = new ConcurrentHashMap<>((totalNoOfNodes * 3) / 2);
-//
-//            db.getAllNodes().forEach(node -> {
-//
-//                ArrayList<Long> parents = new ArrayList<>();
-//                ((ResourceIterator<Relationship>)
-//                        node.getRelationships(Components.CONTAINS, Direction.INCOMING).iterator()).stream()
-//                        .map(Relationship::getStartNode)
-//                        .forEach(scope -> parents.add(scope.getId()));
-//
-//                Long[] parentsArray = new Long[parents.size()];
-//                parents.toArray(parentsArray);
-//                parentScopes.put(node.getId(), parentsArray);
-//            });
-
-            // create an array of all node IDs
-//            ArrayList<Long> allNodes = new ArrayList<>();
-//            db.getAllNodes().stream()
-//                    .map(Node::getId)
-//                    .forEach(allNodes::add);
-//
-//            allNodeIDs = new Long[allNodes.size()];
-//            allNodes.toArray(allNodeIDs);
-
-        tx.success();
-        setupTimer.stop();
-        System.out.println(String.format("setup: %,d x 10e-9 s", setupTimer.getNanoTime()));
+            tx.success();
+            setupTimer.stop();
+            System.out.println(String.format("setup: %,d x 10e-9 s", setupTimer.getNanoTime()));
         }
 
 
@@ -220,19 +190,15 @@ public class Manager {
             writer.append(timingLog);
             writer.close();
 
-        } catch (NullPointerException | IllegalThreadStateException | InterruptedException e) {
-            //ignore exception
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (NullPointerException | IllegalThreadStateException | InterruptedException | IOException e) {
             e.printStackTrace();
         } finally {
             System.out.println("TERMINATING");
             System.out.println(String.format("Time: %,d x 10e-3 s", timer.getTime()));
         }
-
-
     }
 
+    // for debugging
     void printQueue() {
         int pos = 0;
         tripletQueue.forEach(triplet -> {
@@ -242,10 +208,11 @@ public class Manager {
 
     boolean matchNode(NodeMatch queryNode, Node targetNode) {
 
-        // check labels & properties
+        // check labels
         if (!queryNode.getLabels().parallelStream().allMatch(targetNode::hasLabel))
             return false;
 
+        // check properties
         return queryNode.getProperties().parallelStream()
                 .allMatch(objectPropertyPair ->
                         targetNode.getProperty(objectPropertyPair.getKey(), objectPropertyPair.getValue()) != null

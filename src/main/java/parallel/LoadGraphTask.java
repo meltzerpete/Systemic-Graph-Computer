@@ -9,8 +9,8 @@ import org.neo4j.graphdb.Transaction;
  */
 public class LoadGraphTask implements Runnable {
 
-    GraphDatabaseService db;
-    int numDataSystems;
+    private GraphDatabaseService db;
+    private int numDataSystems;
 
     public LoadGraphTask(GraphDatabaseService db, int numDataSystems) {
         this.db = db;

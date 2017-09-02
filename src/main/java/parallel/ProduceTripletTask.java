@@ -21,39 +21,36 @@ public class ProduceTripletTask implements Runnable {
     @SuppressWarnings("unchecked cast")
     public void run() {
         HashSet<Long> visited = new HashSet<>();
+
         try (Transaction tx = manager.db.beginTx()) {
-        while(manager.run.get()) {
 
-            ContextEntry contextEntry = manager.contextArray[ThreadLocalRandom.current().nextInt(manager.contextArray.length)];
-            Long[] containedIDs = manager.nodesContainedInScope.get(contextEntry.scope);
+            while(manager.run.get()) {
 
-            long s1Match = -1;
-            long s2Match = -1;
+                ContextEntry contextEntry = manager.contextArray[ThreadLocalRandom.current().nextInt(manager.contextArray.length)];
+                Long[] containedIDs = manager.nodesContainedInScope.get(contextEntry.scope);
 
-            visited.clear();
-            int visitedCount = 0;
+                long s1Match = -1;
+                long s2Match = -1;
 
-            while (visitedCount < containedIDs.length) {
+                visited.clear();
+                int visitedCount = 0;
 
-                // get random targetID
-                long targetID = containedIDs[ThreadLocalRandom.current().nextInt(containedIDs.length)];
-                if (!visited.add(targetID)) continue;
+                while (visitedCount < containedIDs.length) {
 
-                visitedCount++;
+                    // get random targetID
+                    long targetID = containedIDs[ThreadLocalRandom.current().nextInt(containedIDs.length)];
+                    if (!visited.add(targetID)) continue;
 
-                // if target is the context try next target
-                if (targetID == contextEntry.context) {
-                    continue;
-                }
+                    visitedCount++;
 
-                // if target is currently locked try next target
-//                if (!manager.producerLocks.get(targetID).tryLock()) continue;
-
+                    // if target is the context try next target
+                    if (targetID == contextEntry.context) {
+                        continue;
+                    }
 
                     // S1
                     // check node matches properties, labels etc.
                     Node s1Node = manager.db.getNodeById(targetID);
-//                    tx.acquireReadLock(s1Node);
                     if (s1Match < 0 && manager.matchNode(contextEntry.s1, s1Node)) {
                         // match
                         s1Match = targetID;
@@ -63,31 +60,24 @@ public class ProduceTripletTask implements Runnable {
                     // S2
                     // check node matches properties, labels etc.
                     Node s2Node = manager.db.getNodeById(targetID);
-//                    tx.acquireReadLock(s2Node);
                     if (s2Match < 0 && manager.matchNode(contextEntry.s2, s2Node)) {
                         // match
                         s2Match = targetID;
                     }
 
+                    if (s1Match >= 0 && s2Match >= 0) break;
+                }
 
                 if (s1Match >= 0 && s2Match >= 0) {
-                    break;
+                    // match found - add to tripletQueue
+                    Triplet triplet = new Triplet(contextEntry, s1Match, s2Match);
+                    try {
+                        manager.tripletQueue.put(triplet);
+                    } catch (InterruptedException e) {
+                        System.out.println("Task on thread " + Thread.currentThread().getId() + " interrupted.");
+                    }
                 }
             }
-
-            if (s1Match >= 0 && s2Match >= 0) {
-                // match found - add to tripletQueue
-                Triplet triplet = new Triplet(contextEntry, s1Match, s2Match);
-                try {
-//                    System.out.println("queue: " + manager.tripletQueue.size());
-                    manager.tripletQueue.put(triplet);
-                } catch (InterruptedException e) {
-                    System.out.println("Task on thread " + Thread.currentThread().getId() + " interrupted.");
-                }
-            }
-        }
-        } finally {
-//                    manager.producerLocks.get(targetID).unlock();
         }
     }
 }
