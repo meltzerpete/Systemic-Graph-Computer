@@ -14,7 +14,7 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class Manager {
 
-    int MAX_INTERACTIONS;
+    private int MAX_INTERACTIONS;
     GraphDatabaseService db;
     long[] arrayOfScopeIDs;
     ConcurrentHashMap<Long,Long[]> nodesContainedInScope;
@@ -66,12 +66,11 @@ public class Manager {
             arrayListOfScopes.toArray(objectLongArrayOfScopes);
             arrayOfScopeIDs = ArrayUtils.toPrimitive(objectLongArrayOfScopes);
 
-//            tx.success();
-//        }
-
         Functions functions = new Functions(this);
 
         int count = 0;
+
+        // EXECUTION
 
         while (count < MAX_INTERACTIONS) {
             int index = ThreadLocalRandom.current().nextInt(arrayOfScopeIDs.length);

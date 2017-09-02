@@ -31,7 +31,7 @@ public class ExecuteTest {
                 .withEncryptionLevel(Config.EncryptionLevel.NONE).toConfig());
              Session session = driver.session()) {
 
-            int[] nDataSystems = {1000, 2000, 4000, 8000, 16000};
+            int[] nDataSystems = {50, 100, 200, 400, 800, 1000, 2000, 4000, 8000, 16000};
 
             File file = new File("sc3-probability-execution.csv");
             BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
@@ -44,6 +44,7 @@ public class ExecuteTest {
             for (int n = 0; n < nDataSystems.length; n++) {
                 for (int trial = 0; trial < 10; trial++) {
 
+                    System.out.println(String.format("%d solution systems, trial: %d", nDataSystems[n], trial));
                     // load graph
                     session.run("CALL graphEngine.loadProbability(" + nDataSystems[n] + ", " + nDataSystems[n] + ");");
 
