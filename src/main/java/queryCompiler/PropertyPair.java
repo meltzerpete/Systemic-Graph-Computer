@@ -3,7 +3,7 @@ package queryCompiler;
 /**
  * Created by Pete Meltzer on 24/07/17.
  */
-public class PropertyPair<T> {
+class PropertyPair<T> {
 
     private String key;
     private T value;

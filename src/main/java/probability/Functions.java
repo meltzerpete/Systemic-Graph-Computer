@@ -3,7 +3,6 @@ package probability;
 import graphEngine.Components;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
 
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
@@ -22,15 +21,15 @@ class Functions {
                 functions = new BiConsumer[]{initialize, binaryMutate, onePointCross, uniformCross, output};
     }
 
-    private BiConsumer<Node,Node>[] functions;
+    private final BiConsumer<Node,Node>[] functions;
 
     // extra labels
     final Label INITIALIZED = Label.label("Initialized");
     final Label UNINITIALIZED = Label.label("Uninitialized");
 
-    int W = 80;
-    int[] w = {15,20,1,3,8,2,16,17,11,19,10,5,18,4,7,9};
-    int[] v = {20,14,12,9,5,17,7,6,1,11,4,19,13,2,15,3};
+    private final int W = 80;
+    private final int[] w = {15,20,1,3,8,2,16,17,11,19,10,5,18,4,7,9};
+    private final int[] v = {20,14,12,9,5,17,7,6,1,11,4,19,13,2,15,3};
 
     /**
      * Performs a transformation function on s1 and s2 nodes
@@ -84,7 +83,7 @@ class Functions {
         return true;
     }
 
-    BiConsumer<Node, Node> initialize = (s1, s2) -> {
+    private final BiConsumer<Node, Node> initialize = (s1, s2) -> {
         // create random char for uninitialized system
 
         for (Node s : new Node[]{s1, s2}) {
@@ -98,7 +97,7 @@ class Functions {
 
     };
 
-    BiConsumer<Node, Node> binaryMutate = (s1, s2) -> {
+    private final BiConsumer<Node, Node> binaryMutate = (s1, s2) -> {
         for (Node s : new Node[]{s1, s2}) {
 
             // flip random bit
@@ -111,7 +110,7 @@ class Functions {
         }
     };
 
-    BiConsumer<Node, Node> onePointCross = (s1, s2) -> {
+    private final BiConsumer<Node, Node> onePointCross = (s1, s2) -> {
         char p1 = (char) s1.getProperty(Components.data);
         char p2 = (char) s2.getProperty(Components.data);
 
@@ -127,7 +126,7 @@ class Functions {
         s2.setProperty(Components.data, guard(c2));
     };
 
-    BiConsumer<Node, Node> uniformCross = (s1, s2) -> {
+    private final BiConsumer<Node, Node> uniformCross = (s1, s2) -> {
         char p1 = (char) s1.getProperty(Components.data);
         char p2 = (char) s2.getProperty(Components.data);
 
@@ -141,7 +140,7 @@ class Functions {
         s2.setProperty(Components.data, guard(c2));
     };
 
-    BiConsumer<Node, Node> output = (fittestNode, otherNode) -> {
+    private final BiConsumer<Node, Node> output = (fittestNode, otherNode) -> {
 
         if (!fittestNode.hasProperty(Components.data))
             fittestNode.setProperty(Components.data, (char) 0x0000);

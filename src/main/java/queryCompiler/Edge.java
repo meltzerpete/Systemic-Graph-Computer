@@ -8,7 +8,7 @@ import java.util.LinkedList;
 /**
  * Created by Pete Meltzer on 25/07/17.
  */
-public class Edge {
+class Edge {
 
     @Override
     public String toString() {

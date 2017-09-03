@@ -16,12 +16,12 @@ import static queryCompiler.Tokens.*;
  * Created by Pete Meltzer on 25/07/17.
  * http://cogitolearning.co.uk/?p=573
  */
-public class Parser {
+class Parser {
 
     private int count;
 
     private LinkedList<Token> tokens;
-    Token lookahead;
+    private Token lookahead;
 
     private HashMap<String, Vertex> vertices = new HashMap<>();
 

@@ -12,11 +12,11 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Created by Pete Meltzer on 14/08/17.
  */
-public class Manager {
+class Manager {
 
-    private int MAX_INTERACTIONS;
+    private final int MAX_INTERACTIONS;
     GraphDatabaseService db;
-    long[] arrayOfScopeIDs;
+    private long[] arrayOfScopeIDs;
     ConcurrentHashMap<Long,Long[]> nodesContainedInScope;
 
     public Manager(int MAX_INTERACTIONS, GraphDatabaseService db) {

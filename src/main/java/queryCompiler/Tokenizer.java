@@ -9,14 +9,14 @@ import java.util.regex.Pattern;
  * http://cogitolearning.co.uk/?p=525
  */
 
-public class Tokenizer
+class Tokenizer
 {
     private class TokenInfo
     {
-        public final Pattern regex;
-        public final Tokens token;
+        final Pattern regex;
+        final Tokens token;
 
-        public TokenInfo(Pattern regex, Tokens token)
+        TokenInfo(Pattern regex, Tokens token)
         {
             super();
             this.regex = regex;

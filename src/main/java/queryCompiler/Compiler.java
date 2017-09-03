@@ -9,7 +9,7 @@ import static queryCompiler.Tokens.*;
 /**
  * Created by Pete Meltzer on 24/07/17.
  */
-public class Compiler {
+class Compiler {
 
     private Tokenizer tokenizer = new Tokenizer();
 
