@@ -1,5 +1,6 @@
-package graphEngine;
+package parallel;
 
+import graphEngine.TestGraphQueries;
 import org.apache.commons.lang3.time.StopWatch;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;
@@ -90,42 +91,6 @@ public class Execute {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-    }
-
-    @Procedure(value = "graphEngine.execute", mode = SCHEMA)
-    public void execute(@Name("Max no. of interactions") long maxInteractions) {
-
-        Computer SC = new Computer(db);
-        SC.compute((int) maxInteractions);
-
-        //TODO deal with return
-    }
-
-    @Procedure(value = "graphEngine.preProcess", mode = SCHEMA)
-    public void preProcess() {
-
-        Computer SC = new Computer(db);
-        SC.preProcess();
-
-        //TODO deal with return
-    }
-
-    @Procedure(value = "graphEngine.loadMany", mode = SCHEMA)
-    public void loadMany(@Name("No. of graphs") long graphs) {
-
-        for (int i = 0; i < (int) graphs; i++)
-            db.execute(TestGraphQueries.terminatingProgram);
-
-        //TODO deal with return
-    }
-
-    @Procedure(value = "graphEngine.loadManyQuery", mode = SCHEMA)
-    public void loadManyQuery(@Name("No. of graphs") long graphs) {
-
-        for (int i = 0; i < (int) graphs; i++)
-            db.execute(TestGraphQueries.terminatingProgramWithQueryMatching);
-
-        //TODO deal with return
     }
 
     @Procedure(value = "graphEngine.loadParallel", mode = SCHEMA)
