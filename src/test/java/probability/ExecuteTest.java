@@ -26,7 +26,7 @@ public class ExecuteTest {
 
 
     @Test
-    public void executeParallel() throws Throwable {
+    public void executeProbability() throws Throwable {
         try (Driver driver = GraphDatabase.driver(neo4j.boltURI(), Config.build()
                 .withEncryptionLevel(Config.EncryptionLevel.NONE).toConfig());
              Session session = driver.session()) {

@@ -12,12 +12,12 @@ import java.util.function.BiConsumer;
 /**
  * Created by Pete Meltzer on 06/08/17.
  */
-public class Functions {
+class Functions {
 
     private final Manager manager;
 
     @SuppressWarnings("unchecked")
-    public Functions(Manager manager) {
+    Functions(Manager manager) {
         this.manager = manager;
                 functions = new BiConsumer[]{initialize, binaryMutate, onePointCross, uniformCross, output};
     }
@@ -32,8 +32,19 @@ public class Functions {
     int[] w = {15,20,1,3,8,2,16,17,11,19,10,5,18,4,7,9};
     int[] v = {20,14,12,9,5,17,7,6,1,11,4,19,13,2,15,3};
 
+    /**
+     * Performs a transformation function on s1 and s2 nodes
+     * based on the calculated probabilities. Returns {@code false}
+     * if no transformation is possible, and {@code true} when
+     * successful.
+     *
+     * @param s1ID ID of first Node
+     * @param s2ID ID of second Node
+     * @return {@code true} on success, {@code false} on failure
+     */
     public boolean interact(long s1ID, long s2ID) {
 
+        // get the nodes
         Node nodeA = manager.db.getNodeById(s1ID);
         Node nodeB = manager.db.getNodeById(s2ID);
 
@@ -43,28 +54,29 @@ public class Functions {
         int[] distA = (int[]) nodeA.getProperty(Components.distributionA);
         int[] distB = (int[]) nodeB.getProperty(Components.distributionB);
 
-        int[] diagonalAB = new int[distA.length];
-        int diagonalSum = 0;
+        int[] hadamardAB = new int[distA.length];
+        int dotProduct = 0;
         for (int i = 0; i < distA.length; i++) {
             int product = distA[i] * distB[i];
-            diagonalAB[i] = product;
-            diagonalSum += product;
+            hadamardAB[i] = product;
+            dotProduct += product;
         }
 
-        if (diagonalSum == 0) return false;
+        // all probabilities are 0
+        if (dotProduct == 0) return false;
 
-        int offset = ThreadLocalRandom.current().nextInt(diagonalSum);
+        // select and perform the function with the relative probabilities
+        int offset = ThreadLocalRandom.current().nextInt(dotProduct);
 
         int funcIndex;
+        for (funcIndex = 0; funcIndex < hadamardAB.length; funcIndex++) {
 
-        for (funcIndex = 0; funcIndex < diagonalAB.length; funcIndex++) {
-            if (diagonalAB[funcIndex] == 0) continue;
+            if (hadamardAB[funcIndex] == 0) continue;
 
-            if (offset == 0) {
-                break;
-            }
+            offset -= hadamardAB[funcIndex];
 
-            offset -= diagonalAB[funcIndex];
+            if (offset < 0) break;
+
         }
 
         functions[funcIndex].accept(nodeA, nodeB);
