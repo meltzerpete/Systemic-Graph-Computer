@@ -109,6 +109,8 @@ public class Functions {
                     "Fittest solution (compare against %d) - weight: %d, value: %d, solution: %s",
                     fitness(fittest), weight(other), fitness(other), Integer.toBinaryString(other)
             ));
+        } else {
+            s2.setProperty(Components.data, fittest);
         }
     };
 

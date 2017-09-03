@@ -56,7 +56,7 @@ public class ExecuteTest {
 
             GraphDatabaseService db = neo4j.getGraphDatabaseService();
 
-            int[] noOfDataSystems = {1000};
+            int[] noOfDataSystems = {50, 100, 200, 400, 800, 1000};
 
             File file = new File("sc2-knapsack.csv");
             FileWriter fwriter = new FileWriter(file,true);

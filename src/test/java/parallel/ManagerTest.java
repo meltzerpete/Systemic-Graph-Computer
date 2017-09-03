@@ -39,7 +39,7 @@ public class ManagerTest {
 
                 // scopes
                 Node main = db.createNode(Components.SCOPE);
-                Node computation = db.createNode(Components.SCOPE, Label.label("Computation"));
+                Node computation = db.createNode(Components.SCOPE, Components.COMPUTATION);
 
                 // contexts
                 Node initializer = db.createNode(Components.CONTEXT);
@@ -77,12 +77,12 @@ public class ManagerTest {
 
                 // data nodes
                 for (int i = 0; i < noOfDataSystems; i++) {
-                    Node data = db.createNode(Label.label("Data"), Label.label("Uninitialized"));
+                    Node data = db.createNode(Components.DATA, Components.UNINITIALIZED);
                     main.createRelationshipTo(data, Components.CONTAINS);
                 }
 
                 // fittest solution
-                Node fittest = db.createNode(Label.label("Data"), Label.label("Fittest"));
+                Node fittest = db.createNode(Components.DATA, Components.FITTEST);
                 main.createRelationshipTo(fittest, Components.CONTAINS);
 
 
