@@ -12,6 +12,7 @@ import org.neo4j.harness.junit.Neo4jRule;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.Assert.*;
 
@@ -67,4 +68,69 @@ public class ExecuteTest {
         }
     }
 
+    static int W = 80;
+    static int[] w = {15,20,1,3,8,2,16,17,11,19,10,5,18,4,7,9};
+    static int[] v = {20,14,12,9,5,17,7,6,1,11,4,19,13,2,15,3};
+
+    private static int fitness(char x) {
+
+        int value = 0;
+        char bitMask = 0x8000;
+
+        for (int i = 0; i < 16; i++) {
+            if ((x & bitMask) != 0) value += v[i];
+            bitMask = (char) (bitMask >>> 1);
+        }
+
+        return value;
+    }
+
+    private static int weight(char x) {
+
+        int value = 0;
+        char bitMask = 0x8000;
+
+        for (int i = 0; i < 16; i++) {
+            if ((x & bitMask) != 0) value += w[i];
+            bitMask = (char) (bitMask >>> 1);
+        }
+
+        return value;
+    }
+
+    private static char guard(char x) {
+
+        while (weight(x) > W) {
+
+            char bitMask = (char) (0xffff ^ ((char) (0x0001 << ThreadLocalRandom.current().nextInt( 16))));
+            x &= bitMask;
+
+        }
+        return x;
+    }
+
+    @Test
+    public void solutions() throws Throwable {
+
+        for (int t = 0; t < 10; t++) {
+            StopWatch timer = new StopWatch();
+            timer.start();
+            int possible = 0;
+            char solution = 0x0000;
+            char best = 0x0000;
+
+            for (int i = 0; i < (int) 0xffff; i++) {
+                if (guard(solution) == solution) {
+                    possible++;
+                    if (fitness(solution) > best) best = solution;
+                }
+                solution++;
+            }
+            timer.stop();
+
+            System.out.println(String.format("%,d x 10e-3 s", timer.getTime()));
+            System.out.println(possible + " out of " + (int) Math.pow(2, 16));
+            System.out.println(fitness(best) + " - " + Integer.toBinaryString(best));
+        }
+    }
 }

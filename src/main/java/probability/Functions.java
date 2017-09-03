@@ -199,7 +199,6 @@ class Functions {
 
     private char guard(char x) {
 
-        //TODO random or systematic?
         while (weight(x) > W) {
 
             char bitMask = (char) (0xffff ^ ((char) (0x0001 << ThreadLocalRandom.current().nextInt( 16))));

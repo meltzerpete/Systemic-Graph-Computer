@@ -29,8 +29,8 @@ public class Execute {
     @Context
     public Log log;
 
-    @Procedure(value = "graphEngine.probability", mode = SCHEMA)
-    public void probability() {
+    @Procedure(value = "graphEngine.sc3Knapsack", mode = SCHEMA)
+    public void sc3Knapsack() {
 
         try (Transaction tx = db.beginTx()) {
             int[] nDataSystems = {50, 100, 200, 400, 800, 1000, 2000, 4000, 8000, 16000};
