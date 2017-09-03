@@ -163,9 +163,11 @@ class Functions {
         if (fitness(other) > fitness(fittest)) {
             fittestNode.setProperty(Components.data, other);
             System.out.println(String.format(
-                    "Fittest solution (compare against %d) - weight: %d, value: %d, solution: %s",
-                    fitness(fittest), weight(other), fitness(other), Integer.toBinaryString(other)
+                    "Fittest solution - weight: %d, value: %d, solution: %s",
+                    weight(other), fitness(other), Integer.toBinaryString(other)
             ));
+        } else {
+            otherNode.setProperty(Components.data, fittest);
         }
     };
 
