@@ -190,6 +190,8 @@ enum Function {
                         "Fittest solution - weight: %d, value: %d, solution: %s",
                         weight(other), fitness(other), Integer.toBinaryString(other)
                 ));
+            } else {
+                s2.setProperty(Components.data, fittest);
             }
         }
     };

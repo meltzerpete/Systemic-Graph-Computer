@@ -131,33 +131,33 @@ public class ComputerTest {
 
                         // scopes
                         Node main = db.createNode(Components.SCOPE);
-                        Node computation = db.createNode(Components.SCOPE, Label.label("Computation"));
+                        Node computation = db.createNode(Components.SCOPE, Components.COMPUTATION);
 
                         // contexts
                         Node initializer = db.createNode(Components.CONTEXT);
                         initializer.setProperty(Components.function, "INITIALIZE");
-                        initializer.setProperty(Components.s1Query, "(:Uninitialized)");
-                        initializer.setProperty(Components.s2Query, "(:Computation)");
+                        initializer.setProperty(Components.s1Query, "(:UNINITIALIZED)");
+                        initializer.setProperty(Components.s2Query, "(:COMPUTATION)");
 
                         Node binMutate = db.createNode(Components.CONTEXT);
                         binMutate.setProperty(Components.function, "BINARYMUTATE");
-                        binMutate.setProperty(Components.s1Query, "(:Initialized)");
-                        binMutate.setProperty(Components.s2Query, "(:Initialized)");
+                        binMutate.setProperty(Components.s1Query, "(:INITIALIZED)");
+                        binMutate.setProperty(Components.s2Query, "(:INITIALIZED)");
 
                         Node onePointCross = db.createNode(Components.CONTEXT);
                         onePointCross.setProperty(Components.function, "ONEPOINTCROSS");
-                        onePointCross.setProperty(Components.s1Query, "(:Initialized)");
-                        onePointCross.setProperty(Components.s2Query, "(:Initialized)");
+                        onePointCross.setProperty(Components.s1Query, "(:INITIALIZED)");
+                        onePointCross.setProperty(Components.s2Query, "(:INITIALIZED)");
 
                         Node uniformCross = db.createNode(Components.CONTEXT);
                         uniformCross.setProperty(Components.function, "UNIFORMCROSS");
-                        uniformCross.setProperty(Components.s1Query, "(:Initialized)");
-                        uniformCross.setProperty(Components.s2Query, "(:Initialized)");
+                        uniformCross.setProperty(Components.s1Query, "(:INITIALIZED)");
+                        uniformCross.setProperty(Components.s2Query, "(:INITIALIZED)");
 
                         Node output = db.createNode(Components.CONTEXT);
                         output.setProperty(Components.function, "OUTPUT");
-                        output.setProperty(Components.s1Query, "(:Fittest)");
-                        output.setProperty(Components.s2Query, "(:Initialized)");
+                        output.setProperty(Components.s1Query, "(:FITTEST)");
+                        output.setProperty(Components.s2Query, "(:INITIALIZED)");
 
                         main.createRelationshipTo(output, Components.CONTAINS);
                         main.createRelationshipTo(initializer, Components.CONTAINS);
@@ -169,12 +169,12 @@ public class ComputerTest {
 
                         // data nodes
                         for (int i = 0; i < noOfDataSystems[n]; i++) {
-                            Node data = db.createNode(Label.label("Data"), Label.label("Uninitialized"));
+                            Node data = db.createNode(Components.DATA, Components.UNINITIALIZED);
                             main.createRelationshipTo(data, Components.CONTAINS);
                         }
 
                         // fittest solution
-                        Node fittest = db.createNode(Label.label("Data"), Label.label("Fittest"));
+                        Node fittest = db.createNode(Components.DATA, Components.FITTEST);
                         main.createRelationshipTo(fittest, Components.CONTAINS);
 
 
@@ -243,33 +243,33 @@ public class ComputerTest {
 
                         // scopes
                         Node main = db.createNode(Components.SCOPE);
-                        Node computation = db.createNode(Components.SCOPE, Label.label("Computation"));
+                        Node computation = db.createNode(Components.SCOPE, Label.label("COMPUTATION"));
 
                         // contexts
                         Node initializer = db.createNode(Components.CONTEXT);
                         initializer.setProperty(Components.function, "INITIALIZE");
-                        initializer.setProperty(Components.s1Query, "(:Uninitialized)");
-                        initializer.setProperty(Components.s2Query, "(:Computation)");
+                        initializer.setProperty(Components.s1Query, "(:UNINITIALIZED)");
+                        initializer.setProperty(Components.s2Query, "(:COMPUTATION)");
 
                         Node binMutate = db.createNode(Components.CONTEXT);
                         binMutate.setProperty(Components.function, "BINARYMUTATE");
-                        binMutate.setProperty(Components.s1Query, "(:Initialized)");
-                        binMutate.setProperty(Components.s2Query, "(:Initialized)");
+                        binMutate.setProperty(Components.s1Query, "(:INITIALIZED)");
+                        binMutate.setProperty(Components.s2Query, "(:INITIALIZED)");
 
                         Node onePointCross = db.createNode(Components.CONTEXT);
                         onePointCross.setProperty(Components.function, "ONEPOINTCROSS");
-                        onePointCross.setProperty(Components.s1Query, "(:Initialized)");
-                        onePointCross.setProperty(Components.s2Query, "(:Initialized)");
+                        onePointCross.setProperty(Components.s1Query, "(:INITIALIZED)");
+                        onePointCross.setProperty(Components.s2Query, "(:INITIALIZED)");
 
                         Node uniformCross = db.createNode(Components.CONTEXT);
                         uniformCross.setProperty(Components.function, "UNIFORMCROSS");
-                        uniformCross.setProperty(Components.s1Query, "(:Initialized)");
-                        uniformCross.setProperty(Components.s2Query, "(:Initialized)");
+                        uniformCross.setProperty(Components.s1Query, "(:INITIALIZED)");
+                        uniformCross.setProperty(Components.s2Query, "(:INITIALIZED)");
 
                         Node output = db.createNode(Components.CONTEXT);
                         output.setProperty(Components.function, "OUTPUT");
-                        output.setProperty(Components.s1Query, "(:Fittest)");
-                        output.setProperty(Components.s2Query, "(:Initialized)");
+                        output.setProperty(Components.s1Query, "(:FITTEST)");
+                        output.setProperty(Components.s2Query, "(:INITIALIZED)");
 
                         main.createRelationshipTo(output, Components.CONTAINS);
                         main.createRelationshipTo(initializer, Components.CONTAINS);
@@ -281,12 +281,12 @@ public class ComputerTest {
 
                         // data nodes
                         for (int i = 0; i < noOfDataSystems[n]; i++) {
-                            Node data = db.createNode(Label.label("Data"), Label.label("Uninitialized"));
+                            Node data = db.createNode(Label.label("Data"), Label.label("UNINITIALIZED"));
                             main.createRelationshipTo(data, Components.CONTAINS);
                         }
 
                         // fittest solution
-                        Node fittest = db.createNode(Label.label("Data"), Label.label("Fittest"));
+                        Node fittest = db.createNode(Label.label("Data"), Label.label("FITTEST"));
                         main.createRelationshipTo(fittest, Components.CONTAINS);
 
 
@@ -338,33 +338,33 @@ public class ComputerTest {
 //
 //                // scopes
 //                Node main = db.createNode(Components.SCOPE);
-//                Node computation = db.createNode(Components.SCOPE, Label.label("Computation"));
+//                Node computation = db.createNode(Components.SCOPE, Label.label("COMPUTATION"));
 //
 //                // contexts
 //                Node initializer = db.createNode(Components.CONTEXT);
 //                initializer.setProperty(Components.function, "INITIALIZE");
-//                initializer.setProperty(Components.s1Query, "(:Uninitialized)");
-//                initializer.setProperty(Components.s2Query, "(:Computation)");
+//                initializer.setProperty(Components.s1Query, "(:UNINITIALIZED)");
+//                initializer.setProperty(Components.s2Query, "(:COMPUTATION)");
 //
 //                Node binMutate = db.createNode(Components.CONTEXT);
 //                binMutate.setProperty(Components.function, "BINARYMUTATE");
-//                binMutate.setProperty(Components.s1Query, "(:Initialized)");
-//                binMutate.setProperty(Components.s2Query, "(:Initialized)");
+//                binMutate.setProperty(Components.s1Query, "(:INITIALIZED)");
+//                binMutate.setProperty(Components.s2Query, "(:INITIALIZED)");
 //
 //                Node onePointCross = db.createNode(Components.CONTEXT);
 //                onePointCross.setProperty(Components.function, "ONEPOINTCROSS");
-//                onePointCross.setProperty(Components.s1Query, "(:Initialized)");
-//                onePointCross.setProperty(Components.s2Query, "(:Initialized)");
+//                onePointCross.setProperty(Components.s1Query, "(:INITIALIZED)");
+//                onePointCross.setProperty(Components.s2Query, "(:INITIALIZED)");
 //
 //                Node uniformCross = db.createNode(Components.CONTEXT);
 //                uniformCross.setProperty(Components.function, "UNIFORMCROSS");
-//                uniformCross.setProperty(Components.s1Query, "(:Initialized)");
-//                uniformCross.setProperty(Components.s2Query, "(:Initialized)");
+//                uniformCross.setProperty(Components.s1Query, "(:INITIALIZED)");
+//                uniformCross.setProperty(Components.s2Query, "(:INITIALIZED)");
 //
 //                Node output = db.createNode(Components.CONTEXT);
 //                output.setProperty(Components.function, "OUTPUT");
-//                output.setProperty(Components.s1Query, "(:Fittest)");
-//                output.setProperty(Components.s2Query, "(:Initialized)");
+//                output.setProperty(Components.s1Query, "(:FITTEST)");
+//                output.setProperty(Components.s2Query, "(:INITIALIZED)");
 //
 //                main.createRelationshipTo(output, Components.CONTAINS);
 //                main.createRelationshipTo(initializer, Components.CONTAINS);
@@ -376,12 +376,12 @@ public class ComputerTest {
 //
 //                // data nodes
 //                for (int i = 0; i < noOfDataSystems; i++) {
-//                    Node data = db.createNode(Label.label("Data"), Label.label("Uninitialized"));
+//                    Node data = db.createNode(Label.label("Data"), Label.label("UNINITIALIZED"));
 //                    main.createRelationshipTo(data, Components.CONTAINS);
 //                }
 //
 //                // fittest solution
-//                Node fittest = db.createNode(Label.label("Data"), Label.label("Fittest"));
+//                Node fittest = db.createNode(Label.label("Data"), Label.label("FITTEST"));
 //                main.createRelationshipTo(fittest, Components.CONTAINS);
 //
 //
