@@ -91,7 +91,7 @@ class Functions {
             char randomChar = (char) (ThreadLocalRandom.current().nextInt((int) Math.pow(2, 16)));
             char x = guard(randomChar);
             s.setProperty(Components.data, x);
-            // change to initialized system by changing function probability distribution
+            // change to initialized system by changing function selection distribution
             s.setProperty(Components.distributionA, new int[]{0,1,1,1,0});
             s.setProperty(Components.distributionB, new int[]{0,1,1,1,1});
         }
@@ -141,18 +141,7 @@ class Functions {
         s2.setProperty(Components.data, guard(c2));
     };
 
-    BiConsumer<Node, Node> output = (s1, s2) -> {
-
-        Node fittestNode;
-        Node otherNode;
-
-        if (s1.hasLabel(Components.FITTEST)) {
-            fittestNode = s1;
-            otherNode = s2;
-        } else {
-            fittestNode = s2;
-            otherNode = s1;
-        }
+    BiConsumer<Node, Node> output = (fittestNode, otherNode) -> {
 
         if (!fittestNode.hasProperty(Components.data))
             fittestNode.setProperty(Components.data, (char) 0x0000);

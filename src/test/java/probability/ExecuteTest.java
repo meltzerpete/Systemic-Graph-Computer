@@ -34,7 +34,7 @@ public class ExecuteTest {
 
             int[] nDataSystems = {50, 100, 200, 400, 800, 1000, 2000, 4000, 8000, 16000};
 
-            File file = new File("sc3-probability-execution.csv");
+            File file = new File("sc3-selection-execution.csv");
             BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
 
             writer.append("SC3 Probability\n");

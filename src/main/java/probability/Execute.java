@@ -35,7 +35,7 @@ public class Execute {
         try (Transaction tx = db.beginTx()) {
             int[] nDataSystems = {50, 100, 200, 400, 800, 1000, 2000, 4000, 8000, 16000};
 
-            File file = new File("sc3-probability-execution.csv");
+            File file = new File("sc3-selection-execution.csv");
             BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
 
             writer.append("SC3 Probability\n");
@@ -92,9 +92,8 @@ public class Execute {
 
             // fittest solution
             Node fittest = db.createNode(Label.label("Data"), Components.FITTEST);
-            fittest.setProperty(Components.probability, (int) nFittest);
+            fittest.setProperty(Components.selection, (int) nFittest);
             fittest.setProperty(Components.distributionA, new int[]{0,0,0,0,1});
-            fittest.setProperty(Components.distributionB, new int[]{0,0,0,0,1});
             main.createRelationshipTo(fittest, Components.CONTAINS);
 
 

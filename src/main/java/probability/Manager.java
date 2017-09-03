@@ -45,8 +45,8 @@ public class Manager {
                         scope.getRelationships(Components.CONTAINS, Direction.OUTGOING).iterator()).stream()
                         .map(Relationship::getEndNode)
                         .forEach(node -> {
-                            if (node.hasProperty(Components.probability)) {
-                                int p = (int) node.getProperty(Components.probability);
+                            if (node.hasProperty(Components.selection)) {
+                                int p = (int) node.getProperty(Components.selection);
                                 for (int i = 0; i < p; i++) {
                                     containedNodesArrayList.add(node.getId());
                                 }
@@ -82,13 +82,13 @@ public class Manager {
             if (containedIDs.length < 2) continue;
 
             int s1IDIndex = ThreadLocalRandom.current().nextInt(containedIDs.length);
-            int s2IDIndex = ThreadLocalRandom.current().nextInt(containedIDs.length);
-
             long s1ID = containedIDs[s1IDIndex];
-            long s2ID = containedIDs[s2IDIndex];
+            long s2ID = s1ID;
 
-            while (s1ID == s2ID)
-                s2ID = containedIDs[(++s2IDIndex) % containedIDs.length];
+            while (s1ID == s2ID) {
+                int s2IDIndex = ThreadLocalRandom.current().nextInt(containedIDs.length);
+                s2ID = containedIDs[s2IDIndex];
+            }
 
             if (functions.interact(s1ID, s2ID)) {
                 count++;
