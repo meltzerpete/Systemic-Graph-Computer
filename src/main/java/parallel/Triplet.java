@@ -1,7 +1,5 @@
 package parallel;
 
-import org.apache.commons.lang3.tuple.Triple;
-
 /**
  * Created by Pete Meltzer on 05/08/17.
  */
