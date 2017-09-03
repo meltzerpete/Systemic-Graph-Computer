@@ -119,7 +119,7 @@ public class ExecuteTest {
             char solution = 0x0000;
             char best = 0x0000;
 
-            for (int i = 0; i < (int) 0xffff; i++) {
+            for (int i = 0; i < 0xffff; i++) {
                 if (guard(solution) == solution) {
                     possible++;
                     if (fitness(solution) > best) best = solution;
