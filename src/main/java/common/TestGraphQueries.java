@@ -1,7 +1,7 @@
-package graphEngine;
+package common;
 
+import common.Components;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.logging.Log;
 import org.neo4j.procedure.Context;
@@ -293,7 +293,3 @@ public class TestGraphQueries {
         db.execute(terminatingProgram);
     }
 }
-
-// s1Properties as kvPair
-// s1Labels
-// s1Relationships

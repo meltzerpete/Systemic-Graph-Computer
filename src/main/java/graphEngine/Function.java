@@ -1,6 +1,7 @@
 package graphEngine;
 
 
+import common.Components;
 import org.neo4j.graphdb.*;
 
 import java.util.Locale;

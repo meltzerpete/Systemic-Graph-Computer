@@ -1,11 +1,10 @@
 package graphEngine;
 
+import common.Components;
 import nodeParser.NodeMatch;
 import org.apache.commons.lang3.ArrayUtils;
 import org.neo4j.graphdb.*;
 import org.neo4j.helpers.collection.Iterators;
-import queryCompiler.Edge;
-import queryCompiler.Vertex;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -163,43 +162,8 @@ abstract class SCLabeler {
                 });
     }
 
-    private String queryBuilder(Node target, String queryString) {
-//        System.out.println("Checking " + context.getProperty("name") + " against " + other.getProperty("name"));
-
-        return "START n=node(" +
-                        target.getId() +
-                        ") MATCH " +
-                        queryString +
-                        " RETURN DISTINCT n LIMIT 1";
-//        System.out.println(queryString);
-//        return returnString;
-    }
-
-
-
     private void print(String string, Object... args) {
         System.out.println(String.format(string, args));
-    }
-
-    private boolean matchNode(Vertex vertex, Node node) {
-
-        // check labels & properties
-        if (vertex.getLabels().size() > 0 && !vertex.getLabels().stream().allMatch(node::hasLabel))
-            return false;
-
-        boolean match = vertex.getProperties().stream()
-                    .allMatch(objectPropertyPair ->
-                        node.getProperty(objectPropertyPair.getKey(), objectPropertyPair.getValue()) != null
-                    && node.getProperty(objectPropertyPair.getKey()).equals(objectPropertyPair.getValue()));
-
-
-        if (debug && match) {
-            print("matchNode: matching %s with %s", vertex.name, node.getProperty("name"));
-            print("vertex: %s", vertex.getProperties());
-            print("node: %s", node.getAllProperties());
-        }
-
-        return match;
     }
 
     private boolean matchNode(NodeMatch queryNode, Node targetNode) {
@@ -221,55 +185,6 @@ abstract class SCLabeler {
         }
 
         return match;
-    }
-
-    /**
-     * Checks for matching {@link RelationshipType} and Properties.
-     * Does not match relationship direction.
-     * @param edge compiled edge
-     * @param relationship target Relationship
-     * @return true if match
-     */
-    private boolean matchRelationship(Edge edge, Relationship relationship) {
-
-        // check type
-        RelationshipType edgeType = edge.getType();
-        if (edgeType != null && !edgeType.name().equals(relationship.getType().name()))
-            return false;
-
-        // check properties - if stream of edge properties is empty returns true
-        return edge.getProperties().stream()
-                    .allMatch(objectPropertyPair ->
-                        relationship.getProperty(objectPropertyPair.getKey(), objectPropertyPair.getValue()) != null
-                    && relationship.getProperty(objectPropertyPair.getKey()).equals(objectPropertyPair.getValue()));
-    }
-
-    /**
-     * Wrapper method to call recursive graph depth algorithm. Only calculates depth of
-     * OUTGOING relationships.
-     * @param n {@code Node} to calculate depth of
-     * @return depth of graph from given Node
-     */
-    private int getDepth(Node n) { return getDepth(n, new HashSet<>()); }
-
-    /**
-     * Auxiliary function for depth
-     * @param node start Node
-     * @param seen set of Nodes visited so far, should be initialised with empty set
-     * @return depth from given Node
-     */
-    private int getDepth(Node node, Set<Node> seen) {
-
-        if (seen.contains(node)) return 0;
-
-        seen.add(node);
-
-        ResourceIterator<Relationship> rels = (ResourceIterator<Relationship>) node.getRelationships(Direction.OUTGOING).iterator();
-
-        return rels.stream()
-                .map(Relationship::getEndNode)
-                .map(node1 -> getDepth(node1, seen) + 1)
-                .reduce(0, (n, m) -> n > m ? n : m);
     }
 
     /**

@@ -1,11 +1,10 @@
 package graphEngine;
 
+import common.Components;
 import nodeParser.NodeMatch;
 import nodeParser.Parser;
 import org.apache.commons.lang3.time.StopWatch;
 import org.neo4j.graphdb.*;
-import queryCompiler.Compiler;
-import queryCompiler.Vertex;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -30,10 +29,7 @@ class Computer implements Runnable {
     private final SCLabeler labeler;
     private final SCSystemHandler handler;
 
-    private Hashtable<String, Vertex> matchingGraphs = new Hashtable<>();
     private Hashtable<String, NodeMatch> nodeMatches = new Hashtable<>();
-
-    private Compiler compiler = new Compiler();
 
     Computer(GraphDatabaseService db) {
         this.db = db;
@@ -41,24 +37,6 @@ class Computer implements Runnable {
 
         this.handler = new SCSystemHandler();
         this.labeler = new SCLabeler();
-    }
-
-    /**
-     * Returns the compiled graph for the given query.
-     * Checks first for a version in memory else compiles it and adds it
-     * to the collection.
-     * @param query Cypher style query for matching (root node <strong>must</strong>
-     *              have key 'n').
-     * @return {@link Vertex} for root of graph
-     */
-    Vertex getMatchingGraph(String query) {
-        if (matchingGraphs.containsKey(query))
-            return matchingGraphs.get(query);
-        else {
-            Vertex vertex = compiler.compile(query);
-            matchingGraphs.put(query, vertex);
-            return vertex;
-        }
     }
 
     NodeMatch getNodeMatch(String query) {

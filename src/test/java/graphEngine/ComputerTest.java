@@ -1,5 +1,7 @@
 package graphEngine;
 
+import common.Components;
+import common.TestGraphQueries;
 import org.apache.commons.lang3.time.StopWatch;
 import org.junit.Rule;
 import org.junit.Test;

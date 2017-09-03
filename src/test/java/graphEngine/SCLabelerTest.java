@@ -1,5 +1,7 @@
 package graphEngine;
 
+import common.Components;
+import common.TestGraphQueries;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -10,7 +12,6 @@ import org.neo4j.driver.v1.Session;
 import org.neo4j.graphdb.*;
 import org.neo4j.harness.junit.Neo4jRule;
 
-import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -338,19 +339,5 @@ public class SCLabelerTest {
             tx.success();
             tx.close();
         }
-    }
-
-//    @Test
-//    public void recursiveTest() {
-//        recursiveTest(new LinkedList<>());
-//    }
-
-    private static void recursiveTest(List<String> list) {
-        if (list.size() == 3)
-            return;
-        System.out.println("before: " + list);
-        list.add("a");
-        recursiveTest(list);
-        System.out.println("after: " + list);
     }
 }

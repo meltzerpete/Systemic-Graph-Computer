@@ -1,5 +1,6 @@
 package graphEngine;
 
+import common.Components;
 import org.apache.commons.lang3.ArrayUtils;
 import org.neo4j.graphdb.*;
 
@@ -7,7 +8,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-import static graphEngine.Components.*;
+import static common.Components.*;
 
 /**
  * Created by Pete Meltzer on 11/07/17.
