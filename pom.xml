@@ -53,14 +53,6 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- GraphAware for testing with GraphUnit -->
-    <dependency>
-      <groupId>com.graphaware.neo4j</groupId>
-      <artifactId>tests</artifactId>
-      <version>2.0.3.5</version>
-      <scope>test</scope>
-    </dependency>
-
     <dependency>
       <groupId>com.sun</groupId>
       <artifactId>tools</artifactId>
