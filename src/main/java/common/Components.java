@@ -41,4 +41,12 @@ public class Components {
     public static final String data = "data";
     public static final String function = "function";
 
+    // for selection model
+    public static final String distributionA = "fDistA";
+    public static final String distributionB = "fDistB";
+
+    public static final Label FITTEST = Label.label("fittest");
+
+    public static final String selection = "prob";
+
 }
