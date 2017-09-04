@@ -1,6 +1,6 @@
 package probability;
 
-import graphEngine.Components;
+import common.Components;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 

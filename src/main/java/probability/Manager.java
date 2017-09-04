@@ -1,6 +1,6 @@
 package probability;
 
-import graphEngine.Components;
+import common.Components;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.neo4j.graphdb.*;
