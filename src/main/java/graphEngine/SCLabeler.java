@@ -198,7 +198,6 @@ abstract class SCLabeler {
 
         db.getAllNodes().stream().filter(node -> node.hasLabel(Components.SCOPE))
                 .forEach(this::createFitsInScope);
-//        db.findNodes(Components.SCOPE).stream().forEach(this::createFitsInScope);
     }
 
     /**
@@ -209,7 +208,6 @@ abstract class SCLabeler {
 
         db.getAllNodes().stream().filter(node -> node.hasLabel(Components.SCOPE))
                 .forEach(this::labelReadyInScope);
-//        db.findNodes(Components.SCOPE).stream().forEach(this::labelReadyInScope);
     }
 
     /**
@@ -248,10 +246,8 @@ abstract class SCLabeler {
                     && rels2.stream().anyMatch(rel2 -> nodesInScope.contains(rel2.getEndNode()));
         });
 
-//        System.out.println("Labelling READY in " + scope.getProperty("key"));
         readyContexts.forEach(context -> {
             context.addLabel(Components.READY);
-//            System.out.println(context.getProperty("key"));
             if (context.hasProperty(Components.readyContextScopeID)) {
                 long[] ids = (long[]) context.getProperty(Components.readyContextScopeID);
                 if (!ArrayUtils.contains(ids, scope.getId())) {

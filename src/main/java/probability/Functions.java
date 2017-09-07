@@ -23,10 +23,6 @@ class Functions {
 
     private final BiConsumer<Node,Node>[] functions;
 
-    // extra labels
-    final Label INITIALIZED = Label.label("Initialized");
-    final Label UNINITIALIZED = Label.label("Uninitialized");
-
     private final int W = 80;
     private final int[] w = {15,20,1,3,8,2,16,17,11,19,10,5,18,4,7,9};
     private final int[] v = {20,14,12,9,5,17,7,6,1,11,4,19,13,2,15,3};

@@ -3,13 +3,12 @@
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.neo4j.example</groupId>
-  <artifactId>procedure-template</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <groupId>org.meltzer</groupId>
+  <artifactId>systemicGraphComputer</artifactId>
+  <version>1.0.0</version>
 
   <packaging>jar</packaging>
-  <key>Neo4j Procedure Template</key>
-  <description>A template project for building a Neo4j Procedure</description>
+  <description>A set of experimental procedures for executing systemic graph programs.</description>
 
   <properties>
     <neo4j.version>3.2.1</neo4j.version>

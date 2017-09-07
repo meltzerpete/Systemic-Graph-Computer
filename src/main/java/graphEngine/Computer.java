@@ -16,7 +16,7 @@ import java.util.Locale;
 /**
  * Created by Pete Meltzer on 11/07/17.
  */
-class Computer implements Runnable {
+class Computer {
 
     public int maxInteractions = 10000;
 
@@ -95,21 +95,6 @@ class Computer implements Runnable {
             e.printStackTrace();
         }
     }
-
-//    private boolean check() {
-//        Transaction checkTx = db.beginTx();
-//        try {
-//            boolean check = db.getAllLabels().stream().anyMatch(label -> label.equals(Components.READY));
-//            checkTx.success();
-//            checkTx.close();
-//            return check;
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//            checkTx.failure();
-//            checkTx.close();
-//            return false;
-//        }
-//    }
 
     void compute(int maxInteractions) {
         fine = false;
@@ -272,11 +257,6 @@ class Computer implements Runnable {
                 System.out.println("Failed to acquire locks");
 //                ex.printStackTrace();
                 functionTx.failure();
-            } finally {
-//                System.out.println("Success!");
-//                String state = db.execute(TestGraphQueries.viewGraph).resultAsString();
-//                System.out.println(state);
-                functionTx.close();
             }
 
             if (count % 100 == 0) System.out.println(String.format("%,d interactions...", count));
@@ -296,15 +276,6 @@ class Computer implements Runnable {
 
     SCSystemHandler getHandler() {
         return handler;
-    }
-
-    @Override
-    public void run() {
-//        Transaction t = db.beginTx();
-//        System.out.println(db.execute(TestGraphQueries.viewGraph).resultAsString());
-//        compute(this.maxInteractions);
-        //        t.success();
-//        t.close();
     }
 
     private class SCSystemHandler extends graphEngine.SCSystemHandler {

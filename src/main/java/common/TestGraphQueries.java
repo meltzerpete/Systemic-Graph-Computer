@@ -16,11 +16,6 @@ public class TestGraphQueries {
     @Context
     public GraphDatabaseService db;
 
-    @Context
-    public Log log;
-
-//    private TestGraphQueries(){};
-
     public static String basicSubtraction =
             "CREATE (main:System:SCOPE {key:'main'})," +
                     "(print:System:CONTEXT {key:'print', function:'print'})," +
