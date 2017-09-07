@@ -51,7 +51,7 @@ public class Execute {
                     ));
 
                     System.out.println("Loading program...");
-                    // create program
+                    // clear database and create program
                     LoadGraphTask gLoader = new LoadGraphTask(db, noOfDataSystems[n]);
                     Thread graphThread = new Thread(gLoader);
                     graphThread.start();
@@ -69,8 +69,6 @@ public class Execute {
                     writer.newLine();
 
                     writer.flush();
-
-                    db.execute("match (n) detach delete n;");
                 }
 
                 writer.newLine();

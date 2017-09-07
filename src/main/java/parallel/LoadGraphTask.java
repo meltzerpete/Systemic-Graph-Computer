@@ -20,6 +20,7 @@ public class LoadGraphTask implements Runnable {
     @Override
     public void run() {
         try (Transaction tx = db.beginTx()) {
+            db.execute("match (n) detach delete n;");
             TestGraphQueries.knapsack(db, numDataSystems);
             tx.success();
         }
