@@ -2,7 +2,7 @@
 
 This project comprises three implementations of a Systemic Graph Computer.
 
-The Systemic Graph Computer demonstrates a mdoel of nature inspired computation in the environment of a graph database.
+The Systemic Graph Computer demonstrates a model of nature inspired computation in the environment of a graph database.
 
 - Version I - a proof of concept
 - Version II - a multithreaded implementation
