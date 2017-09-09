@@ -82,6 +82,7 @@ abstract class SCSystemHandler {
 
     /**
      * Selects a random context {@link Node} with the READY {@link Label}.
+     * @throws NoMoreReadysException if none can be found
      * @return Randomly selected READY {@link Node}
      */
     Node getRandomReady() throws NoMoreReadysException {
@@ -99,6 +100,7 @@ abstract class SCSystemHandler {
     /**
      * Selectes a random SCHEMA_1 matching {@link Node} for the given context and within the given scope.
      * @param context Context {@link Node} for which to find a match
+     * @param scope Scope {@link Node} in which to get an s1 system
      * @return Randomly selected SCHEMA_1 matching {@link Node}
      */
     private Node getRandomS1(Node context, Node scope) {
@@ -114,7 +116,8 @@ abstract class SCSystemHandler {
     /**
      * Selectes a random SCHEMA_2 matching {@link Node} for the given context.
      * @param context Context {@link Node} for which to find a match
-     * @param s1
+     * @param scope Scope {@link Node} in which to get an s1 system
+     * @param s1 s1 system that has already been returned
      * @return Randomly selected SCHEMA_1 matching {@link Node}
      */
     private Node getRandomS2(Node context, Node scope, Node s1) {

@@ -27,8 +27,8 @@ public class PropertyPair<T> {
 
     /**
      * Creates a new PropertyPair from a String key and object value.
-     * @param key
-     * @param value
+     * @param key property key
+     * @param value property value
      */
     public PropertyPair(String key, T value) {
 

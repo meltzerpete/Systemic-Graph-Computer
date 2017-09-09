@@ -129,7 +129,7 @@ class Computer {
      * BufferedPrintWriter to record timings to file.
      * @param maxInteractions the maximum desired number of interactions.
      * @param writer the BufferedPrintWriter for output of timings.
-     * @throws IOException
+     * @throws IOException thrown by BufferedWriter
      */
     void compute(int maxInteractions, BufferedWriter writer) throws IOException {
 
