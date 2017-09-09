@@ -19,6 +19,9 @@ import static org.neo4j.procedure.Mode.SCHEMA;
 
 /**
  * Created by Pete Meltzer on 11/07/17.
+ * <p>All experiment procedures and some additional procedures
+ * for debugging. Each may be called from the cypher-shell or
+ * browser interface.</p>
  */
 public class Execute {
 

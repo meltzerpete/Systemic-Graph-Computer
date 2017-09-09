@@ -2,6 +2,7 @@ package nodeParser;
 
 /**
  * Created by Pete Meltzer on 25/07/17.
+ * <p>Used by the Tokenizer/Parser for labelling of tokens.</p>
  */
 public class Token {
     public final Tokens token;

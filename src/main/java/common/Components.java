@@ -5,6 +5,8 @@ import org.neo4j.graphdb.RelationshipType;
 
 /**
  * Created by Pete Meltzer on 11/07/17.
+ * <p>All constants used for Labels, RelationshipTypes and Property names.</p>
+ * <p>Used by all three implementations.</p>
  */
 public class Components {
     private Components(){}

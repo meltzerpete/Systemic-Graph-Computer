@@ -10,6 +10,10 @@ import java.util.function.BiConsumer;
 
 /**
  * Created by Pete Meltzer on 06/08/17.
+ * <p>All transformations functions are stored here.</p>
+ * <p>All details for the Knapsack problem are also set here.
+ * W is the maximum wieght, w the array of all pack weights, and
+ * v the corresponding array of all pack values.</p>
  */
 class Functions {
 

@@ -7,7 +7,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.neo4j.graphdb.*;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -25,6 +24,8 @@ import java.util.stream.Stream;
 
 /**
  * Created by Pete Meltzer on 05/08/17.
+ * <p>Main control logic for preProcessing and launching threads.</p>
+ * <p>All shared data for the Producers and Consumers is stored here.</p>
  */
 public class Manager {
 
@@ -51,6 +52,14 @@ public class Manager {
     volatile StringBuilder timingLog = new StringBuilder();
 
 
+    /**
+     * Instantiates Manager with finer control over variables.
+     * @param MAX_INTERACTIONS maximum desired number of interactions
+     * @param QUEUE_SIZE size of queue
+     * @param NO_OF_CONSUMERS number of consumers
+     * @param NO_OF_PRODUCERS number of producers
+     * @param db GraphDatabaseService
+     */
     public Manager(int MAX_INTERACTIONS, int QUEUE_SIZE, int NO_OF_CONSUMERS, int NO_OF_PRODUCERS, GraphDatabaseService db) {
         this.NO_OF_CONSUMERS = NO_OF_CONSUMERS;
         this.NO_OF_PRODUCERS = NO_OF_PRODUCERS;
@@ -62,6 +71,16 @@ public class Manager {
         upCounter = new AtomicInteger(0);
     }
 
+    /**
+     * Instantiates Manager with default values:
+     * <ul>
+     *     <li>queue size - 20</li>
+     *     <li>no. of consumers - 200</li>
+     *     <li>no. of producers - 2</li>
+     * </ul>
+     * @param MAX_INTERACTIONS maximum desired number of interactions
+     * @param db GraphDatabaseService
+     */
     public Manager(int MAX_INTERACTIONS, GraphDatabaseService db) {
 
         this(MAX_INTERACTIONS,
@@ -83,6 +102,10 @@ public class Manager {
         return relationships.stream().map(Relationship::getStartNode);
     }
 
+    /**
+     * Main execution cycle. Sets up all shared data structures and
+     * launches all threads.
+     */
     public void go() {
 
         try (Transaction tx = db.beginTx()) {
@@ -196,6 +219,9 @@ public class Manager {
         }
     }
 
+    /**
+     * Used for debugging only.
+     */
     // for debugging
     void printQueue() {
         int pos = 0;
@@ -204,6 +230,13 @@ public class Manager {
         });
     }
 
+    /**
+     * Checks a NodeMatch object against a target Node from the DB.
+     * @param queryNode NodeMatch for query
+     * @param targetNode target Node
+     * @return true if target contains all Labels and property pairs
+     * of NodeMAtch object, false otherwise
+     */
     boolean matchNode(NodeMatch queryNode, Node targetNode) {
 
         // check labels

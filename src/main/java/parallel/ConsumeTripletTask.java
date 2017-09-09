@@ -5,15 +5,25 @@ import org.neo4j.graphdb.Transaction;
 
 /**
  * Created by Pete Meltzer on 05/08/17.
+ * <p>The Consumer implementation for parallel execution
+ *  - takes triplets from the queue, checks they still match
+ *  and performs the transformations.</p>
  */
 public class ConsumeTripletTask implements Runnable {
 
     private final Manager manager;
 
+    /**
+     * Instantiates a new ConsumeTripletTask.
+     * @param manager An instance of the Manager.
+     */
     public ConsumeTripletTask(Manager manager) {
         this.manager = manager;
     }
 
+    /**
+     * Main execution cycle.
+     */
     @Override
     public void run() {
         long s1ID;

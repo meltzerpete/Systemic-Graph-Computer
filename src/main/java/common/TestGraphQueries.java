@@ -10,6 +10,13 @@ import org.neo4j.procedure.Procedure;
 
 /**
  * Created by pete on 05/07/17.
+ * <p>All graph programs used in testing.</p>
+ * <p>The strings may be executed directly as Cypher queries,
+ * using db.execute('string') or session.run('string').
+ * The methods may be called directly, given the appropriate
+ * GraphDatabaseService. The procedures may be called from the
+ * cypher-shell or browser interface using the value given in the
+ * '@Procedure' annotation.</p>
  */
 public class TestGraphQueries {
 

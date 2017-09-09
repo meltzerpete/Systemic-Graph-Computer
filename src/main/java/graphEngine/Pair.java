@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 
 /**
  * Created by Pete Meltzer on 15/07/17.
+ * <p>Composition of a pair of Nodes.</p>
  */
 public class Pair {
     Node s1;
@@ -18,6 +19,10 @@ public class Pair {
         return "[s1: " + s1String + ", s2: " + s2String + "]";
     }
 
+    /**
+     * Returns the pair of Nodes as a stream.
+     * @return Pair of Nodes as a Stream
+     */
     public Stream<Node> getAll() {
         return Stream.of(s1, s2);
     }

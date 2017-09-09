@@ -12,8 +12,12 @@ import java.util.stream.Stream;
 
 /**
  * Created by Pete Meltzer on 11/07/17.
+ * <p>Handles all automatic creation of FITS Relationships
+ * and Labeling of READY Contexts.</p>
  *
- * Handles all automatic creation of FITS Relationships and Labeling of READY Contexts.
+ * <p>This class may not be instantiated directly, but should
+ * be requested from the Computer class that initializes it
+ * correctly.</p>
  */
 abstract class SCLabeler {
 
@@ -21,6 +25,11 @@ abstract class SCLabeler {
     private GraphDatabaseService db;
     boolean debug = false;
 
+    /**
+     * Used only by extending classes to initialize the class correctly.
+     * @param comp Instance of the Computer object
+     * @param db GraphDatabaseService
+     */
     SCLabeler(Computer comp, GraphDatabaseService db) {
         this.comp = comp;
         this.db = db;
@@ -117,6 +126,12 @@ abstract class SCLabeler {
         });
     }
 
+    /**
+     * Creates all FITS relationships for a single given Node by
+     * matchign against all context systems contained in the same
+     * scope(s).
+     * @param target Node
+     */
     void createFitsForTarget(Node target) {
         SCSystemHandler handler = comp.getHandler();
         Set<Node> targetScopes = Iterators.asSet(handler.getParentScopes(target).iterator());

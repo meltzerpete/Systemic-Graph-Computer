@@ -8,13 +8,21 @@ import java.util.Locale;
 
 /**
  * Created by Pete Meltzer on 11/07/17.
+ * <p>All transformations functions are stored here.</p>
+ * <p>All details for the Knapsack problem are also set here.
+ * W is the maximum wieght, w the array of all pack weights, and
+ * v the corresponding array of all pack values.</p>
+ * <p>Each enum entry must provide implementation for the perform
+ * function. If the function affects either s1 or s2's parent scope
+ * membership, the affectsS1parentScope() and/or
+ * affectsS2parentScope() must also be overriden to return {@code true}.</p>
  */
 enum Function {
 
     NOP {
         @Override
         void perform(Node context, Node s1, Node s2) {
-            //TODO NOP()
+            //do nothing
         }
     },
 
@@ -69,7 +77,6 @@ enum Function {
         @Override
         void perform(Node context, Node s1, Node s2) {
 
-            //TODO swap for adding to return output
             System.out.println(String.format(Locale.UK,
                         "********************PRINT********************\n" +
                                 "* s1: %-38s*\n" +
@@ -197,16 +204,31 @@ enum Function {
         }
     };
 
-    //TODO add remaining functions
-
+    /**
+     * All functions added as enum entries must override this method
+     * to provide an implementation.
+     * @param context the context Node
+     * @param s1 s1 Node
+     * @param s2 s2 Node
+     */
     // all functions must provide an implementation of the perform method according to the following contract
     abstract void perform(Node context, Node s1, Node s2);
 
+    /**
+     * Override this method if the transformation function affects
+     * the parent scope of S1.
+     * @return true if scope membership affected, false if not
+     */
     // any function that changes the parent scope membership of either system must override either/both of the following to return true
     boolean affectsS1parentScopes() {
         return false;
     }
 
+    /**
+     * Override this method if the transformation function affects
+     * the parent scope of S2.
+     * @return true if scope membership affected, false if not
+     */
     boolean affectsS2parentScopes() {
         return false;
     }
@@ -215,6 +237,11 @@ enum Function {
     int[] w = {15,20,1,3,8,2,16,17,11,19,10,5,18,4,7,9};
     int[] v = {20,14,12,9,5,17,7,6,1,11,4,19,13,2,15,3};
 
+    /**
+     * Calculates the fitness (i.e. the value) of the solution.
+     * @param x the solution
+     * @return value
+     */
     int fitness(char x) {
 
         int value = 0;
@@ -228,6 +255,11 @@ enum Function {
         return value;
     }
 
+    /**
+     * Caculates the weight of a solution.
+     * @param x the solution
+     * @return weight
+     */
     int weight(char x) {
 
         int value = 0;
@@ -241,6 +273,12 @@ enum Function {
         return value;
     }
 
+    /**
+     * Randomly removes packs from the solution until the
+     * weight is less than or equal to the maximum
+     * @param x potentially illegal solution
+     * @return legal solution
+     */
     char guard(char x) {
 
         while (weight(x) > W) {

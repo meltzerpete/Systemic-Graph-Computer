@@ -9,7 +9,7 @@ import static nodeParser.Tokens.*;
 
 /**
  * Created by Pete Meltzer on 25/07/17.
- * http://cogitolearning.co.uk/?p=573
+ * <p>Based on code taken from <a href="http://cogitolearning.co.uk/?p=573">http://cogitolearning.co.uk/?p=573</a></p>
  */
 public class Parser {
 
@@ -20,6 +20,12 @@ public class Parser {
     private LinkedList<Label> labels = new LinkedList<>();
     private LinkedList<PropertyPair> properties = new LinkedList<>();
 
+    /**
+     * Sets up Tokenizer and Parser.
+     * Parses the query String and returns the NodeMatch object.
+     * @param queryString NodeMatch query string
+     * @return NodeMatch object
+     */
     public NodeMatch parse(String queryString) {
 
         tokenizer = new Tokenizer();

@@ -9,36 +9,44 @@ import org.neo4j.graphdb.*;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.Hashtable;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
 
 /**
  * Created by Pete Meltzer on 11/07/17.
+ * <p>Version I - fully sequential, all state stored in DB.</p>
+ * <p>After instantiation, the preProcess() method must be called first,
+ * followed by the compute() method.</p>
  */
 class Computer {
-
-    public int maxInteractions = 10000;
 
     private boolean fine = true;
     private boolean optimized = true;
 
     final GraphDatabaseService db;
-    private List<Result> output;
 
     private final SCLabeler labeler;
     private final SCSystemHandler handler;
 
     private Hashtable<String, NodeMatch> nodeMatches = new Hashtable<>();
 
+    /**
+     * Instantiate a new Computer (SC1)
+     * @param db GraphDatabaseService
+     */
     Computer(GraphDatabaseService db) {
         this.db = db;
-        this.output = new LinkedList<>();
 
         this.handler = new SCSystemHandler();
         this.labeler = new SCLabeler();
     }
 
+    /**
+     * Checks the cache for the NodeMatch object representing the given query string.
+     * If it's not in the cache, the string is parsed and the object is inserted to
+     * the cache and returned.
+     * @param query query string for NodeMatch
+     * @return NodeMatch representing the query string
+     */
     NodeMatch getNodeMatch(String query) {
         if (nodeMatches.containsKey(query))
             return nodeMatches.get(query);
@@ -50,6 +58,10 @@ class Computer {
         }
     }
 
+    /**
+     * Parses all NodeMatch query strings and stores them in the cache.
+     * Creates all FITS relationships and READY Labels in the DB.
+     */
     void preProcess() {
 
         /* -- Compile matchingGraphs -- */
@@ -96,6 +108,11 @@ class Computer {
         }
     }
 
+    /**
+     * Performs computation until no more appropriate triplets may be found
+     * or the maximum number of interactions is reached.
+     * @param maxInteractions the maximum desired number of interactions.
+     */
     void compute(int maxInteractions) {
         fine = false;
         try {
@@ -106,6 +123,14 @@ class Computer {
 
     }
 
+    /**
+     * Performs computation until no more appropriate triplets may be found
+     * or the maximum number of interactions is reached. Also takes a
+     * BufferedPrintWriter to record timings to file.
+     * @param maxInteractions the maximum desired number of interactions.
+     * @param writer the BufferedPrintWriter for output of timings.
+     * @throws IOException
+     */
     void compute(int maxInteractions, BufferedWriter writer) throws IOException {
 
 
@@ -245,7 +270,6 @@ class Computer {
 
                 count++;
 
-                //TODO amend exception types
             } catch (NoMoreReadysException e) {
                 // no ready systems - terminate program by exiting loop
                 functionTx.success();
@@ -270,10 +294,18 @@ class Computer {
         System.out.println(String.format("Execution time: %,d x10e-9 s", timer.getNanoTime()));
     }
 
+    /**
+     * Returns the SCLabeler.
+     * @return SCLabeler
+     */
     SCLabeler getLabeler() {
         return labeler;
     }
 
+    /**
+     * Returns the SCSystemHandler.
+     * @return SCSystemHandler
+     */
     SCSystemHandler getHandler() {
         return handler;
     }

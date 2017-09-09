@@ -12,11 +12,20 @@ import static common.Components.*;
 
 /**
  * Created by Pete Meltzer on 11/07/17.
+ * <p>All auxiliary functions for getting Nodes from the DB.</p>
+ *
+ * <p>This class may not be instantiated directly, but should
+ * be requested from the Computer class that initializes it
+ * correctly.</p>
  */
 abstract class SCSystemHandler {
 
     private GraphDatabaseService db;
 
+    /**
+     * Used only by extending classes to initialize the class correctly.
+     * @param db GraphDatabaseService
+     */
     SCSystemHandler(GraphDatabaseService db) {
         this.db = db;
     }
@@ -132,9 +141,12 @@ abstract class SCSystemHandler {
         return relationships.stream().map(Relationship::getStartNode);
     }
 
+    /**
+     * Get a random pair of nodes that are ready for interaction in this context.
+     * @param readyContext context Node
+     * @return Pair of Nodes
+     */
     Pair getRandomPair(Node readyContext) {
-
-        //TODO filter here according to readyContext scopeID property
 
         Long[] idArray = ArrayUtils.toObject((long[]) readyContext.getProperty(Components.readyContextScopeID));
         HashSet<Long> idSet = new HashSet<>(Arrays.asList(idArray));
@@ -149,7 +161,6 @@ abstract class SCSystemHandler {
                 readyPair.s2 = getRandomS2(readyContext, scope, readyPair.s1);
                 pairs.add(readyPair);
             } catch (NoSuchElementException e) {
-                //TODO remove print - swap to logger
                 e.printStackTrace();
                 System.out.println(e.getClass());
                 System.out.println(e.getMessage());

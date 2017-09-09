@@ -8,15 +8,23 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by Pete Meltzer on 05/08/17.
+ * <p>The Producer implementation for parallel execution
+ *  - searches for matching triplets and inserts them into the queue.</p>
  */
 public class ProduceTripletTask implements Runnable {
 
+    /**
+     * @param manager Instantiated Manager object
+     */
     public ProduceTripletTask(Manager manager) {
         this.manager = manager;
     }
 
     private final Manager manager;
 
+    /**
+     * Main execution cycle.
+     */
     @Override
     @SuppressWarnings("unchecked cast")
     public void run() {
